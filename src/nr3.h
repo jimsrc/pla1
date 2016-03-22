@@ -63,7 +63,7 @@ inline float SIGN(const double &a, const float &b)
 template<class T>
 inline void SWAP(T &a, T &b)
 	{T dum=a; a=b; b=dum;}
-
+/*      // looks it doesnt like to cython :|
 // exception handling
 
 #ifndef _USENRERRORCLASS_
@@ -82,7 +82,9 @@ void NRcatch(NRerror err) {
 		err.message, err.file, err.line);
 	exit(1);
 }
-#endif
+#endif // _USENRERRORCLASS_
+*/
+
 
 // usage example:
 //
@@ -391,6 +393,8 @@ NRmatrix<T>::~NRmatrix()
 	}
 }
 
+
+/*
 template <class T>
 class NRMat3d {
 private:
@@ -465,7 +469,7 @@ NRMat3d<T>::~NRMat3d()
 		delete[] (v);
 	}
 }
-
+*/
 
 // basic type names (redefine if your bit lengths don't match)
 
@@ -535,6 +539,7 @@ typedef NRvector<Complex> VecComplex, VecComplex_O, VecComplex_IO;
 typedef const NRvector<Bool> VecBool_I;
 typedef NRvector<Bool> VecBool, VecBool_O, VecBool_IO;
 
+
 // matrix types
 
 typedef const NRmatrix<Int> MatInt_I;
@@ -561,6 +566,8 @@ typedef NRmatrix<Doub> MatDoub, MatDoub_O, MatDoub_IO;
 typedef const NRmatrix<Bool> MatBool_I;
 typedef NRmatrix<Bool> MatBool, MatBool_O, MatBool_IO;
 
+
+/*
 // 3D matrix types
 
 typedef const NRMat3d<Doub> Mat3DDoub_I;
@@ -578,10 +585,10 @@ struct turn_on_floating_exceptions {
 	}
 };
 turn_on_floating_exceptions yes_turn_on_floating_exceptions;
-#endif /* _MSC_VER */
-#endif /* _TURNONFPES */
-
-#endif /* _NR3_H_ */
+#endif // _MSC_VER 
+#endif // _TURNONFPES 
+*/
+#endif // _NR3_H_ 
 
 //int main(){}      // to test dependecies
 //EOF
