@@ -79,6 +79,7 @@ void FASES::construir_fases_random(PARAMS_SEM sem){
 
 //---------------------------------------- class PARAMS_TURB
 
+//PARAMS_TURB::PARAMS_TURB(): n_modos(10), lambda_min(4.567) { // esto funciona c/cython!!!!
 PARAMS_TURB::PARAMS_TURB(){
 	cout << " ...construyendo PARAMS_TURB *sin* input." << endl;
 }

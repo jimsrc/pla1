@@ -1,6 +1,7 @@
 #ifndef DEFS_TURB_H
 #define DEFS_TURB_H
-//#include "general.h"
+#include "nr3.h"
+#include "general.h"
 /*-------------------------------------------------------*/
 
 class PARAMS_SEM{
@@ -9,6 +10,7 @@ class PARAMS_SEM{
 		~PARAMS_SEM(void) {};
 		long slab[3];
 		long two[2];
+        double a;
 };
 
 /*-------------------------- fases random -------------------------------*/
