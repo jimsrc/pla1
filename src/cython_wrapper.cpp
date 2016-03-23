@@ -600,6 +600,12 @@ static PyObject *__Pyx_GetBuiltinName(PyObject *name);
 static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
     Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
 
+static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
+
+static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[], \
+    PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args, \
+    const char* function_name);
+
 static CYTHON_INLINE int __Pyx_CheckKeywordStrings(PyObject *kwdict, const char* function_name, int kw_allowed);
 
 #if CYTHON_COMPILING_IN_CPYTHON
@@ -607,12 +613,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg
 #else
 #define __Pyx_PyObject_Call(func, arg, kw) PyObject_Call(func, arg, kw)
 #endif
-
-static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
-
-static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[], \
-    PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args, \
-    const char* function_name);
 
 static int __Pyx_SetVtable(PyObject *dict, void *vtable);
 
@@ -753,7 +753,7 @@ int __pyx_module_is_main_cython_wrapper = 0;
 
 /* Implementation of 'cython_wrapper' */
 static PyObject *__pyx_builtin_MemoryError;
-static PyObject *__pyx_pf_14cython_wrapper_run_py(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_x1); /* proto */
+static PyObject *__pyx_pf_14cython_wrapper_run_py(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_x1, double __pyx_v_rig); /* proto */
 static PyObject *__pyx_pf_14cython_wrapper_2c_gamma(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_v); /* proto */
 static int __pyx_pf_14cython_wrapper_4psem___cinit__(struct __pyx_obj_14cython_wrapper_psem *__pyx_v_self); /* proto */
 static void __pyx_pf_14cython_wrapper_4psem_2__dealloc__(struct __pyx_obj_14cython_wrapper_psem *__pyx_v_self); /* proto */
@@ -776,6 +776,7 @@ static char __pyx_k_b[] = "b";
 static char __pyx_k_v[] = "v";
 static char __pyx_k_aa[] = "aa";
 static char __pyx_k_x1[] = "x1";
+static char __pyx_k_rig[] = "rig";
 static char __pyx_k_main[] = "__main__";
 static char __pyx_k_name[] = "name";
 static char __pyx_k_test[] = "__test__";
@@ -802,6 +803,7 @@ static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_n_modos;
 static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_n_s_pyx_vtable;
+static PyObject *__pyx_n_s_rig;
 static PyObject *__pyx_n_s_run_py;
 static PyObject *__pyx_n_s_set_value;
 static PyObject *__pyx_n_s_test;
@@ -816,39 +818,74 @@ static PyObject *__pyx_codeobj__4;
 /* "cython_wrapper.pyx":58
  * 
  * 
- * def run_py(double x1):             # <<<<<<<<<<<<<<
- *     return run(x1)
+ * def run_py(double x1, double rig):             # <<<<<<<<<<<<<<
+ *     return run(x1, rig)
  * 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14cython_wrapper_1run_py(PyObject *__pyx_self, PyObject *__pyx_arg_x1); /*proto*/
-static PyMethodDef __pyx_mdef_14cython_wrapper_1run_py = {"run_py", (PyCFunction)__pyx_pw_14cython_wrapper_1run_py, METH_O, 0};
-static PyObject *__pyx_pw_14cython_wrapper_1run_py(PyObject *__pyx_self, PyObject *__pyx_arg_x1) {
+static PyObject *__pyx_pw_14cython_wrapper_1run_py(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_14cython_wrapper_1run_py = {"run_py", (PyCFunction)__pyx_pw_14cython_wrapper_1run_py, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_14cython_wrapper_1run_py(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   double __pyx_v_x1;
+  double __pyx_v_rig;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("run_py (wrapper)", 0);
-  assert(__pyx_arg_x1); {
-    __pyx_v_x1 = __pyx_PyFloat_AsDouble(__pyx_arg_x1); if (unlikely((__pyx_v_x1 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_x1,&__pyx_n_s_rig,0};
+    PyObject* values[2] = {0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_x1)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        case  1:
+        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rig)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("run_py", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "run_py") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+    }
+    __pyx_v_x1 = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_x1 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_rig = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_rig == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("run_py", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("cython_wrapper.run_py", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14cython_wrapper_run_py(__pyx_self, ((double)__pyx_v_x1));
+  __pyx_r = __pyx_pf_14cython_wrapper_run_py(__pyx_self, __pyx_v_x1, __pyx_v_rig);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14cython_wrapper_run_py(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_x1) {
+static PyObject *__pyx_pf_14cython_wrapper_run_py(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_x1, double __pyx_v_rig) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -859,13 +896,13 @@ static PyObject *__pyx_pf_14cython_wrapper_run_py(CYTHON_UNUSED PyObject *__pyx_
 
   /* "cython_wrapper.pyx":59
  * 
- * def run_py(double x1):
- *     return run(x1)             # <<<<<<<<<<<<<<
+ * def run_py(double x1, double rig):
+ *     return run(x1, rig)             # <<<<<<<<<<<<<<
  * 
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(run(__pyx_v_x1)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 59; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(run(__pyx_v_x1, __pyx_v_rig)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 59; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -874,8 +911,8 @@ static PyObject *__pyx_pf_14cython_wrapper_run_py(CYTHON_UNUSED PyObject *__pyx_
   /* "cython_wrapper.pyx":58
  * 
  * 
- * def run_py(double x1):             # <<<<<<<<<<<<<<
- *     return run(x1)
+ * def run_py(double x1, double rig):             # <<<<<<<<<<<<<<
+ *     return run(x1, rig)
  * 
  */
 
@@ -2399,6 +2436,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_n_modos, __pyx_k_n_modos, sizeof(__pyx_k_n_modos), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
+  {&__pyx_n_s_rig, __pyx_k_rig, sizeof(__pyx_k_rig), 0, 0, 1, 1},
   {&__pyx_n_s_run_py, __pyx_k_run_py, sizeof(__pyx_k_run_py), 0, 0, 1, 1},
   {&__pyx_n_s_set_value, __pyx_k_set_value, sizeof(__pyx_k_set_value), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
@@ -2421,14 +2459,14 @@ static int __Pyx_InitCachedConstants(void) {
   /* "cython_wrapper.pyx":58
  * 
  * 
- * def run_py(double x1):             # <<<<<<<<<<<<<<
- *     return run(x1)
+ * def run_py(double x1, double rig):             # <<<<<<<<<<<<<<
+ *     return run(x1, rig)
  * 
  */
-  __pyx_tuple_ = PyTuple_Pack(2, __pyx_n_s_x1, __pyx_n_s_x1); if (unlikely(!__pyx_tuple_)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple_ = PyTuple_Pack(2, __pyx_n_s_x1, __pyx_n_s_rig); if (unlikely(!__pyx_tuple_)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
-  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_jim_simulacion_pla_stochas, __pyx_n_s_run_py, 58, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_jim_simulacion_pla_stochas, __pyx_n_s_run_py, 58, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
   /* "cython_wrapper.pyx":62
  * 
@@ -2567,8 +2605,8 @@ PyMODINIT_FUNC PyInit_cython_wrapper(void)
   /* "cython_wrapper.pyx":58
  * 
  * 
- * def run_py(double x1):             # <<<<<<<<<<<<<<
- *     return run(x1)
+ * def run_py(double x1, double rig):             # <<<<<<<<<<<<<<
+ *     return run(x1, rig)
  * 
  */
   __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_14cython_wrapper_1run_py, NULL, __pyx_n_s_cython_wrapper); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 58; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -2674,64 +2712,6 @@ static void __Pyx_RaiseArgtupleInvalid(
                  func_name, more_or_less, num_expected,
                  (num_expected == 1) ? "" : "s", num_found);
 }
-
-static CYTHON_INLINE int __Pyx_CheckKeywordStrings(
-    PyObject *kwdict,
-    const char* function_name,
-    int kw_allowed)
-{
-    PyObject* key = 0;
-    Py_ssize_t pos = 0;
-#if CYTHON_COMPILING_IN_PYPY
-    if (!kw_allowed && PyDict_Next(kwdict, &pos, &key, 0))
-        goto invalid_keyword;
-    return 1;
-#else
-    while (PyDict_Next(kwdict, &pos, &key, 0)) {
-        #if PY_MAJOR_VERSION < 3
-        if (unlikely(!PyString_CheckExact(key)) && unlikely(!PyString_Check(key)))
-        #endif
-            if (unlikely(!PyUnicode_Check(key)))
-                goto invalid_keyword_type;
-    }
-    if ((!kw_allowed) && unlikely(key))
-        goto invalid_keyword;
-    return 1;
-invalid_keyword_type:
-    PyErr_Format(PyExc_TypeError,
-        "%.200s() keywords must be strings", function_name);
-    return 0;
-#endif
-invalid_keyword:
-    PyErr_Format(PyExc_TypeError,
-    #if PY_MAJOR_VERSION < 3
-        "%.200s() got an unexpected keyword argument '%.200s'",
-        function_name, PyString_AsString(key));
-    #else
-        "%s() got an unexpected keyword argument '%U'",
-        function_name, key);
-    #endif
-    return 0;
-}
-
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw) {
-    PyObject *result;
-    ternaryfunc call = func->ob_type->tp_call;
-    if (unlikely(!call))
-        return PyObject_Call(func, arg, kw);
-    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
-        return NULL;
-    result = (*call)(func, arg, kw);
-    Py_LeaveRecursiveCall();
-    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
-        PyErr_SetString(
-            PyExc_SystemError,
-            "NULL result without error in PyObject_Call");
-    }
-    return result;
-}
-#endif
 
 static void __Pyx_RaiseDoubleKeywordsError(
     const char* func_name,
@@ -2846,6 +2826,64 @@ invalid_keyword:
 bad:
     return -1;
 }
+
+static CYTHON_INLINE int __Pyx_CheckKeywordStrings(
+    PyObject *kwdict,
+    const char* function_name,
+    int kw_allowed)
+{
+    PyObject* key = 0;
+    Py_ssize_t pos = 0;
+#if CYTHON_COMPILING_IN_PYPY
+    if (!kw_allowed && PyDict_Next(kwdict, &pos, &key, 0))
+        goto invalid_keyword;
+    return 1;
+#else
+    while (PyDict_Next(kwdict, &pos, &key, 0)) {
+        #if PY_MAJOR_VERSION < 3
+        if (unlikely(!PyString_CheckExact(key)) && unlikely(!PyString_Check(key)))
+        #endif
+            if (unlikely(!PyUnicode_Check(key)))
+                goto invalid_keyword_type;
+    }
+    if ((!kw_allowed) && unlikely(key))
+        goto invalid_keyword;
+    return 1;
+invalid_keyword_type:
+    PyErr_Format(PyExc_TypeError,
+        "%.200s() keywords must be strings", function_name);
+    return 0;
+#endif
+invalid_keyword:
+    PyErr_Format(PyExc_TypeError,
+    #if PY_MAJOR_VERSION < 3
+        "%.200s() got an unexpected keyword argument '%.200s'",
+        function_name, PyString_AsString(key));
+    #else
+        "%s() got an unexpected keyword argument '%U'",
+        function_name, key);
+    #endif
+    return 0;
+}
+
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw) {
+    PyObject *result;
+    ternaryfunc call = func->ob_type->tp_call;
+    if (unlikely(!call))
+        return PyObject_Call(func, arg, kw);
+    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
+        return NULL;
+    result = (*call)(func, arg, kw);
+    Py_LeaveRecursiveCall();
+    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
+        PyErr_SetString(
+            PyExc_SystemError,
+            "NULL result without error in PyObject_Call");
+    }
+    return result;
+}
+#endif
 
 static int __Pyx_SetVtable(PyObject *dict, void *vtable) {
 #if PY_VERSION_HEX >= 0x02070000

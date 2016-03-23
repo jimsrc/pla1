@@ -9,8 +9,11 @@ jim::jim(){
 }
 
 
-int run(double x1){
+int run(double x1, double rigidity){
     double aux=2.0;
+    scl.build(rigidity);
+    printf(" scl.vel: %g\n", scl.vel);
+
     return int(x1*aux);
 }
 

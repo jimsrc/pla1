@@ -26,7 +26,7 @@ cdef extern from "tt.h":
         int b
         double aa
     
-    int run(double x1)
+    int run(double x1, double rigidity)
 
 cdef extern from "defs_turb.h":
     cpdef cppclass PARAMS_SEM:
@@ -55,8 +55,8 @@ from cpython cimport PyObject, Py_INCREF
 #np.import_array()
 
 
-def run_py(double x1):
-    return run(x1)
+def run_py(double x1, double rig):
+    return run(x1, rig)
 
 
 def c_gamma(double v):

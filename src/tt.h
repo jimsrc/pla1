@@ -15,7 +15,7 @@ class jim{
         double h1, h2;
 };
 
-
-int run(double x1);
+extern ESCALAS scl;
+int run(double x1, double rigidity);
 
 #endif // TT_H 
