@@ -11,15 +11,6 @@
 extern ESCALAS scl;
 
 
-class jjj{
-    public:
-        jjj();
-        int a, b;
-    private:
-        int aa;
-};
-jjj::jjj(){};
-
 int run_orbit(double *y_init, double x1, double x2){
 	const Int nvar=6;		// nmbr of y-variables
 	VecDoub ystart(nvar);		// allocate initial x, y[0, 1] values

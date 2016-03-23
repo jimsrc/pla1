@@ -17,9 +17,12 @@ extern ESCALAS scl;
 // recibe una velocidad adimensionalizada
 // TODO: convertir esto en inline o macro!
 double calc_gamma(double v){
+    printf(" --> v: %g\n", v); //scl.build(1e9);
 	double beta, gamma;
+    printf(" --> scl.vel: %g\n", scl.vel);
 	beta = v*scl.vel / clight;
 	gamma = pow(1. - beta*beta, -.5);
+    printf(" --> gamma: %g\n", gamma);
 	return gamma;
 }
 

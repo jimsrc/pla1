@@ -22,6 +22,6 @@ void ESCALAS::build(const double RIGIDITY){
     rl      = vel / wc;                                     // [cm]
 }
 
-//ESCALAS scl;    // global instance
+ESCALAS scl;    // global instance
 
 #endif //GENERAL_CC

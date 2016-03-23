@@ -4,6 +4,7 @@
 {
     "distutils": {
         "depends": [
+            "funcs.h", 
             "tt.h", 
             "defs_turb.h"
         ], 
@@ -265,6 +266,7 @@ class __Pyx_FakeReference {
 #define __PYX_HAVE_API__cython_wrapper
 #include "tt.h"
 #include "defs_turb.h"
+#include "funcs.h"
 #include "string.h"
 #include "stdlib.h"
 #include "stdio.h"
@@ -469,7 +471,7 @@ struct __pyx_obj_14cython_wrapper_psem;
 struct __pyx_obj_14cython_wrapper_pturb;
 struct __pyx_obj_14cython_wrapper_jimmy;
 
-/* "cython_wrapper.pyx":53
+/* "cython_wrapper.pyx":60
  * 
  * 
  * cdef class psem:             # <<<<<<<<<<<<<<
@@ -482,7 +484,7 @@ struct __pyx_obj_14cython_wrapper_psem {
 };
 
 
-/* "cython_wrapper.pyx":74
+/* "cython_wrapper.pyx":81
  * 
  * 
  * cdef class pturb:             # <<<<<<<<<<<<<<
@@ -495,7 +497,7 @@ struct __pyx_obj_14cython_wrapper_pturb {
 };
 
 
-/* "cython_wrapper.pyx":96
+/* "cython_wrapper.pyx":103
  * 
  * 
  * cdef class jimmy:             # <<<<<<<<<<<<<<
@@ -751,6 +753,7 @@ int __pyx_module_is_main_cython_wrapper = 0;
 
 /* Implementation of 'cython_wrapper' */
 static PyObject *__pyx_builtin_MemoryError;
+static PyObject *__pyx_pf_14cython_wrapper_c_gamma(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_v); /* proto */
 static int __pyx_pf_14cython_wrapper_4psem___cinit__(struct __pyx_obj_14cython_wrapper_psem *__pyx_v_self); /* proto */
 static void __pyx_pf_14cython_wrapper_4psem_2__dealloc__(struct __pyx_obj_14cython_wrapper_psem *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_14cython_wrapper_4psem_3var___get__(struct __pyx_obj_14cython_wrapper_psem *__pyx_v_self); /* proto */
@@ -769,21 +772,28 @@ static PyObject *__pyx_tp_new_14cython_wrapper_pturb(PyTypeObject *t, PyObject *
 static PyObject *__pyx_tp_new_14cython_wrapper_jimmy(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static char __pyx_k_a[] = "a";
 static char __pyx_k_b[] = "b";
+static char __pyx_k_v[] = "v";
 static char __pyx_k_aa[] = "aa";
 static char __pyx_k_main[] = "__main__";
 static char __pyx_k_name[] = "name";
 static char __pyx_k_test[] = "__test__";
 static char __pyx_k_value[] = "value";
+static char __pyx_k_c_gamma[] = "c_gamma";
 static char __pyx_k_n_modos[] = "n_modos";
 static char __pyx_k_set_value[] = "set_value";
 static char __pyx_k_lambda_min[] = "lambda_min";
 static char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static char __pyx_k_MemoryError[] = "MemoryError";
+static char __pyx_k_cython_wrapper[] = "cython_wrapper";
 static char __pyx_k_Small_Cython_file_to_demonstrat[] = " Small Cython file to demonstrate the use of PyArray_SimpleNewFromData\nin Cython to create an array from already allocated memory.\n\nCython enables mixing C-level calls and Python-level calls in the same\nfile with a Python-like syntax and easy type cohersion. See \nhttp://cython.org for more information\n";
+static char __pyx_k_home_jim_simulacion_pla_stochas[] = "/home/jim/simulacion/pla_stochastic/composite_turbulence/single_orbits/src/cython_wrapper.pyx";
 static PyObject *__pyx_n_s_MemoryError;
 static PyObject *__pyx_n_s_a;
 static PyObject *__pyx_n_s_aa;
 static PyObject *__pyx_n_s_b;
+static PyObject *__pyx_n_s_c_gamma;
+static PyObject *__pyx_n_s_cython_wrapper;
+static PyObject *__pyx_kp_s_home_jim_simulacion_pla_stochas;
 static PyObject *__pyx_n_s_lambda_min;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_n_modos;
@@ -791,9 +801,89 @@ static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_set_value;
 static PyObject *__pyx_n_s_test;
+static PyObject *__pyx_n_s_v;
 static PyObject *__pyx_n_s_value;
+static PyObject *__pyx_tuple_;
+static PyObject *__pyx_codeobj__2;
 
-/* "cython_wrapper.pyx":57
+/* "cython_wrapper.pyx":56
+ * 
+ * 
+ * def c_gamma(double v):             # <<<<<<<<<<<<<<
+ *     return calc_gamma(v)
+ * 
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_14cython_wrapper_1c_gamma(PyObject *__pyx_self, PyObject *__pyx_arg_v); /*proto*/
+static PyMethodDef __pyx_mdef_14cython_wrapper_1c_gamma = {"c_gamma", (PyCFunction)__pyx_pw_14cython_wrapper_1c_gamma, METH_O, 0};
+static PyObject *__pyx_pw_14cython_wrapper_1c_gamma(PyObject *__pyx_self, PyObject *__pyx_arg_v) {
+  double __pyx_v_v;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("c_gamma (wrapper)", 0);
+  assert(__pyx_arg_v); {
+    __pyx_v_v = __pyx_PyFloat_AsDouble(__pyx_arg_v); if (unlikely((__pyx_v_v == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 56; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("cython_wrapper.c_gamma", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_14cython_wrapper_c_gamma(__pyx_self, ((double)__pyx_v_v));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_14cython_wrapper_c_gamma(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_v) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("c_gamma", 0);
+
+  /* "cython_wrapper.pyx":57
+ * 
+ * def c_gamma(double v):
+ *     return calc_gamma(v)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = PyFloat_FromDouble(calc_gamma(__pyx_v_v)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 57; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "cython_wrapper.pyx":56
+ * 
+ * 
+ * def c_gamma(double v):             # <<<<<<<<<<<<<<
+ *     return calc_gamma(v)
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("cython_wrapper.c_gamma", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "cython_wrapper.pyx":64
  *     cdef PARAMS_SEM *_thisp
  *     #cdef double aa
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -826,7 +916,7 @@ static int __pyx_pf_14cython_wrapper_4psem___cinit__(struct __pyx_obj_14cython_w
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "cython_wrapper.pyx":58
+  /* "cython_wrapper.pyx":65
  *     #cdef double aa
  *     def __cinit__(self):
  *         self._thisp = new PARAMS_SEM()             # <<<<<<<<<<<<<<
@@ -835,7 +925,7 @@ static int __pyx_pf_14cython_wrapper_4psem___cinit__(struct __pyx_obj_14cython_w
  */
   __pyx_v_self->_thisp = new PARAMS_SEM();
 
-  /* "cython_wrapper.pyx":59
+  /* "cython_wrapper.pyx":66
  *     def __cinit__(self):
  *         self._thisp = new PARAMS_SEM()
  *         if self._thisp == NULL:             # <<<<<<<<<<<<<<
@@ -845,17 +935,17 @@ static int __pyx_pf_14cython_wrapper_4psem___cinit__(struct __pyx_obj_14cython_w
   __pyx_t_1 = ((__pyx_v_self->_thisp == NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "cython_wrapper.pyx":60
+    /* "cython_wrapper.pyx":67
  *         self._thisp = new PARAMS_SEM()
  *         if self._thisp == NULL:
  *             raise MemoryError()             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-    PyErr_NoMemory(); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 60; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    PyErr_NoMemory(); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 67; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "cython_wrapper.pyx":57
+  /* "cython_wrapper.pyx":64
  *     cdef PARAMS_SEM *_thisp
  *     #cdef double aa
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -874,7 +964,7 @@ static int __pyx_pf_14cython_wrapper_4psem___cinit__(struct __pyx_obj_14cython_w
   return __pyx_r;
 }
 
-/* "cython_wrapper.pyx":62
+/* "cython_wrapper.pyx":69
  *             raise MemoryError()
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -898,7 +988,7 @@ static void __pyx_pf_14cython_wrapper_4psem_2__dealloc__(struct __pyx_obj_14cyth
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "cython_wrapper.pyx":63
+  /* "cython_wrapper.pyx":70
  * 
  *     def __dealloc__(self):
  *         if self._thisp != NULL:             # <<<<<<<<<<<<<<
@@ -908,7 +998,7 @@ static void __pyx_pf_14cython_wrapper_4psem_2__dealloc__(struct __pyx_obj_14cyth
   __pyx_t_1 = ((__pyx_v_self->_thisp != NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "cython_wrapper.pyx":64
+    /* "cython_wrapper.pyx":71
  *     def __dealloc__(self):
  *         if self._thisp != NULL:
  *             del self._thisp             # <<<<<<<<<<<<<<
@@ -920,7 +1010,7 @@ static void __pyx_pf_14cython_wrapper_4psem_2__dealloc__(struct __pyx_obj_14cyth
   }
   __pyx_L3:;
 
-  /* "cython_wrapper.pyx":62
+  /* "cython_wrapper.pyx":69
  *             raise MemoryError()
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -932,7 +1022,7 @@ static void __pyx_pf_14cython_wrapper_4psem_2__dealloc__(struct __pyx_obj_14cyth
   __Pyx_RefNannyFinishContext();
 }
 
-/* "cython_wrapper.pyx":67
+/* "cython_wrapper.pyx":74
  * 
  *     property var:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -964,31 +1054,31 @@ static PyObject *__pyx_pf_14cython_wrapper_4psem_3var___get__(struct __pyx_obj_1
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cython_wrapper.pyx":68
+  /* "cython_wrapper.pyx":75
  *     property var:
  *         def __get__(self):
  *             v = {             # <<<<<<<<<<<<<<
  *                 'a': self._thisp.a,
  *             }
  */
-  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 68; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 75; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "cython_wrapper.pyx":69
+  /* "cython_wrapper.pyx":76
  *         def __get__(self):
  *             v = {
  *                 'a': self._thisp.a,             # <<<<<<<<<<<<<<
  *             }
  *             return v
  */
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->_thisp->a); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 69; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->_thisp->a); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 76; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_a, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 68; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_a, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 75; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_v = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "cython_wrapper.pyx":71
+  /* "cython_wrapper.pyx":78
  *                 'a': self._thisp.a,
  *             }
  *             return v             # <<<<<<<<<<<<<<
@@ -1000,7 +1090,7 @@ static PyObject *__pyx_pf_14cython_wrapper_4psem_3var___get__(struct __pyx_obj_1
   __pyx_r = __pyx_v_v;
   goto __pyx_L0;
 
-  /* "cython_wrapper.pyx":67
+  /* "cython_wrapper.pyx":74
  * 
  *     property var:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -1021,7 +1111,7 @@ static PyObject *__pyx_pf_14cython_wrapper_4psem_3var___get__(struct __pyx_obj_1
   return __pyx_r;
 }
 
-/* "cython_wrapper.pyx":78
+/* "cython_wrapper.pyx":85
  *     cdef PARAMS_TURB *_thisp
  *     #cdef double aa
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -1054,7 +1144,7 @@ static int __pyx_pf_14cython_wrapper_5pturb___cinit__(struct __pyx_obj_14cython_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "cython_wrapper.pyx":79
+  /* "cython_wrapper.pyx":86
  *     #cdef double aa
  *     def __cinit__(self):
  *         self._thisp = new PARAMS_TURB()             # <<<<<<<<<<<<<<
@@ -1063,7 +1153,7 @@ static int __pyx_pf_14cython_wrapper_5pturb___cinit__(struct __pyx_obj_14cython_
  */
   __pyx_v_self->_thisp = new PARAMS_TURB();
 
-  /* "cython_wrapper.pyx":80
+  /* "cython_wrapper.pyx":87
  *     def __cinit__(self):
  *         self._thisp = new PARAMS_TURB()
  *         if self._thisp == NULL:             # <<<<<<<<<<<<<<
@@ -1073,17 +1163,17 @@ static int __pyx_pf_14cython_wrapper_5pturb___cinit__(struct __pyx_obj_14cython_
   __pyx_t_1 = ((__pyx_v_self->_thisp == NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "cython_wrapper.pyx":81
+    /* "cython_wrapper.pyx":88
  *         self._thisp = new PARAMS_TURB()
  *         if self._thisp == NULL:
  *             raise MemoryError()             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-    PyErr_NoMemory(); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    PyErr_NoMemory(); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 88; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "cython_wrapper.pyx":78
+  /* "cython_wrapper.pyx":85
  *     cdef PARAMS_TURB *_thisp
  *     #cdef double aa
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -1102,7 +1192,7 @@ static int __pyx_pf_14cython_wrapper_5pturb___cinit__(struct __pyx_obj_14cython_
   return __pyx_r;
 }
 
-/* "cython_wrapper.pyx":83
+/* "cython_wrapper.pyx":90
  *             raise MemoryError()
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1126,7 +1216,7 @@ static void __pyx_pf_14cython_wrapper_5pturb_2__dealloc__(struct __pyx_obj_14cyt
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "cython_wrapper.pyx":84
+  /* "cython_wrapper.pyx":91
  * 
  *     def __dealloc__(self):
  *         if self._thisp != NULL:             # <<<<<<<<<<<<<<
@@ -1136,7 +1226,7 @@ static void __pyx_pf_14cython_wrapper_5pturb_2__dealloc__(struct __pyx_obj_14cyt
   __pyx_t_1 = ((__pyx_v_self->_thisp != NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "cython_wrapper.pyx":85
+    /* "cython_wrapper.pyx":92
  *     def __dealloc__(self):
  *         if self._thisp != NULL:
  *             del self._thisp             # <<<<<<<<<<<<<<
@@ -1148,7 +1238,7 @@ static void __pyx_pf_14cython_wrapper_5pturb_2__dealloc__(struct __pyx_obj_14cyt
   }
   __pyx_L3:;
 
-  /* "cython_wrapper.pyx":83
+  /* "cython_wrapper.pyx":90
  *             raise MemoryError()
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1160,7 +1250,7 @@ static void __pyx_pf_14cython_wrapper_5pturb_2__dealloc__(struct __pyx_obj_14cyt
   __Pyx_RefNannyFinishContext();
 }
 
-/* "cython_wrapper.pyx":88
+/* "cython_wrapper.pyx":95
  * 
  *     property var:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -1192,43 +1282,43 @@ static PyObject *__pyx_pf_14cython_wrapper_5pturb_3var___get__(struct __pyx_obj_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cython_wrapper.pyx":89
+  /* "cython_wrapper.pyx":96
  *     property var:
  *         def __get__(self):
  *             v = {             # <<<<<<<<<<<<<<
  *             'n_modos': self._thisp.n_modos,
  *             'lambda_min': self._thisp.lambda_min,
  */
-  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 96; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "cython_wrapper.pyx":90
+  /* "cython_wrapper.pyx":97
  *         def __get__(self):
  *             v = {
  *             'n_modos': self._thisp.n_modos,             # <<<<<<<<<<<<<<
  *             'lambda_min': self._thisp.lambda_min,
  *             }
  */
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->_thisp->n_modos); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 90; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->_thisp->n_modos); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 97; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_n_modos, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_n_modos, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 96; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "cython_wrapper.pyx":91
+  /* "cython_wrapper.pyx":98
  *             v = {
  *             'n_modos': self._thisp.n_modos,
  *             'lambda_min': self._thisp.lambda_min,             # <<<<<<<<<<<<<<
  *             }
  *             return v
  */
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->_thisp->lambda_min); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 91; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->_thisp->lambda_min); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 98; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_lambda_min, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_lambda_min, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 96; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_v = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "cython_wrapper.pyx":93
+  /* "cython_wrapper.pyx":100
  *             'lambda_min': self._thisp.lambda_min,
  *             }
  *             return v             # <<<<<<<<<<<<<<
@@ -1240,7 +1330,7 @@ static PyObject *__pyx_pf_14cython_wrapper_5pturb_3var___get__(struct __pyx_obj_
   __pyx_r = __pyx_v_v;
   goto __pyx_L0;
 
-  /* "cython_wrapper.pyx":88
+  /* "cython_wrapper.pyx":95
  * 
  *     property var:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -1261,7 +1351,7 @@ static PyObject *__pyx_pf_14cython_wrapper_5pturb_3var___get__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "cython_wrapper.pyx":100
+/* "cython_wrapper.pyx":107
  *     cdef jim *_thisp
  *     #cdef double aa
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -1294,7 +1384,7 @@ static int __pyx_pf_14cython_wrapper_5jimmy___cinit__(struct __pyx_obj_14cython_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "cython_wrapper.pyx":101
+  /* "cython_wrapper.pyx":108
  *     #cdef double aa
  *     def __cinit__(self):
  *         self._thisp = new jim()             # <<<<<<<<<<<<<<
@@ -1303,7 +1393,7 @@ static int __pyx_pf_14cython_wrapper_5jimmy___cinit__(struct __pyx_obj_14cython_
  */
   __pyx_v_self->_thisp = new jim();
 
-  /* "cython_wrapper.pyx":102
+  /* "cython_wrapper.pyx":109
  *     def __cinit__(self):
  *         self._thisp = new jim()
  *         if self._thisp == NULL:             # <<<<<<<<<<<<<<
@@ -1313,17 +1403,17 @@ static int __pyx_pf_14cython_wrapper_5jimmy___cinit__(struct __pyx_obj_14cython_
   __pyx_t_1 = ((__pyx_v_self->_thisp == NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "cython_wrapper.pyx":103
+    /* "cython_wrapper.pyx":110
  *         self._thisp = new jim()
  *         if self._thisp == NULL:
  *             raise MemoryError()             # <<<<<<<<<<<<<<
  * 
  *     #def __init__(self):
  */
-    PyErr_NoMemory(); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 103; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    PyErr_NoMemory(); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 110; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "cython_wrapper.pyx":100
+  /* "cython_wrapper.pyx":107
  *     cdef jim *_thisp
  *     #cdef double aa
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -1342,7 +1432,7 @@ static int __pyx_pf_14cython_wrapper_5jimmy___cinit__(struct __pyx_obj_14cython_
   return __pyx_r;
 }
 
-/* "cython_wrapper.pyx":108
+/* "cython_wrapper.pyx":115
  *     #   self.aa = self._thisp.a
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1366,7 +1456,7 @@ static void __pyx_pf_14cython_wrapper_5jimmy_2__dealloc__(struct __pyx_obj_14cyt
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "cython_wrapper.pyx":109
+  /* "cython_wrapper.pyx":116
  * 
  *     def __dealloc__(self):
  *         if self._thisp != NULL:             # <<<<<<<<<<<<<<
@@ -1376,7 +1466,7 @@ static void __pyx_pf_14cython_wrapper_5jimmy_2__dealloc__(struct __pyx_obj_14cyt
   __pyx_t_1 = ((__pyx_v_self->_thisp != NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "cython_wrapper.pyx":110
+    /* "cython_wrapper.pyx":117
  *     def __dealloc__(self):
  *         if self._thisp != NULL:
  *             del self._thisp             # <<<<<<<<<<<<<<
@@ -1388,7 +1478,7 @@ static void __pyx_pf_14cython_wrapper_5jimmy_2__dealloc__(struct __pyx_obj_14cyt
   }
   __pyx_L3:;
 
-  /* "cython_wrapper.pyx":108
+  /* "cython_wrapper.pyx":115
  *     #   self.aa = self._thisp.a
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1400,7 +1490,7 @@ static void __pyx_pf_14cython_wrapper_5jimmy_2__dealloc__(struct __pyx_obj_14cyt
   __Pyx_RefNannyFinishContext();
 }
 
-/* "cython_wrapper.pyx":112
+/* "cython_wrapper.pyx":119
  *             del self._thisp
  * 
  *     def set_aa(self, aa): # mejor usamos __set__()             # <<<<<<<<<<<<<<
@@ -1431,17 +1521,17 @@ static PyObject *__pyx_pf_14cython_wrapper_5jimmy_4set_aa(struct __pyx_obj_14cyt
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("set_aa", 0);
 
-  /* "cython_wrapper.pyx":113
+  /* "cython_wrapper.pyx":120
  * 
  *     def set_aa(self, aa): # mejor usamos __set__()
  *         self._thisp.aa = aa             # <<<<<<<<<<<<<<
  *         return self._thisp.aa
  * 
  */
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_aa); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 113; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_aa); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 120; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_self->_thisp->aa = __pyx_t_1;
 
-  /* "cython_wrapper.pyx":114
+  /* "cython_wrapper.pyx":121
  *     def set_aa(self, aa): # mejor usamos __set__()
  *         self._thisp.aa = aa
  *         return self._thisp.aa             # <<<<<<<<<<<<<<
@@ -1449,13 +1539,13 @@ static PyObject *__pyx_pf_14cython_wrapper_5jimmy_4set_aa(struct __pyx_obj_14cyt
  *     cpdef set_value(self, name, value):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->_thisp->aa); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 114; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->_thisp->aa); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "cython_wrapper.pyx":112
+  /* "cython_wrapper.pyx":119
  *             del self._thisp
  * 
  *     def set_aa(self, aa): # mejor usamos __set__()             # <<<<<<<<<<<<<<
@@ -1474,7 +1564,7 @@ static PyObject *__pyx_pf_14cython_wrapper_5jimmy_4set_aa(struct __pyx_obj_14cyt
   return __pyx_r;
 }
 
-/* "cython_wrapper.pyx":116
+/* "cython_wrapper.pyx":123
  *         return self._thisp.aa
  * 
  *     cpdef set_value(self, name, value):             # <<<<<<<<<<<<<<
@@ -1501,7 +1591,7 @@ static PyObject *__pyx_f_14cython_wrapper_5jimmy_set_value(struct __pyx_obj_14cy
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
   else if (unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0)) {
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_set_value); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 116; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_set_value); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 123; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)__pyx_pw_14cython_wrapper_5jimmy_7set_value)) {
       __Pyx_XDECREF(__pyx_r);
@@ -1518,7 +1608,7 @@ static PyObject *__pyx_f_14cython_wrapper_5jimmy_set_value(struct __pyx_obj_14cy
           __pyx_t_5 = 1;
         }
       }
-      __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 116; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 123; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_6);
       if (__pyx_t_4) {
         __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -1529,7 +1619,7 @@ static PyObject *__pyx_f_14cython_wrapper_5jimmy_set_value(struct __pyx_obj_14cy
       __Pyx_INCREF(__pyx_v_value);
       __Pyx_GIVEREF(__pyx_v_value);
       PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_v_value);
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 116; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 123; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -1541,17 +1631,17 @@ static PyObject *__pyx_f_14cython_wrapper_5jimmy_set_value(struct __pyx_obj_14cy
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "cython_wrapper.pyx":117
+  /* "cython_wrapper.pyx":124
  * 
  *     cpdef set_value(self, name, value):
  *         self._thisp.aa = value             # <<<<<<<<<<<<<<
  * 
  *     property aa:
  */
-  __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 117; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 124; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_self->_thisp->aa = __pyx_t_7;
 
-  /* "cython_wrapper.pyx":116
+  /* "cython_wrapper.pyx":123
  *         return self._thisp.aa
  * 
  *     cpdef set_value(self, name, value):             # <<<<<<<<<<<<<<
@@ -1607,11 +1697,11 @@ static PyObject *__pyx_pw_14cython_wrapper_5jimmy_7set_value(PyObject *__pyx_v_s
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_value)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("set_value", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 116; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("set_value", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 123; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "set_value") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 116; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "set_value") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 123; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -1624,7 +1714,7 @@ static PyObject *__pyx_pw_14cython_wrapper_5jimmy_7set_value(PyObject *__pyx_v_s
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("set_value", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 116; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("set_value", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 123; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("cython_wrapper.jimmy.set_value", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -1646,7 +1736,7 @@ static PyObject *__pyx_pf_14cython_wrapper_5jimmy_6set_value(struct __pyx_obj_14
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("set_value", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_14cython_wrapper_5jimmy_set_value(__pyx_v_self, __pyx_v_name, __pyx_v_value, 1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 116; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_f_14cython_wrapper_5jimmy_set_value(__pyx_v_self, __pyx_v_name, __pyx_v_value, 1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 123; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -1663,7 +1753,7 @@ static PyObject *__pyx_pf_14cython_wrapper_5jimmy_6set_value(struct __pyx_obj_14
   return __pyx_r;
 }
 
-/* "cython_wrapper.pyx":120
+/* "cython_wrapper.pyx":127
  * 
  *     property aa:
  *         def __get__(self):      return self._thisp.aa             # <<<<<<<<<<<<<<
@@ -1693,7 +1783,7 @@ static PyObject *__pyx_pf_14cython_wrapper_5jimmy_2aa___get__(struct __pyx_obj_1
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_thisp->aa); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 120; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_thisp->aa); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 127; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -1710,7 +1800,7 @@ static PyObject *__pyx_pf_14cython_wrapper_5jimmy_2aa___get__(struct __pyx_obj_1
   return __pyx_r;
 }
 
-/* "cython_wrapper.pyx":121
+/* "cython_wrapper.pyx":128
  *     property aa:
  *         def __get__(self):      return self._thisp.aa
  *         def __set__(self, v):   self._thisp.aa = v             # <<<<<<<<<<<<<<
@@ -1739,7 +1829,7 @@ static int __pyx_pf_14cython_wrapper_5jimmy_2aa_2__set__(struct __pyx_obj_14cyth
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_v); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 121; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_v); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 128; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_self->_thisp->aa = __pyx_t_1;
 
   /* function exit code */
@@ -1753,7 +1843,7 @@ static int __pyx_pf_14cython_wrapper_5jimmy_2aa_2__set__(struct __pyx_obj_14cyth
   return __pyx_r;
 }
 
-/* "cython_wrapper.pyx":124
+/* "cython_wrapper.pyx":131
  * 
  *     property var:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -1785,55 +1875,55 @@ static PyObject *__pyx_pf_14cython_wrapper_5jimmy_3var___get__(struct __pyx_obj_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cython_wrapper.pyx":125
+  /* "cython_wrapper.pyx":132
  *     property var:
  *         def __get__(self):
  *             a = {             # <<<<<<<<<<<<<<
  *                 'aa': self._thisp.aa,
  *                 'a': self._thisp.a,
  */
-  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 125; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 132; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "cython_wrapper.pyx":126
+  /* "cython_wrapper.pyx":133
  *         def __get__(self):
  *             a = {
  *                 'aa': self._thisp.aa,             # <<<<<<<<<<<<<<
  *                 'a': self._thisp.a,
  *                 'b': self._thisp.b,
  */
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->_thisp->aa); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 126; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->_thisp->aa); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 133; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_aa, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 125; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_aa, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 132; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "cython_wrapper.pyx":127
+  /* "cython_wrapper.pyx":134
  *             a = {
  *                 'aa': self._thisp.aa,
  *                 'a': self._thisp.a,             # <<<<<<<<<<<<<<
  *                 'b': self._thisp.b,
  *             }
  */
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->_thisp->a); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 127; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->_thisp->a); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 134; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_a, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 125; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_a, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 132; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "cython_wrapper.pyx":128
+  /* "cython_wrapper.pyx":135
  *                 'aa': self._thisp.aa,
  *                 'a': self._thisp.a,
  *                 'b': self._thisp.b,             # <<<<<<<<<<<<<<
  *             }
  *             return a
  */
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->_thisp->b); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 128; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->_thisp->b); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 135; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_b, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 125; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_b, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 132; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_a = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "cython_wrapper.pyx":130
+  /* "cython_wrapper.pyx":137
  *                 'b': self._thisp.b,
  *             }
  *             return a             # <<<<<<<<<<<<<<
@@ -1845,7 +1935,7 @@ static PyObject *__pyx_pf_14cython_wrapper_5jimmy_3var___get__(struct __pyx_obj_
   __pyx_r = __pyx_v_a;
   goto __pyx_L0;
 
-  /* "cython_wrapper.pyx":124
+  /* "cython_wrapper.pyx":131
  * 
  *     property var:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -2217,6 +2307,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_a, __pyx_k_a, sizeof(__pyx_k_a), 0, 0, 1, 1},
   {&__pyx_n_s_aa, __pyx_k_aa, sizeof(__pyx_k_aa), 0, 0, 1, 1},
   {&__pyx_n_s_b, __pyx_k_b, sizeof(__pyx_k_b), 0, 0, 1, 1},
+  {&__pyx_n_s_c_gamma, __pyx_k_c_gamma, sizeof(__pyx_k_c_gamma), 0, 0, 1, 1},
+  {&__pyx_n_s_cython_wrapper, __pyx_k_cython_wrapper, sizeof(__pyx_k_cython_wrapper), 0, 0, 1, 1},
+  {&__pyx_kp_s_home_jim_simulacion_pla_stochas, __pyx_k_home_jim_simulacion_pla_stochas, sizeof(__pyx_k_home_jim_simulacion_pla_stochas), 0, 0, 1, 0},
   {&__pyx_n_s_lambda_min, __pyx_k_lambda_min, sizeof(__pyx_k_lambda_min), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_n_modos, __pyx_k_n_modos, sizeof(__pyx_k_n_modos), 0, 0, 1, 1},
@@ -2224,11 +2317,12 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
   {&__pyx_n_s_set_value, __pyx_k_set_value, sizeof(__pyx_k_set_value), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
+  {&__pyx_n_s_v, __pyx_k_v, sizeof(__pyx_k_v), 0, 0, 1, 1},
   {&__pyx_n_s_value, __pyx_k_value, sizeof(__pyx_k_value), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 60; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 67; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -2237,8 +2331,23 @@ static int __Pyx_InitCachedBuiltins(void) {
 static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
+
+  /* "cython_wrapper.pyx":56
+ * 
+ * 
+ * def c_gamma(double v):             # <<<<<<<<<<<<<<
+ *     return calc_gamma(v)
+ * 
+ */
+  __pyx_tuple_ = PyTuple_Pack(2, __pyx_n_s_v, __pyx_n_s_v); if (unlikely(!__pyx_tuple_)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 56; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_tuple_);
+  __Pyx_GIVEREF(__pyx_tuple_);
+  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_jim_simulacion_pla_stochas, __pyx_n_s_c_gamma, 56, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 56; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_RefNannyFinishContext();
   return 0;
+  __pyx_L1_error:;
+  __Pyx_RefNannyFinishContext();
+  return -1;
 }
 
 static int __Pyx_InitGlobals(void) {
@@ -2328,20 +2437,20 @@ PyMODINIT_FUNC PyInit_cython_wrapper(void)
   /*--- Variable export code ---*/
   /*--- Function export code ---*/
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_14cython_wrapper_psem) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 53; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyType_Ready(&__pyx_type_14cython_wrapper_psem) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 60; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_type_14cython_wrapper_psem.tp_print = 0;
-  if (PyObject_SetAttrString(__pyx_m, "psem", (PyObject *)&__pyx_type_14cython_wrapper_psem) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 53; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyObject_SetAttrString(__pyx_m, "psem", (PyObject *)&__pyx_type_14cython_wrapper_psem) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 60; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_ptype_14cython_wrapper_psem = &__pyx_type_14cython_wrapper_psem;
-  if (PyType_Ready(&__pyx_type_14cython_wrapper_pturb) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 74; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyType_Ready(&__pyx_type_14cython_wrapper_pturb) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_type_14cython_wrapper_pturb.tp_print = 0;
-  if (PyObject_SetAttrString(__pyx_m, "pturb", (PyObject *)&__pyx_type_14cython_wrapper_pturb) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 74; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyObject_SetAttrString(__pyx_m, "pturb", (PyObject *)&__pyx_type_14cython_wrapper_pturb) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 81; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_ptype_14cython_wrapper_pturb = &__pyx_type_14cython_wrapper_pturb;
   __pyx_vtabptr_14cython_wrapper_jimmy = &__pyx_vtable_14cython_wrapper_jimmy;
   __pyx_vtable_14cython_wrapper_jimmy.set_value = (PyObject *(*)(struct __pyx_obj_14cython_wrapper_jimmy *, PyObject *, PyObject *, int __pyx_skip_dispatch))__pyx_f_14cython_wrapper_5jimmy_set_value;
-  if (PyType_Ready(&__pyx_type_14cython_wrapper_jimmy) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 96; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyType_Ready(&__pyx_type_14cython_wrapper_jimmy) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 103; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_type_14cython_wrapper_jimmy.tp_print = 0;
-  if (__Pyx_SetVtable(__pyx_type_14cython_wrapper_jimmy.tp_dict, __pyx_vtabptr_14cython_wrapper_jimmy) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 96; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (PyObject_SetAttrString(__pyx_m, "jimmy", (PyObject *)&__pyx_type_14cython_wrapper_jimmy) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 96; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_SetVtable(__pyx_type_14cython_wrapper_jimmy.tp_dict, __pyx_vtabptr_14cython_wrapper_jimmy) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 103; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyObject_SetAttrString(__pyx_m, "jimmy", (PyObject *)&__pyx_type_14cython_wrapper_jimmy) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 103; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_ptype_14cython_wrapper_jimmy = &__pyx_type_14cython_wrapper_jimmy;
   /*--- Type import code ---*/
   __pyx_ptype_7cpython_4type_type = __Pyx_ImportType(__Pyx_BUILTIN_MODULE_NAME, "type", 
@@ -2356,6 +2465,18 @@ PyMODINIT_FUNC PyInit_cython_wrapper(void)
   /*--- Variable import code ---*/
   /*--- Function import code ---*/
   /*--- Execution code ---*/
+
+  /* "cython_wrapper.pyx":56
+ * 
+ * 
+ * def c_gamma(double v):             # <<<<<<<<<<<<<<
+ *     return calc_gamma(v)
+ * 
+ */
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_14cython_wrapper_1c_gamma, NULL, __pyx_n_s_cython_wrapper); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 56; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_c_gamma, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 56; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "cython_wrapper.pyx":1
  * """ Small Cython file to demonstrate the use of PyArray_SimpleNewFromData             # <<<<<<<<<<<<<<

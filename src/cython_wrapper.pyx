@@ -36,6 +36,9 @@ cdef extern from "defs_turb.h":
         int n_modos
         double lambda_min
 
+cdef extern from "funcs.h":
+    double calc_gamma(double v);
+
 from libc.stdlib cimport free
 from cpython cimport PyObject, Py_INCREF
 
@@ -48,6 +51,10 @@ from cpython cimport PyObject, Py_INCREF
 # Numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 #np.import_array()
+
+
+def c_gamma(double v):
+    return calc_gamma(v)
 
 
 cdef class psem:
