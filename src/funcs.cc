@@ -420,6 +420,7 @@ void Output<Stepper>::toc(){
 PARAMS::PARAMS(string fname_turb):
 	MODEL_TURB(fname_turb) {
 	}
+void PARAMS::test(){ printf(" @c  n_modos: %d\n", p_turb.n_modos); }
 
 void PARAMS::calc_Bfield(VecDoub_I &y){
 	pos[0] = y[0] *scl.rl;		// [cm] x

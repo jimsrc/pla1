@@ -9,8 +9,10 @@
 //---------------------------------------------------
 class PARAMS : public MODEL_TURB{
 	public:
+        PARAMS(){};
 		PARAMS(string);
 		void calc_Bfield(VecDoub_I &);
+        void test();
 		//PARAMS & operator=(const PARAMS &rhs);
 	private:
 		double pos[3];

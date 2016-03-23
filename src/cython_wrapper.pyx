@@ -19,14 +19,18 @@ cdef extern from "c_code.cpp":
 #        jjj()
 #        int a
 
+
 cdef extern from "tt.h":
     cpdef cppclass jim:
         jim()
         int a
         int b
         double aa
+        PARAMS_SEM s
     
     int run(double x1, double rigidity)
+    int run2(double x1, double rigidity, PARAMS_TURB* ptt)
+    int run3(double x1, double rigidity, PARAMS_TURB pt);
 
 cdef extern from "defs_turb.h":
     cpdef cppclass PARAMS_SEM:
@@ -37,12 +41,34 @@ cdef extern from "defs_turb.h":
         PARAMS_TURB()
         int n_modos
         double lambda_min
+        PARAMS_SEM sem
+
+    cpdef cppclass MODEL_TURB:
+        MODEL_TURB()
+        double *B
+        double *dB
+        double *dB_2D
+        double *dB_SLAB
+        PARAMS_TURB p_turb
+        void calc_B(const double *)
 
 cdef extern from "funcs.h":
+    cpdef cppclass PARAMS:
+        PARAMS()
+        double *B
+        double *dB
+        double *dB_2D
+        double *dB_SLAB
+        PARAMS_TURB p_turb
+        void calc_B(const double *)
+        void test()
+
     double calc_gamma(double v);
 
-from libc.stdlib cimport free
+
+from libc.stdlib cimport free, malloc, calloc
 from cpython cimport PyObject, Py_INCREF
+from cython.operator cimport dereference as deref
 
 # Import the Python-level symbols of numpy
 #import numpy as np
@@ -56,6 +82,44 @@ from cpython cimport PyObject, Py_INCREF
 
 
 def run_py(double x1, double rig):
+    cdef PARAMS_TURB *pt
+    pt = new PARAMS_TURB()
+    pt.n_modos = 71+3
+    pt.lambda_min = 0.337
+    print " --> pt.lam: ", pt.lambda_min
+    run2(x1, rig, pt)
+    #run3(x1, rig, deref(pt)) # deref(pt)==pt[0]
+    run3(x1, rig, pt[0]) # deref(pt)==pt[0]
+
+    #--- creamos un array :)
+    cdef double* array;
+    array = <double*> calloc(5, sizeof(double)) 
+    print " array... ", array[0]
+
+    #--- puntero al modelo
+    cdef MODEL_TURB *mt
+    mt = new MODEL_TURB()
+    # alocamos los campos
+    mt.B        = <double*> calloc(3, sizeof(double))
+    mt.dB       = <double*> calloc(3, sizeof(double))
+    mt.dB_SLAB  = <double*> calloc(3, sizeof(double))
+    mt.dB_2D    = <double*> calloc(3, sizeof(double))
+    # lo sgte FUNCIONA OK! :O :O ......... :O!!!!
+    mt.p_turb   = pt[0] # que SUCEDE AQUI???
+    print " --->>> mt.pturb: ", mt.p_turb.n_modos
+    print " mt.B[0]: ", mt.B[2]
+
+    #--- puntero a PARAMS (todo)
+    cdef PARAMS *par
+    par = new PARAMS()
+    par.B        = <double*> calloc(3, sizeof(double))
+    par.dB       = <double*> calloc(3, sizeof(double))
+    par.dB_SLAB  = <double*> calloc(3, sizeof(double))
+    par.dB_2D    = <double*> calloc(3, sizeof(double))
+    par.p_turb   = pt[0] # que SUCEDE AQUI???
+    print " --->>> mt.pturb: ", par.p_turb.n_modos
+    par.test()
+
     return run(x1, rig)
 
 
