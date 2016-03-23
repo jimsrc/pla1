@@ -25,6 +25,8 @@ cdef extern from "tt.h":
         int a
         int b
         double aa
+    
+    int run(double x1)
 
 cdef extern from "defs_turb.h":
     cpdef cppclass PARAMS_SEM:
@@ -51,6 +53,10 @@ from cpython cimport PyObject, Py_INCREF
 # Numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 #np.import_array()
+
+
+def run_py(double x1):
+    return run(x1)
 
 
 def c_gamma(double v):
