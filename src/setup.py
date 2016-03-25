@@ -9,6 +9,8 @@ ext = Extension("cython_wrapper",
                     "defs_turb.cc", 
                     "funcs.cc",
                     "general.cc", # para q sepa quien es 'scl'
+                    "odeintt.cc", 
+                    "stepperbs.cc",
                     ],
                 language="c++")
 

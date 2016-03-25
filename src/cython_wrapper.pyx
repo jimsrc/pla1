@@ -65,6 +65,32 @@ cdef extern from "funcs.h":
 
     double calc_gamma(double v);
 
+    cdef cppclass Output[T]:
+        Output()
+        int nvar
+        #void set_Bmodel(PARAMS par)
+
+cdef extern from "odeintt.h":
+    cdef cppclass Odeint[T]:
+        Odeint()
+        int nok
+
+"""cdef extern from "stepperbs.h":
+    cdef struct StepperBase
+    cdef struct StepperBS"""
+
+"""
+cdef extern from "<vector>" namespace "std":
+    cdef cppclass vector[T]:
+        vector() except +
+        vector(vector&) except +
+        vector(size_t) except +
+        vector(size_t, T&) except +
+        T& operator[](size_t)
+        void clear()
+        void push_back(T&)
+        size_t size()
+"""
 
 from libc.stdlib cimport free, malloc, calloc
 from cpython cimport PyObject, Py_INCREF
@@ -120,6 +146,20 @@ def run_py(double x1, double rig):
     print " --->>> mt.pturb: ", par.p_turb.n_modos
     par.test()
 
+    #cdef vector[int] v
+    #print "v: ", v.size()
+    #cdef Odeint *ode
+    #ode = new Odeint()
+    #ode[0].nok = 666
+
+    #--- free memory
+    free(par.B);         free(mt.B)
+    free(par.dB);        free(mt.dB)
+    free(par.dB_SLAB);   free(mt.dB_SLAB)
+    free(par.dB_2D);     free(mt.dB_2D)
+    free(par);           free(mt)
+    free(pt)
+    # return
     return run(x1, rig)
 
 
