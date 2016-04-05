@@ -58,8 +58,10 @@ ys = m.ysave
 t_sec = m.tsave / m.scl['wc'] # [sec]
 pos_x = m.xyz[:,0] * m.scl['rl'] / AU_in_cm
 
-from pylab import plot, show, close, grid
-plot(t_sec, pos_x, '-o'); grid()
+from pylab import plot, show, close, grid, xscale
+plot(t_sec, pos_x, '-o')
+grid()
+xscale('log')
 show(); close()
 
 del m

@@ -14,199 +14,6 @@ from libc.math cimport sqrt, sin, cos
 # agregamos la clase wrapper
 include "array_wrapper.pyx"
 
-# Import the Python-level symbols of numpy
-#import numpy as np
-
-# Import the C-level symbols of numpy
-#cimport numpy as np
-
-# Numpy must be initialized. When using numpy from C or Cython you must
-# _always_ do that, or you will have segfaults
-#np.import_array()
-
-def run_py(double x1, double rig):
-    cdef PARAMS_TURB *pt
-    pt = new PARAMS_TURB()
-    pt.n_modos = 71+3
-    pt.lambda_min = 0.337
-    print " --> pt.lam: ", pt.lambda_min
-    run2(x1, rig, pt)
-    #run3(x1, rig, deref(pt)) # deref(pt)==pt[0]
-    run3(x1, rig, pt[0]) # deref(pt)==pt[0]
-
-    #--- creamos un array :)
-    cdef double* array;
-    array = <double*> calloc(5, sizeof(double)) 
-    print " array... ", array[0]
-
-    #--- puntero al modelo
-    cdef MODEL_TURB *mt
-    mt = new MODEL_TURB()
-    # alocamos los campos
-    mt.B        = <double*> calloc(3, sizeof(double))
-    mt.dB       = <double*> calloc(3, sizeof(double))
-    mt.dB_SLAB  = <double*> calloc(3, sizeof(double))
-    mt.dB_2D    = <double*> calloc(3, sizeof(double))
-    # lo sgte FUNCIONA OK! :O :O ......... :O!!!!
-    mt.p_turb   = pt[0] # que SUCEDE AQUI???
-    print " --->>> mt.pturb: ", mt.p_turb.n_modos
-    print " mt.B[0]: ", mt.B[2]
-
-    #--- puntero a PARAMS (todo)
-    cdef PARAMS *par
-    par = new PARAMS()
-    par.B        = <double*> calloc(3, sizeof(double))
-    par.dB       = <double*> calloc(3, sizeof(double))
-    par.dB_SLAB  = <double*> calloc(3, sizeof(double))
-    par.dB_2D    = <double*> calloc(3, sizeof(double))
-    par.p_turb   = pt[0] # que SUCEDE AQUI???
-    print " --->>> mt.pturb: ", par.p_turb.n_modos
-
-    cdef VecDoub *v
-    v = new VecDoub(3, 88.66) # this works!!! :D
-    #v = VecDoub(3)
-    #cdef Vecdoub v = VecDoub(3)
-    v[0][2] = 888.555
-    #par.test(v[0])
-    print " Vecdoub: ", v[0][1]
-    del v  # equivalent to "delete v[]" in c++
-
-    #cdef vector[int] v
-    #print "v: ", v.size()
-    #cdef Odeint *ode
-    #ode = new Odeint()
-    #ode[0].nok = 666
-
-    #--- free memory
-    free(par.B);         free(mt.B)
-    free(par.dB);        free(mt.dB)
-    free(par.dB_SLAB);   free(mt.dB_SLAB)
-    free(par.dB_2D);     free(mt.dB_2D)
-    free(par);           free(mt)
-    free(pt)
-
-    # return
-    return run(x1, rig)
-
-
-class mgr_ii:
-    """cdef Odeint[StepperBS[rhs]] *bsode
-    cdef Output[StepperBS[rhs]] *oo"""
-    def __cinit__(self):
-        pass
-
-    def runsim(self, double tmax):
-        # cond inic.
-        cdef VecDoub *ystart
-        ystart = new VecDoub(6, 0.0) 
-        cdef Doub mu, ph # pitch angle, phi, theta
-        mu, ph = 0.3, 0.1
-        ystart[0][1] = sqrt(1.-mu*mu)*cos(ph) # [1] vx
-        ystart[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
-        ystart[0][5] = mu                     # [1] vz
-
-        cdef Doub atol, rtol, h1, hmin
-        atol = rtol = 1e-5
-        h1, hmin = 1e-10, 0.0
-
-        cdef rhs *d
-        d = new rhs()
-
-        #cdef Odeint[StepperBS[rhs]] *bsode
-        cdef double x1, x2
-        x1, x2 = 0.0, tmax #1e4
-        """
-        bsode = new Odeint[StepperBS[rhs]](
-                ystart[0], x1, x2, atol, rtol, h1, hmin, 
-                self.o.outbs[0], d[0], self.o.par[0], 0
-                )
-        print bsode.x2, bsode.h, bsode.s.rtol, bsode.s.atol
-        """
-
-
-
-def runsim(tmax, rigidity, i=0, j=0):
-    cdef PARAMS_TURB *pt
-    pt = new PARAMS_TURB()
-    # parametros fisicos
-    global AU_in_cm
-    AU_in_cm = 1.5e13
-    print " ==> AU_in_cm: ",  AU_in_cm
-    pt.n_modos        = 256
-    pt.lambda_min     = ((1e-5)*AU_in_cm)
-    print " ====> pt.lambdamin: ", pt.lambda_min
-    pt.lambda_max     = 1.0*AU_in_cm
-    pt.Lc_slab        = 0.01*AU_in_cm
-    pt.Lc_2d          = 0.01*AU_in_cm
-    pt.sigma_Bo_ratio = 0.1
-    pt.percent_slab   = 0.2
-    pt.percent_2d     = 1.0-pt.percent_slab
-    pt.Bo             = 5e-5    # [Gauss]
-    # semillas
-    pt.sem.slab[0] = 11
-    pt.sem.slab[1] = 22
-    pt.sem.slab[2] = 33
-    pt.sem.two[0]  = 10
-    pt.sem.two[1]  = 20
-    # cond inic.
-    cdef VecDoub *ystart
-    ystart = new VecDoub(6, 0.0) 
-    cdef Doub mu, ph # pitch angle, phi, theta
-    mu, ph = 0.3, 0.1
-    ystart[0][1] = sqrt(1.-mu*mu)*cos(ph) # [1] vx
-    ystart[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
-    ystart[0][5] = mu                     # [1] vz
-
-    cdef Doub atol, rtol, h1, hmin
-    atol = rtol = 1e-5
-    h1, hmin = 1e-10, 0.0
-
-    #--- pbjeto PARAMS (todo)
-    cdef PARAMS *par
-    ndim = 3
-    par = new PARAMS()
-    par.B       = <double*> calloc(ndim, sizeof(double))
-    par.dB      = <double*> calloc(ndim, sizeof(double))
-    par.dB_SLAB = <double*> calloc(ndim, sizeof(double))
-    par.dB_2D   = <double*> calloc(ndim, sizeof(double))
-    
-    par.p_turb = pt[0] #le paso todo los parametros! (MAGIA)
-    par.p_turb.build_spectra()
-    par.fix_B_realization(nB=0)
-
-    cdef Output[StepperBS[rhs]] *outbs
-    outbs = new Output[StepperBS[rhs]]()
-    outbs.set_Bmodel(par[0])
-    outbs.build('mixed', nsave=10, tmaxHistTau=100., nHist=100, i=0, j=0, dir_out='./')
-
-    cdef rhs *d
-    d = new rhs()
-
-    cdef Odeint[StepperBS[rhs]] *bsode
-    cdef double x1, x2
-    x1, x2 = 0.0, tmax #1e4
-    bsode = new Odeint[StepperBS[rhs]](
-            ystart[0], x1, x2, atol, rtol, h1, hmin, 
-            outbs[0], d[0], par[0], 0
-            )
-    print bsode.x2, bsode.h, bsode.s.rtol, bsode.s.atol
-    scl.build(rigidity) #(1e7)
-    print scl.vel
-    bsode.integrate()
-
-    print " ==> nrows ", outbs.ysave.nrows()
-    print " ==> ncols ", outbs.ysave.ncols()
-    print " --xsave ", (outbs[0]).xsave[j]
-    print " --ysave ", outbs.ysave[i][j]
-    #for i in range(bsode.ysave.nrows()):
-    #    print bsode.ysave[i][0]
-
-    #--- liberamos memoria
-    del par, outbs, ystart, pt, d, bsode
-    #o = init_out(outbs)
-    #del o
-    return 0 #&(bsode.ysave[0]) #bsode[0]
-
 
 """ why this doesn't work??
 cdef init_out(Output[StepperBS[rhs]] *op):
@@ -246,18 +53,17 @@ cdef class mgr:
         hmin        = kargs['hmin']
         mu          = kargs['mu']
         ph          = kargs['ph']
-        # cond inic.
+        #--- cond inic.
         cdef VecDoub *yini
-        yini = new VecDoub(6, 0.0) 
-        """cdef Doub mu, ph # pitch angle, phi, theta
-        mu, ph = 0.3, 0.1"""
+        # posiciones a cero
+        yini = new VecDoub(6, 0.0)
+        # veloc inicial
         yini[0][1] = sqrt(1.-mu*mu)*cos(ph) # [1] vx
         yini[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
         yini[0][5] = mu                     # [1] vz
 
         cdef Doub atol, rtol
         atol = rtol = 1e-5
-        #h1, hmin = 1e-10, 0.0
 
         cdef rhs *d
         d = new rhs()
@@ -276,14 +82,13 @@ cdef class mgr:
         bsode.integrate()
         self.outbs.toc()
 
-        print scl.vel
         print " ==> nrows ", self.outbs.ysave.nrows()
         print " ==> ncols ", self.outbs.ysave.ncols()
     
 
     def set_Bmodel(self, pdict, nB=0):
         """ inputs:
-        - pdict   : diccionario de parametros
+        - pdict   : diccionario de parametros de turbulencia
         - nB      : nro de B-realization
         """
         for nm in pdict.keys():
@@ -319,7 +124,7 @@ cdef class mgr:
         s.par.dB_SLAB = <double*> calloc(ndim, sizeof(double))
         s.par.dB_2D   = <double*> calloc(ndim, sizeof(double))
         
-        s.par.p_turb  = s.pt[0] #le paso todos los parametros! (MAGIA)
+        s.par.p_turb  = s.pt[0] #le paso todos los parametros! (MAGIA!!??!?)
         s.par.p_turb.build_spectra()
         s.par.fix_B_realization(nB=nB)
 
@@ -359,6 +164,10 @@ cdef class mgr:
         if self.pt is not NULL:
             del self.pt
         if self.par is not NULL:
+            free(self.par.B)
+            free(self.par.dB)
+            free(self.par.dB_SLAB)
+            free(self.par.dB_2D)
             del self.par
             #PyMem_Free(self.par)
 
@@ -442,120 +251,5 @@ def nans(sh):
 def c_gamma(double v):
     return calc_gamma(v)
 
-
-
-cdef class psem:
-    #wrapper around jimmy :-)
-    cdef PARAMS_SEM *_thisp
-    #cdef double aa 
-    def __cinit__(self):
-        self._thisp = new PARAMS_SEM()
-        if self._thisp == NULL:
-            raise MemoryError()
-
-    def __dealloc__(self):
-        if self._thisp != NULL:
-            del self._thisp
-
-    property var:
-        def __get__(self):
-            v = {
-                'a': 33.3 #self._thisp.a,
-            }
-            return v
-
-
-cdef class pturb:
-    #wrapper around jimmy :-)
-    cdef PARAMS_TURB *_thisp
-    #cdef double aa 
-    def __cinit__(self):
-        self._thisp = new PARAMS_TURB()
-        if self._thisp == NULL:
-            raise MemoryError()
-
-    def __dealloc__(self):
-        if self._thisp != NULL:
-            del self._thisp
-
-    property var:
-        def __get__(self):
-            v = {
-            'n_modos': self._thisp.n_modos,
-            'lambda_min': self._thisp.lambda_min,
-            }
-            return v
-
-
-cdef class jimmy:
-    #wrapper around jimmy :-)
-    cdef jim *_thisp
-    #cdef double aa 
-    def __cinit__(self):
-        self._thisp = new jim()
-        if self._thisp == NULL:
-            raise MemoryError()
-
-    #def __init__(self):
-    #   self.aa = self._thisp.a
-
-    def __dealloc__(self):
-        if self._thisp != NULL:
-            del self._thisp
-
-    def set_aa(self, aa): # mejor usamos __set__()
-        self._thisp.aa = aa
-        return self._thisp.aa
-
-    cpdef set_value(self, name, value):
-        self._thisp.aa = value
-
-    property aa:
-        def __get__(self):      return self._thisp.aa
-        def __set__(self, v):   self._thisp.aa = v
-
-    property var:
-        def __get__(self):
-            a = {
-                'aa': self._thisp.aa,
-                'a': self._thisp.a,
-                'b': self._thisp.b,
-            }
-            return a
-
-
-#cdef class my_jjj:
-#    cdef jjj *_thisp
-#    def __cinit__(self):
-#        self._thisp = new jjj()
-#        if self._thisp == NULL:
-#            raise MemoryError()
-#
-#    def __dealloc__(self):
-#        if self._thisp!=NULL:
-#            del self._thisp
-#
-#    property var:
-#        def __get__(self):
-#            v = {
-#                'n_modos'       : self._thisp.a,
-#            }
-#            return v
-
-
-
-
-
-#def py_run_orbit(np.ndarray[double, ndim=1, mode="c"] inp_array not None, double x1, double x2):
-#    """ 
-#    A wrapper around run_orbit() of exec.cc :-)
-#
-#    inputs:
-#        inp_array   : input array
-#        x1          : start time
-#        x2          : end time
-#    """
-#    n = inp_array.shape[0]
-#    return run_orbit(&inp_array[0], x1, x2)
 
 #EOF
