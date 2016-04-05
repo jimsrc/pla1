@@ -1,100 +1,18 @@
-""" Small Cython file to demonstrate the use of PyArray_SimpleNewFromData
-in Cython to create an array from already allocated memory.
-
-Cython enables mixing C-level calls and Python-level calls in the same
-file with a Python-like syntax and easy type cohersion. See 
-http://cython.org for more information
-"""
 # distutils: language = c++
 # Author: Jimmy J.
 #from libcpp.string cimport string
 
 # Declare the prototype of the C function we are interested in calling
-"""
-cdef extern from "c_code.cpp":
-    double *compute(int size)"""
-#cdef extern from "exec.cc":
-#    int run_orbit(double* y_init, double x1, double x2)
-#    cdef cppclass jjj:
-#        jjj()
-#        int a
-
-
-cdef extern from "tt.h":
-    cpdef cppclass jim:
-        jim()
-        int a
-        int b
-        double aa
-        PARAMS_SEM s
-    
-    int run(double x1, double rigidity)
-    int run2(double x1, double rigidity, PARAMS_TURB* ptt)
-    int run3(double x1, double rigidity, PARAMS_TURB pt);
-
-cdef extern from "defs_turb.h":
-    cpdef cppclass PARAMS_SEM:
-        PARAMS_SEM()
-        double a
-    
-    cpdef cppclass PARAMS_TURB:
-        PARAMS_TURB()
-        int n_modos
-        double lambda_min
-        PARAMS_SEM sem
-
-    cpdef cppclass MODEL_TURB:
-        MODEL_TURB()
-        double *B
-        double *dB
-        double *dB_2D
-        double *dB_SLAB
-        PARAMS_TURB p_turb
-        void calc_B(const double *)
-
-cdef extern from "funcs.h":
-    cpdef cppclass PARAMS:
-        PARAMS()
-        double *B
-        double *dB
-        double *dB_2D
-        double *dB_SLAB
-        PARAMS_TURB p_turb
-        void calc_B(const double *)
-        void test()
-
-    double calc_gamma(double v);
-
-    cdef cppclass Output[T]:
-        Output()
-        int nvar
-        #void set_Bmodel(PARAMS par)
-
-cdef extern from "odeintt.h":
-    cdef cppclass Odeint[T]:
-        Odeint()
-        int nok
-
-"""cdef extern from "stepperbs.h":
-    cdef struct StepperBase
-    cdef struct StepperBS"""
-
-"""
-cdef extern from "<vector>" namespace "std":
-    cdef cppclass vector[T]:
-        vector() except +
-        vector(vector&) except +
-        vector(size_t) except +
-        vector(size_t, T&) except +
-        T& operator[](size_t)
-        void clear()
-        void push_back(T&)
-        size_t size()
-"""
 
 from libc.stdlib cimport free, malloc, calloc
-from cpython cimport PyObject, Py_INCREF
+from cpython cimport PyObject, Py_INCREF#, PyMem_Malloc, PyMem_Free
+from cpython.mem cimport PyMem_Malloc, PyMem_Free
+#from cython.Utility.MemoryView import PyMem_New, PyMeM_Del # why doesn't work??
 from cython.operator cimport dereference as deref
+from libc.math cimport sqrt, sin, cos
+
+# agregamos la clase wrapper
+include "array_wrapper.pyx"
 
 # Import the Python-level symbols of numpy
 #import numpy as np
@@ -105,7 +23,6 @@ from cython.operator cimport dereference as deref
 # Numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 #np.import_array()
-
 
 def run_py(double x1, double rig):
     cdef PARAMS_TURB *pt
@@ -144,7 +61,15 @@ def run_py(double x1, double rig):
     par.dB_2D    = <double*> calloc(3, sizeof(double))
     par.p_turb   = pt[0] # que SUCEDE AQUI???
     print " --->>> mt.pturb: ", par.p_turb.n_modos
-    par.test()
+
+    cdef VecDoub *v
+    v = new VecDoub(3, 88.66) # this works!!! :D
+    #v = VecDoub(3)
+    #cdef Vecdoub v = VecDoub(3)
+    v[0][2] = 888.555
+    #par.test(v[0])
+    print " Vecdoub: ", v[0][1]
+    del v  # equivalent to "delete v[]" in c++
 
     #cdef vector[int] v
     #print "v: ", v.size()
@@ -159,12 +84,364 @@ def run_py(double x1, double rig):
     free(par.dB_2D);     free(mt.dB_2D)
     free(par);           free(mt)
     free(pt)
+
     # return
     return run(x1, rig)
 
 
+class mgr_ii:
+    """cdef Odeint[StepperBS[rhs]] *bsode
+    cdef Output[StepperBS[rhs]] *oo"""
+    def __cinit__(self):
+        pass
+
+    def runsim(self, double tmax):
+        # cond inic.
+        cdef VecDoub *ystart
+        ystart = new VecDoub(6, 0.0) 
+        cdef Doub mu, ph # pitch angle, phi, theta
+        mu, ph = 0.3, 0.1
+        ystart[0][1] = sqrt(1.-mu*mu)*cos(ph) # [1] vx
+        ystart[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
+        ystart[0][5] = mu                     # [1] vz
+
+        cdef Doub atol, rtol, h1, hmin
+        atol = rtol = 1e-5
+        h1, hmin = 1e-10, 0.0
+
+        cdef rhs *d
+        d = new rhs()
+
+        #cdef Odeint[StepperBS[rhs]] *bsode
+        cdef double x1, x2
+        x1, x2 = 0.0, tmax #1e4
+        """
+        bsode = new Odeint[StepperBS[rhs]](
+                ystart[0], x1, x2, atol, rtol, h1, hmin, 
+                self.o.outbs[0], d[0], self.o.par[0], 0
+                )
+        print bsode.x2, bsode.h, bsode.s.rtol, bsode.s.atol
+        """
+
+
+
+def runsim(tmax, rigidity, i=0, j=0):
+    cdef PARAMS_TURB *pt
+    pt = new PARAMS_TURB()
+    # parametros fisicos
+    global AU_in_cm
+    AU_in_cm = 1.5e13
+    print " ==> AU_in_cm: ",  AU_in_cm
+    pt.n_modos        = 256
+    pt.lambda_min     = ((1e-5)*AU_in_cm)
+    print " ====> pt.lambdamin: ", pt.lambda_min
+    pt.lambda_max     = 1.0*AU_in_cm
+    pt.Lc_slab        = 0.01*AU_in_cm
+    pt.Lc_2d          = 0.01*AU_in_cm
+    pt.sigma_Bo_ratio = 0.1
+    pt.percent_slab   = 0.2
+    pt.percent_2d     = 1.0-pt.percent_slab
+    pt.Bo             = 5e-5    # [Gauss]
+    # semillas
+    pt.sem.slab[0] = 11
+    pt.sem.slab[1] = 22
+    pt.sem.slab[2] = 33
+    pt.sem.two[0]  = 10
+    pt.sem.two[1]  = 20
+    # cond inic.
+    cdef VecDoub *ystart
+    ystart = new VecDoub(6, 0.0) 
+    cdef Doub mu, ph # pitch angle, phi, theta
+    mu, ph = 0.3, 0.1
+    ystart[0][1] = sqrt(1.-mu*mu)*cos(ph) # [1] vx
+    ystart[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
+    ystart[0][5] = mu                     # [1] vz
+
+    cdef Doub atol, rtol, h1, hmin
+    atol = rtol = 1e-5
+    h1, hmin = 1e-10, 0.0
+
+    #--- pbjeto PARAMS (todo)
+    cdef PARAMS *par
+    ndim = 3
+    par = new PARAMS()
+    par.B       = <double*> calloc(ndim, sizeof(double))
+    par.dB      = <double*> calloc(ndim, sizeof(double))
+    par.dB_SLAB = <double*> calloc(ndim, sizeof(double))
+    par.dB_2D   = <double*> calloc(ndim, sizeof(double))
+    
+    par.p_turb = pt[0] #le paso todo los parametros! (MAGIA)
+    par.p_turb.build_spectra()
+    par.fix_B_realization(nB=0)
+
+    cdef Output[StepperBS[rhs]] *outbs
+    outbs = new Output[StepperBS[rhs]]()
+    outbs.set_Bmodel(par[0])
+    outbs.build('mixed', nsave=10, tmaxHistTau=100., nHist=100, i=0, j=0, dir_out='./')
+
+    cdef rhs *d
+    d = new rhs()
+
+    cdef Odeint[StepperBS[rhs]] *bsode
+    cdef double x1, x2
+    x1, x2 = 0.0, tmax #1e4
+    bsode = new Odeint[StepperBS[rhs]](
+            ystart[0], x1, x2, atol, rtol, h1, hmin, 
+            outbs[0], d[0], par[0], 0
+            )
+    print bsode.x2, bsode.h, bsode.s.rtol, bsode.s.atol
+    scl.build(rigidity) #(1e7)
+    print scl.vel
+    bsode.integrate()
+
+    print " ==> nrows ", outbs.ysave.nrows()
+    print " ==> ncols ", outbs.ysave.ncols()
+    print " --xsave ", (outbs[0]).xsave[j]
+    print " --ysave ", outbs.ysave[i][j]
+    #for i in range(bsode.ysave.nrows()):
+    #    print bsode.ysave[i][0]
+
+    #--- liberamos memoria
+    del par, outbs, ystart, pt, d, bsode
+    #o = init_out(outbs)
+    #del o
+    return 0 #&(bsode.ysave[0]) #bsode[0]
+
+
+""" why this doesn't work??
+cdef init_out(Output[StepperBS[rhs]] *op):
+    o = out()
+    o._thisp = op
+    return o
+"""
+
+
+cdef class mgr:
+    cdef Output[StepperBS[rhs]] *outbs
+    cdef PARAMS_TURB *pt
+    cdef PARAMS *par
+    pdict = {}
+
+    def __cinit__(self):
+        self.outbs = new Output[StepperBS[rhs]]()
+        if self.outbs is NULL:
+            raise MemoryError()
+
+
+    def runsim(self, **kargs):
+        """
+        **kargs:
+            rigidity:
+            tmax
+            h1 
+            hmin
+            mu
+            ph
+        """
+        # estos parametros deben ir inmediatamente a la 
+        # documentacion
+        rigidity    = kargs['rigidity']
+        tmax        = kargs['tmax']
+        h1          = kargs['FracGyroperiod']
+        hmin        = kargs['hmin']
+        mu          = kargs['mu']
+        ph          = kargs['ph']
+        # cond inic.
+        cdef VecDoub *yini
+        yini = new VecDoub(6, 0.0) 
+        """cdef Doub mu, ph # pitch angle, phi, theta
+        mu, ph = 0.3, 0.1"""
+        yini[0][1] = sqrt(1.-mu*mu)*cos(ph) # [1] vx
+        yini[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
+        yini[0][5] = mu                     # [1] vz
+
+        cdef Doub atol, rtol
+        atol = rtol = 1e-5
+        #h1, hmin = 1e-10, 0.0
+
+        cdef rhs *d
+        d = new rhs()
+
+        cdef Odeint[StepperBS[rhs]] *bsode
+        cdef Doub x1, x2
+        x1, x2 = 0.0, tmax #1e4
+        bsode = new Odeint[StepperBS[rhs]](
+                yini[0],x1,x2,atol,rtol,h1,hmin, 
+                self.outbs[0],d[0],self.par[0], 0
+                )
+        scl.build(rigidity) #(1e7)
+
+        #--- integramos una pla
+        self.outbs.tic()
+        bsode.integrate()
+        self.outbs.toc()
+
+        print scl.vel
+        print " ==> nrows ", self.outbs.ysave.nrows()
+        print " ==> ncols ", self.outbs.ysave.ncols()
+    
+
+    def set_Bmodel(self, pdict, nB=0):
+        """ inputs:
+        - pdict   : diccionario de parametros
+        - nB      : nro de B-realization
+        """
+        for nm in pdict.keys():
+            self.pdict[nm] = pdict[nm]
+        #self.pdict = pdict # no esta permitido cambiar el puntero!
+        self.build_pturb() # objeto PARAMS_TURB
+        self.build_par(nB=nB) # objeto PARAMS
+        self.outbs.set_Bmodel(self.par[0])
+
+
+    def build(self, str_timescale, nsave, tmaxHistTau, nHist, i, j, dir_out):
+        self.outbs.build(str_timescale, nsave, tmaxHistTau, nHist, i, j, dir_out)
+
+
+    def build_par(s, nB=0):
+        """ objeto PARAMS (todo):
+        - aloco memoria para dB, B, etc..
+        - defino modelo B con 'self.pt'
+        - build dB specta
+        - fix B realization
+        """
+        #s.par = <PARAMS*> PyMem_Malloc(sizeof(PARAMS))
+        s.par = new PARAMS()
+        if s.par is NULL:
+            raise MemoryError()
+
+        ndim = 3
+        #s.par.B       = PyMem_New(double, 3)
+        # use 'PyMem_Malloc' instead of 'malloc'
+        # src: https://docs.python.org/2/c-api/memory.html
+        s.par.B       = <double*> calloc(ndim, sizeof(double))
+        s.par.dB      = <double*> calloc(ndim, sizeof(double))
+        s.par.dB_SLAB = <double*> calloc(ndim, sizeof(double))
+        s.par.dB_2D   = <double*> calloc(ndim, sizeof(double))
+        
+        s.par.p_turb  = s.pt[0] #le paso todos los parametros! (MAGIA)
+        s.par.p_turb.build_spectra()
+        s.par.fix_B_realization(nB=nB)
+
+
+    def build_pturb(s):
+        """ build PARAMS_TURB object 'self.pt' from
+        dictionary input 'self.pdict' """
+        s.pt = new PARAMS_TURB()
+        if s.pt is NULL:
+            raise MemoryError()
+
+        pd = s.pdict
+        # parametros fisicos
+        s.pt.n_modos = pd['n_modos']
+        s.pt.lambda_min = pd['lambda_min']
+        s.pt.lambda_max = pd['lambda_max']
+        s.pt.Lc_slab = pd['Lc_slab']
+        s.pt.Lc_2d = pd['Lc_2d']
+        s.pt.sigma_Bo_ratio = pd['sigma_Bo_ratio']
+        s.pt.percent_slab = pd['percent_slab']
+        s.pt.percent_2d = pd['percent_2d']
+        s.pt.Bo = pd['Bo']
+        # semillas
+        s.pt.sem.slab[0] = pd['sem_slab0']
+        s.pt.sem.slab[1] = pd['sem_slab1']
+        s.pt.sem.slab[2] = pd['sem_slab2']
+        s.pt.sem.two[0]  = pd['sem_two0']
+        s.pt.sem.two[1]  = pd['sem_two1']
+
+
+    def __dealloc__(self):
+        #NOTE: cython will ignore
+        #      a 'del self.pdict' because
+        #      will consider it a read-only
+        if self.outbs is not NULL:
+            del self.outbs
+        if self.pt is not NULL:
+            del self.pt
+        if self.par is not NULL:
+            del self.par
+            #PyMem_Free(self.par)
+
+
+    def save2file(self):
+        self.outbs.save2file()
+    
+
+    property tsave:
+        def __get__(self):
+            cdef double *ptr
+            cdef np.ndarray ndarray
+            #n = self.outbs.xsave.size()
+            n = self.outbs.count          # nro of saved times
+            ptr = &(self.outbs.xsave[0])
+            arrw = ArrayWrapper()
+            arrw.set_data(n, <void*> ptr, survive=True)
+            ndarray = np.array(arrw, copy=False)
+            ndarray.base = <PyObject*> arrw
+            Py_INCREF(arrw)
+            return ndarray
+
+
+    property ysave:
+        def __get__(self):
+            cdef double *ptr
+            cdef np.ndarray ndarray
+            cdef int nx, ny
+            nx = 6                        # 'nvar' en c++
+            #ny = self.outbs.count        # nro of saved times
+            ny = self.outbs.ysave.ncols()
+            arrw = ArrayWrapper_2d()
+
+            ptr = &(self.outbs.ysave[0][0])
+            arrw.set_data(nx, ny, <void*> ptr, survive=True)
+
+            ndarray = np.array(arrw, copy=False)
+            ndarray.base = <PyObject*> arrw
+            Py_INCREF(arrw)
+            #free(self.ptr)
+            return ndarray
+
+    property xyz:
+        def __get__(self):
+            cdef int n
+            n = self.outbs.count
+            v = nans((n, 3))
+            v[:,0] = self.ysave[0,:n]
+            v[:,1] = self.ysave[2,:n]
+            v[:,2] = self.ysave[4,:n]
+            return v
+
+    property v:
+        def __get__(self):
+            n = self.outbs.count
+            v = nans((n, 3))
+            v[:,0] = self.ysave[1,:n]
+            v[:,1] = self.ysave[3,:n]
+            v[:,2] = self.ysave[5,:n]
+            return v
+
+    property scl:
+        def __get__(self):
+            v = {
+                'wc'    : scl.wc,
+                'vel'   : scl.vel,
+                'rl'    : scl.rl,
+                'Bo'    : scl.Bo,
+                'beta'  : scl.beta,
+                'gamma' : scl.gamma,
+            }
+            return v
+
+
+
+def nans(sh):
+    return np.nan*np.ones(sh)
+
+
+
 def c_gamma(double v):
     return calc_gamma(v)
+
 
 
 cdef class psem:
@@ -183,7 +460,7 @@ cdef class psem:
     property var:
         def __get__(self):
             v = {
-                'a': self._thisp.a,
+                'a': 33.3 #self._thisp.a,
             }
             return v
 

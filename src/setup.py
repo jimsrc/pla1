@@ -12,7 +12,10 @@ ext = Extension("cython_wrapper",
                     "odeintt.cc", 
                     "stepperbs.cc",
                     ],
-                language="c++")
+                language="c++",
+                extra_compile_args = ['-g'],
+                extra_link_args = ['-g'],
+                )
 
 setup(name="cython_wrapper",
       ext_modules=cythonize(ext))
