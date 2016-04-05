@@ -10,7 +10,6 @@ class PARAMS_SEM{
 		~PARAMS_SEM(void) {};
 		long slab[3];
 		long two[2];
-        double a;
 };
 
 /*-------------------------- fases random -------------------------------*/
@@ -36,6 +35,8 @@ class PARAMS_TURB{
 		void build_Bk_SLAB(void);
 		void build_Bk_2D(void);
 		void report(void);
+		const static Doub gS=(5./3.);		// potencia espectral slab
+		const static Doub g2D=(8./3.);		// potencia espectral 2D
 	public:
 		PARAMS_TURB(string);	// constructor
 		PARAMS_TURB(void);			// constructor (otro)
@@ -43,7 +44,7 @@ class PARAMS_TURB{
 
 		string FNAME_INPUT;
 
-		int n_modos;
+		Int n_modos;
 		Doub lambda_min;
         Doub lambda_max;
 		Doub Lc_slab, Lc_2d;	// longitudes de correlacion
@@ -51,8 +52,6 @@ class PARAMS_TURB{
 		Doub percent_slab;
 		Doub percent_2d;
 
-		Doub gS;		// potencia espectral slab
-		Doub g2D;		// potencia espectral 2D
 		Doub Bo;
 		Doub sigma_S;
 		Doub sigma_2D;
@@ -64,6 +63,7 @@ class PARAMS_TURB{
 		PARAMS_SEM sem;
 		FASES fases;
 
+        void build_spectra();
 		void build(string);			// puedo usarlo si es q use el contructor con "void"
 };
 

@@ -85,7 +85,6 @@ void NRcatch(NRerror err) {
 #endif // _USENRERRORCLASS_
 */
 
-
 // usage example:
 //
 //	try {
@@ -588,7 +587,7 @@ turn_on_floating_exceptions yes_turn_on_floating_exceptions;
 #endif // _MSC_VER 
 #endif // _TURNONFPES 
 */
-#endif // _NR3_H_ 
+#endif // _NR3_H_
 
 //int main(){}      // to test dependecies
 //EOF

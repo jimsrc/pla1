@@ -38,4 +38,7 @@ class ESCALAS{
         Doub q;// = (4.8032*1e-10);         // [statC] carga PROTON
         Doub B;// = 5e-5;                   // [G] 5nT en Gauss
 };
+
+
+extern ESCALAS scl;    // global instance
 #endif //GENERAL_H

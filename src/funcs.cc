@@ -9,7 +9,7 @@ using namespace std;
 
 
 // declaration of definition in general.cc
-extern ESCALAS scl;
+//extern ESCALAS scl;
 
 
 /*----- FUNCIONES NORMALES -----*/
@@ -17,12 +17,9 @@ extern ESCALAS scl;
 // recibe una velocidad adimensionalizada
 // TODO: convertir esto en inline o macro!
 double calc_gamma(double v){
-    printf(" --> v: %g\n", v); scl.build(1e9);
 	double beta, gamma;
-    printf(" --> scl.vel: %g\n", scl.vel);
 	beta = v*scl.vel / clight;
 	gamma = pow(1. - beta*beta, -.5);
-    printf(" --> gamma: %g\n", gamma);
 	return gamma;
 }
 
@@ -420,7 +417,7 @@ void Output<Stepper>::toc(){
 PARAMS::PARAMS(string fname_turb):
 	MODEL_TURB(fname_turb) {
 	}
-void PARAMS::test(){ printf(" @c  n_modos: %d\n", p_turb.n_modos); }
+
 
 void PARAMS::calc_Bfield(VecDoub_I &y){
 	pos[0] = y[0] *scl.rl;		// [cm] x

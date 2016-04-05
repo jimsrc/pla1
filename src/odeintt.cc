@@ -4,10 +4,6 @@
 #include "funcs.h"
 #include "odeintt.h"
 
-
-//template<class Stepper>
-//Odeint<Stepper>::Odeint(){};
-
 template<class Stepper>
 Odeint<Stepper>::Odeint(VecDoub_IO &ystartt, const Doub xx1, const Doub xx2,
 	const Doub atol, const Doub rtol, const Doub h1, const Doub hminn,

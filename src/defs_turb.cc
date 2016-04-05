@@ -9,7 +9,7 @@
 
 
 // declaration of definition in general.cc
-extern ESCALAS scl;
+//extern ESCALAS scl;
 
 
 //=========================================================================
@@ -78,9 +78,8 @@ void FASES::construir_fases_random(PARAMS_SEM sem){
 
 
 //---------------------------------------- class PARAMS_TURB
-
-PARAMS_TURB::PARAMS_TURB(): n_modos(10), lambda_min(4.567) { // esto funciona c/cython!!!!
-//PARAMS_TURB::PARAMS_TURB(){
+//PARAMS_TURB::PARAMS_TURB(): n_modos(10), lambda_min(4.567) { // esto funciona c/cython!!!!
+PARAMS_TURB::PARAMS_TURB(){
 	cout << " ...construyendo PARAMS_TURB *sin* input." << endl;
 }
 PARAMS_TURB::PARAMS_TURB(string fname_input){
@@ -103,6 +102,8 @@ void PARAMS_TURB::report(void){
 	cerr << " sigma_Bo_ratio [1]:	" << sigma_Bo_ratio 		<< endl;
 	cerr << " percent_slab [%]:	" << 100.*percent_slab 		<< endl;
 	cerr << " percent_2d [%]: 	" << 100.*percent_2d 		<< endl;
+    cerr << " gS [1]: " << gS << endl;
+    cerr << " g2D [1]: " << g2D << endl;
 	cerr << " ----------------------------------------------------------------" << endl;
 }
 
@@ -111,13 +112,31 @@ void PARAMS_TURB::build(string fname_input){
 	FNAME_INPUT = fname_input;
 
 	read_params(fname_input); // setea n_modos, Lc_slab, Lc_2d, lambda_min, etc...
-	gS  = 5./3.;        // potencia espectral slab
-	g2D = 8./3.;        // potencia espectral 2D
+    build_spectra();
+}
 
-	dk	= new double[n_modos];
-	k	= new double[n_modos];
+
+/* Deben estar definidos:
+ * n_modos          [1]
+ * sigma_Bo_ratio   [1]
+ * Bo               [G]
+ * percent_slab     [1] fraction
+ * percent_2d       [1] fraction
+ * lambda_max       [cm]
+ * lambda_min       [cm]
+ * Lc_slab          [cm]
+ * Lc_2d            [cm]
+ * sem.slab[]       [1] tres semillas
+ * sem.two[]        [1] dos semillas
+*/
+void PARAMS_TURB::build_spectra(){
+	dk	    = new double[n_modos];
+	k	    = new double[n_modos];
 	Bk_SLAB	= new double[n_modos];
 	Bk_2D	= new double[n_modos];
+
+	//gS  = 5./3.;        // potencia espectral slab
+	//g2D = 8./3.;        // potencia espectral 2D
 
 	fases.build(n_modos, &sem);
 	build_sigmas();
@@ -170,8 +189,8 @@ void PARAMS_TURB::build_sigmas(){
 
 
 void PARAMS_TURB::build_k_and_dk(){
-	double kmin = 2. * M_PI / lambda_max;		// [cm^-1]
-	double kmax = 2. * M_PI / lambda_min;		// [cm^-1]
+	double kmin = (2. * M_PI) / lambda_max;		// [cm^-1]
+	double kmax = (2. * M_PI) / lambda_min;		// [cm^-1]
 	for(int i=0; i<n_modos; i++){
 		k[i]  = kmin * pow(kmax/kmin, 1.*i/(n_modos-1.));       // [cm^-1]
 		dk[i] = k[i] * (pow(kmax/kmin, 1./(n_modos-1)) - 1.);   // [cm^-1]
