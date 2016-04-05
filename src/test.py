@@ -60,8 +60,8 @@ pos_x = m.xyz[:,0] * m.scl['rl'] / AU_in_cm
 
 from pylab import plot, show, close, grid, xscale
 plot(t_sec, pos_x, '-o')
-grid()
 xscale('log')
+grid()
 show(); close()
 
 del m
