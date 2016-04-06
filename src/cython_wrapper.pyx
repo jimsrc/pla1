@@ -45,6 +45,7 @@ cdef class mgr:
             mu
             ph
         """
+        cdef Doub atol, rtol
         # estos parametros deben ir inmediatamente a la 
         # documentacion
         rigidity    = kargs['rigidity']
@@ -53,6 +54,8 @@ cdef class mgr:
         hmin        = kargs['hmin']
         mu          = kargs['mu']
         ph          = kargs['ph']
+        rtol        = kargs['rtol']
+        atol        = kargs['atol']
         #--- cond inic.
         cdef VecDoub *yini
         # posiciones a cero
@@ -61,9 +64,7 @@ cdef class mgr:
         yini[0][1] = sqrt(1.-mu*mu)*cos(ph) # [1] vx
         yini[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
         yini[0][5] = mu                     # [1] vz
-
-        cdef Doub atol, rtol
-        atol = rtol = 1e-5
+        #atol = rtol = 1e-5
 
         cdef rhs *d
         d = new rhs()
