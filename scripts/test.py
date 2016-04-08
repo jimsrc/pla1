@@ -29,19 +29,19 @@ pd = {
     'sem_two1'      : 79,
 }
 
+nB = 10          #--- realizacion de B ---#
+npla = 120        # dummy particle id
+
 psim = {
     'rigidity'      : 4.44583E+08,
     'tmax'          : 1e3,
     'FracGyroperiod': 5e-2,
     'hmin'          : 0.0,
-    'mu'            : -0.55557023301960196,
-    'ph'            : 7.853981633974482790e-01,
+    'mu'            : mu[npla],
+    'ph'            : ph[npla],
     'rtol'          : 1e-5,
     'atol'          : 1e-5,
 }
-
-nB = 0          #--- realizacion de B ---#
-npla = 0        # dummy particle id
 
 pother = {
     'str_timescale' : 'mixed',
@@ -63,7 +63,6 @@ def set_m(model, nB, pdict, **pother):
     #model.save2file()
     return model
 
-"""
 m.set_Bmodel(pdict=pd, nB=nB)
 m.build(**pother)
 
@@ -79,8 +78,8 @@ from pylab import plot, show, close, grid, xscale
 plot(t_sec, pos_x, '-o')
 xscale('log')
 grid()
+"""
 show(); close()
-
 del m
 """
 #EOF

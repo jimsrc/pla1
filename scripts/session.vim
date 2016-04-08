@@ -286,7 +286,7 @@ set updatetime=200
 set viminfo='100,<50,s10,h,n~/.vim/dirs/viminfo
 set wildignore=*.pyc
 set wildmode=list:longest
-set window=30
+set window=40
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
@@ -306,8 +306,10 @@ vsplit
 wincmd w
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 60 + 61) / 122)
-exe 'vert 2resize ' . ((&columns * 61 + 61) / 122)
+exe '1resize ' . ((&lines * 28 + 20) / 41)
+exe 'vert 1resize ' . ((&columns * 60 + 66) / 132)
+exe '2resize ' . ((&lines * 28 + 20) / 41)
+exe 'vert 2resize ' . ((&columns * 61 + 66) / 132)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
 xnoremap <buffer> <silent> \a} `>a}`<i{
@@ -422,11 +424,11 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 37 - ((25 * winheight(0) + 14) / 29)
+let s:l = 40 - ((27 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-37
+40
 normal! 0
 wincmd w
 argglobal
@@ -544,15 +546,17 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 71 - ((13 * winheight(0) + 14) / 29)
+let s:l = 70 - ((12 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-71
+70
 normal! 02l
 wincmd w
-exe 'vert 1resize ' . ((&columns * 60 + 61) / 122)
-exe 'vert 2resize ' . ((&columns * 61 + 61) / 122)
+exe '1resize ' . ((&lines * 28 + 20) / 41)
+exe 'vert 1resize ' . ((&columns * 60 + 66) / 132)
+exe '2resize ' . ((&lines * 28 + 20) / 41)
+exe 'vert 2resize ' . ((&columns * 61 + 66) / 132)
 tabedit test.py
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -561,8 +565,8 @@ vsplit
 wincmd w
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 61 + 61) / 122)
-exe 'vert 2resize ' . ((&columns * 60 + 61) / 122)
+exe 'vert 1resize ' . ((&columns * 61 + 66) / 132)
+exe 'vert 2resize ' . ((&columns * 70 + 66) / 132)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
 xnoremap <buffer> <silent> \a} `>a}`<i{
@@ -677,7 +681,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 10 - ((9 * winheight(0) + 14) / 28)
+let s:l = 10 - ((9 * winheight(0) + 19) / 38)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -799,16 +803,15 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 37 - ((10 * winheight(0) + 14) / 28)
+let s:l = 78 - ((31 * winheight(0) + 19) / 38)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-37
-normal! 042l
+78
+normal! 0
 wincmd w
-2wincmd w
-exe 'vert 1resize ' . ((&columns * 61 + 61) / 122)
-exe 'vert 2resize ' . ((&columns * 60 + 61) / 122)
+exe 'vert 1resize ' . ((&columns * 61 + 66) / 132)
+exe 'vert 2resize ' . ((&columns * 70 + 66) / 132)
 tabedit orientations_isotropic_Nth16_Nph8.in
 set splitbelow splitright
 wincmd t
@@ -932,7 +935,6 @@ exe s:l
 normal! zt
 83
 normal! 025l
-2wincmd w
 tabnext 2
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
