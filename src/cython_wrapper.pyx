@@ -25,8 +25,9 @@ cdef init_out(Output[StepperBS[rhs]] *op):
 
 cdef class mgr:
     cdef Output[StepperBS[rhs]] *outbs
-    cdef PARAMS_TURB *pt
-    cdef PARAMS *par
+    cdef PARAMS_TURB            *pt
+    cdef PARAMS                 *par
+    cdef Odeint[StepperBS[rhs]] *bsode
     pdict = {}
 
     def __cinit__(self):
@@ -69,10 +70,10 @@ cdef class mgr:
         cdef rhs *d
         d = new rhs()
 
-        cdef Odeint[StepperBS[rhs]] *bsode
+        #cdef Odeint[StepperBS[rhs]] *bsode
         cdef Doub x1, x2
         x1, x2 = 0.0, tmax #1e4
-        bsode = new Odeint[StepperBS[rhs]](
+        self.bsode = new Odeint[StepperBS[rhs]](
                 yini[0],x1,x2,atol,rtol,h1,hmin, 
                 self.outbs[0],d[0],self.par[0], 0
                 )
@@ -80,12 +81,80 @@ cdef class mgr:
 
         #--- integramos una pla
         self.outbs.tic()
-        bsode.integrate()
+        self.bsode.integrate()
         self.outbs.toc()
 
         print " ==> nrows ", self.outbs.ysave.nrows()
         print " ==> ncols ", self.outbs.ysave.ncols()
     
+
+    def set_sim(self, **kargs):
+        """
+        **kargs:
+            rigidity:
+            tmax
+            h1 
+            hmin
+            mu
+            ph
+        """
+        cdef Doub atol, rtol
+        # estos parametros deben ir inmediatamente a la 
+        # documentacion
+        rigidity    = kargs['rigidity']
+        tmax        = kargs['tmax']
+        h1          = kargs['FracGyroperiod']
+        hmin        = kargs['hmin']
+        mu          = kargs['mu']
+        ph          = kargs['ph']
+        rtol        = kargs['rtol']
+        atol        = kargs['atol']
+        #--- cond inic.
+        cdef VecDoub *yini
+        # posiciones a cero
+        yini = new VecDoub(6, 0.0)
+        # veloc inicial
+        yini[0][1] = sqrt(1.-mu*mu)*cos(ph) # [1] vx
+        yini[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
+        yini[0][5] = mu                     # [1] vz
+        #atol = rtol = 1e-5
+
+        cdef rhs *d
+        d = new rhs()
+
+        #cdef Odeint[StepperBS[rhs]] *bsode
+        cdef Doub x1, x2
+        x1, x2 = 0.0, tmax #1e4
+        self.bsode = new Odeint[StepperBS[rhs]](
+                yini[0],x1,x2,atol,rtol,h1,hmin, 
+                self.outbs[0],d[0],self.par[0], 0
+                )
+        scl.build(rigidity) #(1e7)
+        """
+        #--- integramos una pla
+        self.outbs.tic()
+        self.bsode.integrate()
+        self.outbs.toc()"""
+
+
+    def runsim_partial(self, x2=None):
+        if x2 is None: # chekear q sea tipo 'Doub'
+            print " x2 must have a value!"
+            raise SystemExit
+
+        self.bsode.x2 = x2  # <double> solo modificamos el 'x2' del 'Odeint()'
+        #--- integramos una pla
+        self.outbs.tic()
+        # chekear q el ystart sea el ultimo de la ultima "corrida"
+        self.bsode.integrate()
+        self.outbs.toc()
+        """
+        template<class Stepper>
+        void Odeint<Stepper>::integrate(Doub xx2) {
+            x2 = xx2;
+            integrate();
+        }"""
+
 
     def set_Bmodel(self, pdict, nB=0):
         """ inputs:

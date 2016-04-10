@@ -6,7 +6,7 @@ import src.cython_wrapper as cw
 AU_in_cm = 1.5e13
 
 #ori = np.loadtxt('orientations_isotropic_Nth16_Nph8.in')
-ori = np.loadtxt('orientations_isotropic.inp')
+ori = np.loadtxt('orientations_242.in')
 mu  = np.cos(ori[:,0])
 ph  = ori[:,1]
 

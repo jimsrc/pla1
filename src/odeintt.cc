@@ -19,6 +19,14 @@ Odeint<Stepper>::Odeint(VecDoub_IO &ystartt, const Doub xx1, const Doub xx2,
 	out.init(s.neqn, x1, x2);
 }
 
+/*
+template<class Stepper>
+void Odeint<Stepper>::integrate(Doub xx2) {
+    x2 = xx2;
+    integrate();
+}
+*/
+
 template<class Stepper>
 void Odeint<Stepper>::integrate() {
 	int i=0;
