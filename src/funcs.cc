@@ -369,7 +369,7 @@ void Output<Stepper>::save2file(){
 		vx 	= ysave[1][i];  			// [1] 
 		vy 	= ysave[3][i];  			// [1]
 		vz 	= ysave[5][i];  			// [1]
-		v 	= pow(vx*vx + vy*vy + vz*vz, .5); 	// [1]
+		v 	= pow(vx*vx + vy*vy + vz*vz, .5); 	// [1] TODO: CAMBIARLO A 'sqrt'
 		gamma	= calc_gamma(v);
 		err	= gamma/scl.gamma - 1.;			// error relativ del gamma relativista
 
