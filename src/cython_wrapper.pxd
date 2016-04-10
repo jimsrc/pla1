@@ -1,4 +1,8 @@
+#--- librerias de c
+#from libc.math cimport sqrt, sin, cos
+from libc.math cimport sqrt
 
+#--- esto hay q sacarlo
 cdef extern from "tt.h":
     cpdef cppclass jim:
         jim()
@@ -12,7 +16,7 @@ cdef extern from "tt.h":
     int run3(double x1, double rigidity, PARAMS_TURB pt);
 
 
-
+#--- estructuras c++
 cdef extern from "nr3.h":
     #cdef typename Doub # declarar lo q ya esta definido en general.h?
     #------ NRvector ------#

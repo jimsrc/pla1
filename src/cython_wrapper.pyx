@@ -156,6 +156,18 @@ cdef class mgr:
         s.pt.sem.two[1]  = pd['sem_two1']
 
 
+    """ for some reason, this compiles, but doesn't 
+        run properly :(
+    def set_all(self, pdict, nB, pother):
+        if None in (pdict, nB, pother):
+            print ' ---> argumento None en set_all(..)!!'
+            raise SystemExit
+
+        self.set_Bmodel(pdict=pdict, nB=nB)
+        self.build(**pother)
+    """
+
+
     def __dealloc__(self):
         #NOTE: cython will ignore
         #      a 'del self.pdict' because
@@ -216,19 +228,55 @@ cdef class mgr:
             cdef int n
             n = self.outbs.count
             v = nans((n, 3))
-            v[:,0] = self.ysave[0,:n]
-            v[:,1] = self.ysave[2,:n]
-            v[:,2] = self.ysave[4,:n]
+            v[:,0] = self.ysave[0,:n]   # [1]
+            v[:,1] = self.ysave[2,:n]   # [1]
+            v[:,2] = self.ysave[4,:n]   # [1]
             return v
 
-    property v:
+    property vel:
         def __get__(self):
             n = self.outbs.count
-            v = nans((n, 3))
+            v = nans((n, 4))
             v[:,0] = self.ysave[1,:n]
             v[:,1] = self.ysave[3,:n]
             v[:,2] = self.ysave[5,:n]
+            sum2   = np.empty(n, dtype=np.float64)
+            sum2   = v[:,0]*v[:,0]+v[:,1]*v[:,1]+v[:,2]*v[:,2]
+            v[:,3] = np.power(sum2, 0.5) # modulo
             return v
+
+    property err:
+        """ error de la energia total  """
+        def __get__(self):
+            """ retorna los errores de la energia total
+            """
+            cdef Doub vx, vy, vz, v, gamma
+            cdef Int i, n
+            n = self.outbs.count
+            err = nans(n)
+            for i in range(n):
+                vx  = self.outbs.ysave[1][i]    # [1]
+                vy  = self.outbs.ysave[3][i]    # [1]
+                vz  = self.outbs.ysave[5][i]    # [1]
+                v 	= sqrt(vx*vx + vy*vy + vz*vz)
+                gamma	= calc_gamma(v);
+                err[i]	= gamma/scl.gamma - 1.0
+
+            return err
+
+    property mu:
+        """ mu: cosine of pitch angle """
+        def __get__(self):
+            cdef double *ptr
+            cdef np.ndarray ndarray
+            n = self.outbs.count          # nro of saved times
+            ptr = &(self.outbs.mu[0])
+            arrw = ArrayWrapper()
+            arrw.set_data(n, <void*> ptr, survive=True)
+            ndarray = np.array(arrw, copy=False)
+            ndarray.base = <PyObject*> arrw
+            Py_INCREF(arrw)
+            return ndarray
 
     property scl:
         def __get__(self):
