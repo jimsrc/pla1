@@ -65,7 +65,7 @@ class Output {
 		int nreb;			// nro de rebotes/scatterings en pitch
 		MatDoub Tau;			// tiempo de camino libre medio paralelo, y su posic x
 		VecDoub mu;
-		void set_Bmodel(PARAMS);	// para apuntar al modelo q uso en main()
+		void set_Bmodel(PARAMS*);	// para apuntar al modelo q uso en main()
 		void tic(void), toc(void);	// cronometro para c/pla
 		Doub trun;			// tiempo de simulacion de c/pla
 		Int nsteps;			// nro total de pasos de c/pla 

@@ -19,6 +19,10 @@ using namespace std;
 double calc_gamma(double v){
 	double beta, gamma;
 	beta = v*scl.vel / clight;
+    #ifdef BETA_CHECK
+    if (beta>=1.0):
+        printf(" beta>=1.0!!, beta: %g, v: %g\n", beta, v);
+    #endif
 	gamma = pow(1. - beta*beta, -.5);
 	return gamma;
 }
@@ -249,6 +253,7 @@ template <class Stepper>
 void Output<Stepper>::save_pitch(){
 	for(int i=0;i<3;i++)
 		pos[i] = (ysave[(2*i)][count]) *scl.rl;	// [cm]
+    //printf(" >>> save_pitch...\n");
 	pm->calc_B(pos);
 
 	bx=pm->B[0];		by=pm->B[1];		bz=pm->B[2];		// [G]
@@ -303,8 +308,8 @@ void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,co
 //esto lo agrego para guardar cosas de la historia de 
 //las trayectorias:
 template <class Stepper>
-void Output<Stepper>::set_Bmodel(PARAMS pmm){
-	pm = &pmm;
+void Output<Stepper>::set_Bmodel(PARAMS *pmm){
+	pm = pmm;
 }
 
 
@@ -420,6 +425,7 @@ PARAMS::PARAMS(string fname_turb):
 
 
 void PARAMS::calc_Bfield(VecDoub_I &y){
+    //printf(" >>> calc_Bfield...\n");
 	pos[0] = y[0] *scl.rl;		// [cm] x
 	pos[1] = y[2] *scl.rl;		// [cm] y
 	pos[2] = y[4] *scl.rl;		// [cm] z
