@@ -20,7 +20,7 @@ double calc_gamma(double v){
 	double beta, gamma;
 	beta = v*scl.vel / clight;
     #ifdef BETA_CHECK
-    if (beta>=1.0):
+    if (beta>=1.0)
         printf(" beta>=1.0!!, beta: %g, v: %g\n", beta, v);
     #endif
 	gamma = pow(1. - beta*beta, -.5);
