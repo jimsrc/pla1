@@ -28,6 +28,8 @@ cdef class mgr:
     cdef PARAMS_TURB            *pt
     cdef PARAMS                 *par
     cdef Odeint[StepperBS[rhs]] *bsode
+    cdef rhs                    *d
+    cdef Doub tmax # t maximo absouto
     pdict = {}
 
     def __cinit__(self):
@@ -88,6 +90,61 @@ cdef class mgr:
         print " ==> ncols ", self.outbs.ysave.ncols()
     
 
+    def SetSim(self, **kargs):
+        """
+        **kargs:
+            rigidity:
+            tmax
+            h1 
+            hmin
+            mu
+            ph
+        """
+        cdef Doub atol, rtol
+        # estos parametros deben ir inmediatamente a la 
+        # documentacion
+        rigidity    = kargs['rigidity']
+        tmax        = kargs['tmax']
+        h1          = kargs['FracGyroperiod']
+        hmin        = kargs['hmin']
+        mu          = kargs['mu']
+        ph          = kargs['ph']
+        rtol        = kargs['rtol']
+        atol        = kargs['atol']
+        #--- cond inic.
+        cdef VecDoub *yini
+        # posiciones a cero
+        yini = new VecDoub(6, 0.0)
+        # veloc inicial
+        yini[0][1] = sqrt(1.-mu*mu)*cos(ph) # [1] vx
+        yini[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
+        yini[0][5] = mu                     # [1] vz
+        #atol = rtol = 1e-5
+
+        """cdef rhs *d
+        d = new rhs()"""
+        self.d = new rhs()
+
+        #cdef Odeint[StepperBS[rhs]] *bsode
+        cdef Doub x1, x2
+        x1, x2 = 0.0, tmax #1e4
+        self.bsode = new Odeint[StepperBS[rhs]](
+            yini[0],x1,x2,atol,rtol,h1,hmin, 
+            self.outbs[0],self.d[0],self.par[0], 0
+        )
+        scl.build(rigidity) #(1e7)
+
+
+    def RunSim(self):
+        #--- integramos una pla
+        self.outbs.tic()
+        self.bsode.integrate()
+        self.outbs.toc()
+
+        print " ==> nrows ", self.outbs.ysave.nrows()
+        print " ==> ncols ", self.outbs.ysave.ncols()
+
+
     def set_sim(self, **kargs):
         """
         **kargs:
@@ -125,6 +182,8 @@ cdef class mgr:
         #cdef Odeint[StepperBS[rhs]] *bsode
         cdef Doub x1, x2
         x1, x2 = 0.0, tmax #1e4
+        self.tmax = x2
+
         self.bsode = new Odeint[StepperBS[rhs]](
                 yini[0],x1,x2,atol,rtol,h1,hmin, 
                 self.outbs[0],d[0],self.par[0], 0
@@ -138,15 +197,24 @@ cdef class mgr:
 
 
     def runsim_partial(self, x2=None):
-        if x2 is None: # chekear q sea tipo 'Doub'
+        print " joe lets do this..."
+        #wrong = (x2 is None) or (x2>self.tmax)
+        wrong = (x2 > self.tmax)
+        print " ok Boris? "
+        if wrong: # chekear q x2 sea tipo 'Doub'
             print " x2 must have a value!"
             raise SystemExit
 
-        self.bsode.x2 = x2  # <double> solo modificamos el 'x2' del 'Odeint()'
+        print " ok Doris! "
+        self.bsode.x2 = <Doub>x2  # <double> solo modificamos el 'x2' del 'Odeint()'
+        print " ok Doris!?? "
         #--- integramos una pla
         self.outbs.tic()
         # chekear q el ystart sea el ultimo de la ultima "corrida"
+        print "integrate()..."
+        print " bsode.x2: ", self.bsode.x2
         self.bsode.integrate()
+        print "end."
         self.outbs.toc()
         """
         template<class Stepper>
@@ -166,7 +234,7 @@ cdef class mgr:
         #self.pdict = pdict # no esta permitido cambiar el puntero!
         self.build_pturb() # objeto PARAMS_TURB
         self.build_par(nB=nB) # objeto PARAMS
-        self.outbs.set_Bmodel(self.par[0])
+        self.outbs.set_Bmodel(self.par)
 
 
     def build(self, str_timescale, nsave, tmaxHistTau, nHist, i, j, dir_out):
