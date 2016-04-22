@@ -15,12 +15,12 @@
 #include <string.h>
 #include <ctype.h>
 */
-
+#include "control.h"
 #include "nr3.h"
 #include <cstdlib>
 //#include "control.h"
 
-
+// TODO: make ALL members static!! (const parece no funcionar)
 class ESCALAS{
     public:
         ESCALAS(void){};
@@ -31,6 +31,9 @@ class ESCALAS{
         Doub vel;             // [cm/s] velocidad
         Doub beta;
         Doub gamma;
+        const static Doub _clight = clight;
+        const static Doub _AU_in_cm = AU_in_cm;
+        const static Doub _nT_in_G = nT_in_G;
     private:
         Doub mo;// = (1.6726*1e-24);        // [gr] masa PROTON
         Doub Ereposo;// = 938272013.0;      // [eV] energia de reposo PROTON
