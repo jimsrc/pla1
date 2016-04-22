@@ -1,6 +1,7 @@
 #ifndef CONTROL
 #define CONTROL
 
+#define BETA_CHECK 1 // checkea q siempre beta<1
 #define NVAR    (6)
 
 //--------------------------------------CTES UNIVERSALES

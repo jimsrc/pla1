@@ -121,7 +121,7 @@ cdef extern from "funcs.h":
             Int nsave, Doub tmaxHistTau, 
             Int nHist, int i, int j, 
             char *dir_out)
-        void set_Bmodel(PARAMS par)
+        void set_Bmodel(PARAMS *par)
         void save2file()
         int nvar
         char fname_out[200];
