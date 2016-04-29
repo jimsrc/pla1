@@ -140,9 +140,8 @@ cdef class mgr:
         self.outbs.tic()
         self.bsode.integrate()
         self.outbs.toc()
-
-        print " ==> nrows ", self.outbs.ysave.nrows()
-        print " ==> ncols ", self.outbs.ysave.ncols()
+        #print " ==> nrows ", self.outbs.ysave.nrows()
+        #print " ==> ncols ", self.outbs.ysave.ncols()
 
 
     def set_sim(self, **kargs):
