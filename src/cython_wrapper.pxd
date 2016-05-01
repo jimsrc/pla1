@@ -137,6 +137,13 @@ cdef extern from "funcs.h":
         VecDoub mu
         VecDoub xsave # time
         MatDoub ysave # posic && veloc
+        #--- MONIT_STEP
+        MatDoub HistStep
+        MatDoub HistSeq
+        Int NStep
+        void build_HistSeq(const T s);
+        #Doub MinStep
+
 
     cdef cppclass rhs: # (*1)
         void operator() (PARAMS par, const Doub x, VecDoub_I &y, VecDoub_O &dydx);

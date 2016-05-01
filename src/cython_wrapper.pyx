@@ -119,13 +119,11 @@ cdef class mgr:
         yini[0][1] = sqrt(1.-mu*mu)*cos(ph) # [1] vx
         yini[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
         yini[0][5] = mu                     # [1] vz
-        #atol = rtol = 1e-5
 
         """cdef rhs *d
         d = new rhs()"""
         self.d = new rhs()
 
-        #cdef Odeint[StepperBS[rhs]] *bsode
         cdef Doub x1, x2
         x1, x2 = 0.0, tmax #1e4
         self.bsode = new Odeint[StepperBS[rhs]](
@@ -136,6 +134,7 @@ cdef class mgr:
 
 
     def RunSim(self):
+        #nelf.outbs.build_HistSeq(self.bsode.s)
         #--- integramos una pla
         self.outbs.tic()
         self.bsode.integrate()
@@ -368,6 +367,11 @@ cdef class mgr:
             v[:,1] = self.ysave[2,:n]   # [1]
             v[:,2] = self.ysave[4,:n]   # [1]
             return v
+    """
+    property MinStep:
+        def __get__(self):
+            return self.outbs.MinSte
+    """
 
     property vel:
         def __get__(self):
@@ -426,6 +430,46 @@ cdef class mgr:
             }
             return v
 
+    property HistStep:
+        def __get__(self):
+            cdef double *ptr
+            cdef np.ndarray ndarray
+            cdef int nx, ny
+            #nx = self.outbs.NStep #500 #6        # 'nvar' en c++
+            nx = self.outbs.HistStep.nrows()
+            ny = self.outbs.HistStep.ncols()
+            arrw = ArrayWrapper_2d()
+
+            ptr = &(self.outbs.HistStep[0][0])
+            #print self.outbs.HistStep[0][1]
+            arrw.set_data(nx, ny, <void*> ptr, survive=True)
+
+            ndarray = np.array(arrw, copy=False)
+            ndarray.base = <PyObject*> arrw
+            Py_INCREF(arrw)
+            #free(self.ptr)
+            return ndarray
+
+
+    property HistSeq:
+        def __get__(self):
+            cdef double *ptr
+            cdef np.ndarray ndarray
+            cdef int nx, ny
+            nx = self.outbs.HistSeq.nrows()
+            #ny = self.outbs.count        # nro of saved times
+            ny = self.outbs.HistSeq.ncols()
+            arrw = ArrayWrapper_2d()
+
+            ptr = &(self.outbs.HistSeq[0][0])
+            #print self.outbs.HistStep[0][1]
+            arrw.set_data(nx, ny, <void*> ptr, survive=True)
+
+            ndarray = np.array(arrw, copy=False)
+            ndarray.base = <PyObject*> arrw
+            Py_INCREF(arrw)
+            #free(self.ptr)
+            return ndarray
 
 
 def nans(sh):
