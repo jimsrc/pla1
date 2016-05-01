@@ -335,6 +335,10 @@ void StepperBS<D>::step(const Doub htry, D &derivs) {
 	;
 
 	//printf("h: %1.1Le\t k/nstep: %d / %d\n", h, k, nseq[k]);		/// long double
+    #ifdef MONIT_STEP
+    nstep = nseq[k]; 
+    #endif //MONIT_STEP
+
 	derivs(par,x+h,y,dydxnew);
 	if (dense) {
 		prepare_dense(h,dydxnew,ysav,scale,k,err);

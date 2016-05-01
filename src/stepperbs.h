@@ -53,6 +53,10 @@ struct StepperBS : StepperBase {
 	virtual Doub dense_out(const Int i,const Doub x,const Doub h);
 	virtual void dense_interp(const Int n, VecDoub_IO &y, const Int imit);
 	PARAMS par;
+
+    #ifdef MONIT_STEP
+    Int nstep;
+    #endif
 };
 
 #endif // STEPPERBS_H

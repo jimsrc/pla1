@@ -29,6 +29,10 @@ void Odeint<Stepper>::integrate(Doub xx2) {
 
 template<class Stepper>
 void Odeint<Stepper>::integrate() {
+    #ifdef MONIT_STEP
+    out.build_HistSeq(s);       // inicializa histog del "nseq"
+    #endif
+
 	int i=0;
 	derivs(par, x, y, dydx);
 	if (dense)
@@ -47,6 +51,11 @@ void Odeint<Stepper>::integrate() {
 		check_scattering();				//--- scattering stuff
 
 		if (s.hdid == h) ++nok; else ++nbad;
+
+        #ifdef MONIT_STEP
+        out.monit_step(s);               // monitoreo del step
+        #endif //MONIT_STEP
+
 		if (dense){
 			out.out(nstp, x, y, s, s.hdid);		// guarda solo si x>xout
 		}
