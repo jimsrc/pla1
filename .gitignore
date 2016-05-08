@@ -9,3 +9,6 @@
 *.nc
 
 _*
+
+# cython-generated code
+src/cython_wrapper.cpp

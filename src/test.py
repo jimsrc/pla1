@@ -41,7 +41,7 @@ npla = 0        # dummy particle id
 pother = {
     'str_timescale' : 'mixed',
     'nsave'         : 20,
-    'tmaxHistTau'   : 150,
+    'tmaxHistTau'   : 110,
     'nHist'         : 100,
     'i'             : npla,
     'j'             : nB,
@@ -56,6 +56,7 @@ m.runsim(**psim)
 m.save2file()
 
 ys = m.ysave
+h_step = m.HistStep
 
 t_sec = m.tsave / m.scl['wc'] # [sec]
 pos_x = m.xyz[:,0] * m.scl['rl'] / AU_in_cm
