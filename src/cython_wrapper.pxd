@@ -1,6 +1,6 @@
 #--- librerias de c
 #from libc.math cimport sqrt, sin, cos
-from libc.math cimport sqrt
+from libc.math cimport sqrt, pow
 
 #--- esto hay q sacarlo
 cdef extern from "tt.h":
