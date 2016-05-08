@@ -56,7 +56,7 @@ struct StepperBS : StepperBase {
 
     #ifdef MONIT_STEP
     Int nstep;
-    #endif
+    #endif //MONIT_STEP
 };
 
 #endif // STEPPERBS_H

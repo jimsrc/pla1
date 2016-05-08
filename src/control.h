@@ -1,6 +1,7 @@
 #ifndef CONTROL
 #define CONTROL
 
+#define CYTHON     1 // stuff for cython handling
 #define MONIT_STEP 1 // monitorea el step
 #define BETA_CHECK 1 // checkea q siempre beta<1
 #define NVAR    (6)
