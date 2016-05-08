@@ -35,9 +35,18 @@ pd = {
 nB = 0          #--- realizacion de B ---#
 npla = 0        # dummy particle id
 
+"""
+(Bo = 5nT; omega=omega_{rel})
+Ek/eV   Rigidity/V   Rl/AU          beta
+1e6     4.33306E+07  1.929785E-04   4.613215E-02
+1e7     1.37352E+08  6.117125E-04   1.448440E-01
+1e8     4.44583E+08  1.980009E-03   4.281955E-01
+1e9     1.69604E+09  7.553521E-03   8.750257E-01
+1e10    1.0898E+10   4.853544E-02   9.963142E-01
+"""
 psim = {
-    'rigidity'      : 1.69604E+09, #1.0898E+10, #4.33306E+07,
-    'tmax'          : 4e4,
+    'rigidity'      : 4.33306E+07,
+    'tmax'          : 1e4, #4e4,
     'FracGyroperiod': 5e-2,
     'hmin'          : 0.0,
     'mu'            : mu[npla],
@@ -67,6 +76,10 @@ m.RunSim()
 
 fname_out = 'test.h5'
 ff.save_to_h5(m, fname_out)
+
+h_step = m.HistStep
+h_seq  = m.HistSeq
+#minst = m.MinStep
 
 #m.runsim(**psim)
 #m.set_sim(**psim)
