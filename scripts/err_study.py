@@ -3,37 +3,12 @@
 import numpy as np
 import src.cython_wrapper as cw
 import funcs as ff
-
-#-----------------------------------------
-AU_in_cm = 1.5e13
-
-#ori = np.loadtxt('orientations_isotropic_Nth16_Nph8.in')
-ori = np.loadtxt('orientations_122.in')
-mu  = np.cos(ori[:,0])
-ph  = ori[:,1]
-
-#--- B-field parameters only
-pd = {
-    # parametros fisicos
-    'n_modos'       : 128,
-    'lambda_min'    : ((5e-5)*AU_in_cm),
-    'lambda_max'    : 1.0*AU_in_cm,
-    'Lc_slab'       : 0.01*AU_in_cm,
-    'Lc_2d'         : 0.01*AU_in_cm,
-    'sigma_Bo_ratio': 1.0,
-    'percent_slab'  : 0.2,
-    'percent_2d'    : 0.8,
-    'Bo'            : 5e-5,   # [Gauss]
-    # semillas
-    'sem_slab0'     : 17,
-    'sem_slab1'     : 101,
-    'sem_slab2'     : 33,
-    'sem_two0'      : 14,
-    'sem_two1'      : 79,
-}
-
-nB = 0          #--- realizacion de B ---#
-npla = 0        # dummy particle id
+import os
+from os.path import isfile, isdir
+#--- parameters
+from params import (
+    nB, pd, psim, pother, mu, ph, AU_in_cm
+)
 
 """
 (Bo = 5nT; omega=omega_{rel})
@@ -44,27 +19,20 @@ Ek/eV   Rigidity/V   Rl/AU          beta
 1e9     1.69604E+09  7.553521E-03   8.750257E-01
 1e10    1.0898E+10   4.853544E-02   9.963142E-01
 """
-psim = {
-    'rigidity'      : 4.44583E+08, #4.33306E+07,
-    'tmax'          : 4e4, #4e4,
-    'FracGyroperiod': 5e-2,
-    'hmin'          : 0.0,
-    'mu'            : mu[npla],
-    'ph'            : ph[npla],
-    'rtol'          : 0.0, #1e-5,
-    'atol'          : 1e-6,
-}
 
-pother = {
-    'str_timescale' : 'mixed',
-    'nsave'         : 20,
-    'tmaxHistTau'   : 150,
-    'nHist'         : 150,
-    'i'             : npla,
-    'j'             : nB,
-    'dir_out'       : './',
-}
-
+nB = 0          #--- realizacion de B ---#
+npla = 0        # dummy particle id
+#--- set B-turbulence model
+pd['n_modos']    = 128
+pd['lambda_min'] = ((5e-5)*AU_in_cm)
+#--- corregimos input
+psim['rigidity'] = 1.69604E+09
+rl = cw.calc_Rlarmor(psim['rigidity'],pd['Bo']) #[cm]
+eps_o = 4e-5
+psim['atol']     = pd['lambda_min']*eps_o/rl
+psim['rtol']     = 0.0 #1e-6
+psim['tmax']     = 4e4 #0.3e4 #4e4
+print " ----> simulation parameters:\n", psim
 
 m = cw.mgr()
 
@@ -79,6 +47,24 @@ ff.save_to_h5(m, fname_out)
 
 h_step = m.HistStep
 h_seq  = m.HistSeq
+
+#--- output
+po = {}
+po.update(psim)
+po.update(pd)
+po['lambda_min'] /= AU_in_cm
+dir_out = './err_out'
+fname_out = dir_out+'/R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.h5'.format(**po)
+
+#--- save to file
+f = ff.save_to_h5(m, fname_out, file=None, close=False)
+f['HistStep/htot_bin'] = h_step[:,0]
+f['HistStep/htot_cts'] = h_step[:,1]
+f['HistStep/hrel_bin'] = h_step[:,2]
+f['HistStep/hrel_cts'] = h_step[:,3]
+f['HistSeq/seq_bin']   = h_seq[:,0]
+f['HistSeq/seq_cts']   = h_seq[:,1]
+f.close()
 
 #m.runsim(**psim)
 #m.set_sim(**psim)
