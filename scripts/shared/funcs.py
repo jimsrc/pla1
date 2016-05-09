@@ -6,6 +6,57 @@ import numpy as np
 from pylab import pause
 
 
+def load_traj(fname):
+    f      = h5(fname, 'r')
+    PNAMES = f.keys()    # particle names
+    n      = len(PNAMES) # nmbr of plas in this file
+    # take a sample to find out the times
+    tadim  = f[PNAMES[0]+'/tadim'].value
+    nt     = tadim.size 
+    x = np.zeros((n,nt))
+    y = np.zeros((n,nt))
+    z = np.zeros((n,nt))
+    for pname, i in zip(PNAMES, range(n)):
+        x[i,:], y[i,:], z[i,:] = f[pname+'/xyz'].value.T # [AU]
+
+    wc   = f[PNAMES[0]+'/scl_wc'].value  # [s-1]
+    rl   = f[PNAMES[0]+'/scl_rl'].value  # [cm]
+    beta = f[PNAMES[0]+'/scl_beta'].value  # [1]
+    o = {
+    'x': x, 'y':y, 'z': z,  # (n, nt)
+    'tadim': tadim,
+    'wc': wc, 'rl': rl, 'beta': beta,
+    'nplas': n, 'ntime': nt,
+    }
+    return o
+
+
+def get_sqrs(fname_inp):
+    o     = load_traj(fname_inp)
+    nt    = o['ntime']
+    nplas = o['nplas']
+    x, y, z = o['x'], o['y'], o['z']  # [AU] (nplas, nt)
+    rl    = o['rl']                   # [cm]
+    wc    = o['wc']                   # [s-1]
+    tadim = o['tadim']                # [1]
+    tdim  = tadim/wc                  # [s]
+    AUincm = 1.5e13                   # [cm]
+    # promediamos sobre particulas
+    x2 = (x*x*AUincm**2).mean(axis=0) # [cm^2] 
+    y2 = (y*y*AUincm**2).mean(axis=0) # [cm^2] 
+    z2 = (z*z*AUincm**2).mean(axis=0) # [cm^2] 
+    kxx = x2/tdim                     # [cm2/s]
+    kyy = y2/tdim                     # [cm2/s]
+    kzz = z2/tdim                     # [cm2/s]
+    out = {
+    'kxx': kxx, 'kyy': kyy, 'kzz': kzz,
+    'tdim': tdim, 'tadim':tadim, 
+    'wc': wc, 'rl': rl, 
+    'nplas': nplas, 'ntime': nt,
+    }
+    return out
+
+
 def equi_bounds(dini, dend, n):
     """
     bounds in 'n' equipartitioned segments inside a numerical
