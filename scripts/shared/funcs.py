@@ -8,6 +8,7 @@ from pylab import pause
 
 def load_traj(fname):
     f      = h5(fname, 'r')
+    print " ---> reading: " + fname
     PNAMES = f.keys()    # particle names
     n      = len(PNAMES) # nmbr of plas in this file
     # take a sample to find out the times
@@ -17,13 +18,14 @@ def load_traj(fname):
     y = np.zeros((n,nt))
     z = np.zeros((n,nt))
     for pname, i in zip(PNAMES, range(n)):
-        x[i,:], y[i,:], z[i,:] = f[pname+'/xyz'].value.T # [AU]
+        print " --> pname: ", pname
+        x[i,:], y[i,:], z[i,:] = f[pname+'/xyz'].value.T # [1]
 
     wc   = f[PNAMES[0]+'/scl_wc'].value  # [s-1]
     rl   = f[PNAMES[0]+'/scl_rl'].value  # [cm]
     beta = f[PNAMES[0]+'/scl_beta'].value  # [1]
     o = {
-    'x': x, 'y':y, 'z': z,  # (n, nt)
+    'x': x*rl, 'y':y*rl, 'z': z*rl,  # [cm] (n, nt)
     'tadim': tadim,
     'wc': wc, 'rl': rl, 'beta': beta,
     'nplas': n, 'ntime': nt,
@@ -35,16 +37,16 @@ def get_sqrs(fname_inp):
     o     = load_traj(fname_inp)
     nt    = o['ntime']
     nplas = o['nplas']
-    x, y, z = o['x'], o['y'], o['z']  # [AU] (nplas, nt)
+    x, y, z = o['x'], o['y'], o['z']  # [cm] (nplas, nt)
     rl    = o['rl']                   # [cm]
     wc    = o['wc']                   # [s-1]
     tadim = o['tadim']                # [1]
     tdim  = tadim/wc                  # [s]
     AUincm = 1.5e13                   # [cm]
     # promediamos sobre particulas
-    x2 = (x*x*AUincm**2).mean(axis=0) # [cm^2] 
-    y2 = (y*y*AUincm**2).mean(axis=0) # [cm^2] 
-    z2 = (z*z*AUincm**2).mean(axis=0) # [cm^2] 
+    x2 = (x*x).mean(axis=0)           # [cm^2] 
+    y2 = (y*y).mean(axis=0)           # [cm^2] 
+    z2 = (z*z).mean(axis=0)           # [cm^2] 
     kxx = x2/tdim                     # [cm2/s]
     kyy = y2/tdim                     # [cm2/s]
     kzz = z2/tdim                     # [cm2/s]
