@@ -3,6 +3,7 @@
 from h5py import File as h5
 from os.path import isfile, isdir
 import numpy as np
+from pylab import pause
 
 
 def equi_bounds(dini, dend, n):
@@ -41,6 +42,59 @@ def equi_intervals(dini, dend, n):
         " --> somethng went wrong!  :/ "
 
     return days_part
+
+
+
+def w2file(rank, fname, var, vname, mode='r+'):
+    try:
+        pause(0.2*(rank+1))
+        f = h5(fname, mode=mode)
+        f[vname] = var
+        f.close()
+        #print " [r:%d] ########## TERMINE ########## " % rank
+    except NameError:
+        pause((rank+1)*0.3)
+        f.close()
+        w2file(rank, fname, var, vname, mode='r+')
+    except RuntimeError as e:
+        if e.message.startswith("Unable to create link"):
+            pass
+        pause((rank+1)*0.3)
+        if isfile(fname):
+            w2file(rank, fname, var, vname, mode='r+')
+        else:
+            w2file(rank, fname, var, vname, mode='w')
+    except IOError as e:
+        #print " [r:%d] MSG: %s" % (rank, e.message)
+        pause((rank+1)*0.3)
+        #print " [r:%d] --->"%rank, dir(e)
+        if isfile(fname):
+            w2file(rank, fname, var, vname, mode='r+')
+        else:
+            w2file(rank, fname, var, vname, mode='w')
+
+
+#w2file(rank, 'test.h5', a, 'a%02d'%rank)
+def SaveToFile_ii(rank, m, dpath, fname_out):
+    vsave = {
+        'tadim'     : m.tsave,      # [omega^-1]
+        'ysave'     : m.ysave,      # [1]
+        'xyz'       : m.xyz,        # [1]
+        'err'       : m.err,        # [1] no porcentaje
+        'mu'        : m.mu,         # [1]
+        'vel'       : m.vel,        # [scl_vel] normalizadas
+        'scl_wc'    : m.scl['wc'],  # [s^-1]
+        'scl_vel'   : m.scl['vel'], # [cm/s]
+        'scl_beta'  : m.scl['beta'], # [1]
+        'scl_gamma' : m.scl['gamma'], # [1]
+        'scl_rl'    : m.scl['rl'],  # [cm]
+    }
+
+    #print " ---> saving: " + f.filename
+    for name in vsave.keys():
+        dname = dpath + name   # anteponemos algo
+        w2file(rank, fname_out, vsave[name], dname)
+        #f[dname] = vsave[name]
 
 
 

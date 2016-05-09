@@ -30,7 +30,7 @@ pd['lambda_min'] = ((5e-5)*AU_in_cm)
 psim['rigidity'] = 4.33306E+07
 psim['tmax']     = 4e4 #0.3e4 #4e4
 rl = cw.calc_Rlarmor(psim['rigidity'],pd['Bo']) #[cm]
-eps_o = 3.3e-6 #3.33e-5 #4e-5 # ratio: (error-step)/(lambda_min)
+eps_o = 3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 psim['atol']     = pd['lambda_min']*eps_o/rl
 psim['rtol']     = 0.0 #1e-6
 #---------------------------
@@ -61,6 +61,7 @@ if rank==0 and isfile(fname_out):  # backup if already exists
     os.system('mv {fname} {fname}_'.format(fname=fname_out))
 #new = True # new-file flag
 
+nbin = 1000 # for step-size histograms
 for npla in plas: #[25:]:
     #--- set particle id && direction
     pother['i']  = npla
@@ -73,45 +74,24 @@ for npla in plas: #[25:]:
     m.RunSim()
 
     print " [r:%d] simulation (pla:%d) finished!" % (rank, npla)
-
-    if isfile(fname_out):
-        pause(0.2*(rank + 1))
-        fo = h5(fname_out, 'r+') # append
-    else:
-        fo = h5(fname_out, 'w')  # create
-
-    while 'mine' in fo.keys():
-        pause(0.1)
-        fo = h5(fname_out, 'r+') # read again
-
-    fo['mine'] = 1    # file ocupado
-    print " [r:%d] now i'll write" % rank
     dpath = 'pla%03d/' % npla
-    ff.SaveToFile(m, dpath=dpath, f=fo)
+    print " [r:%d] now i'll write" % rank
+    ff.SaveToFile_ii(rank, m, dpath, fname_out)
+
     #--- histos of step-size
     st      = m.step_save # shape: (2,Odeint::MAXSTP)
     st_tot  = st[0,:][st[0,:]!=0] # filter-out zero values
     st_part = st[1,:][st[1,:]!=0] # ""
-    #st     = st[0,:][st!=0]   # filter-out zero values
-    nbin = 1000
-    h    = np.histogram2d(st_tot, st_part, 
-                bins=[nbin, nbin], 
-                normed=False)
-    HStp = h[0].T # filter-out zero values
+    h       = np.histogram2d(st_tot, st_part, 
+              bins=[nbin, nbin], 
+              normed=False)
+    HStp          = h[0].T # filter-out zero values
     bins_StepTot  = 0.5*(h[1][:-1] + h[1][1:])
     bins_StepPart = 0.5*(h[2][:-1] + h[2][1:])
-    fo[dpath+'HistStep/HStep'] = HStp.sum(axis=0)
-    #fo[dpath+'HistStep/bins_StepTot']  = bins_StepTot
-    fo[dpath+'HistStep/bins_StepPart'] = bins_StepPart
-    fo[dpath+'HistStep/nbin']          = nbin
-    pause(0.3)
-    fo.pop('mine')    # libera file
-
-    fo.close()
+    ff.w2file(rank, fname_out, HStp.sum(axis=0), dpath+'HistStep/HStep')
+    ff.w2file(rank, fname_out, bins_StepPart, dpath+'HistStep/bins_StepPart')
+    ff.w2file(rank, fname_out, nbin, dpath+'HistStep/nbin')
     print " [r:{rank}] closing: {fname}".format(rank=rank,fname=fname_out)
-
-    # everybody waits for each processor to finish the i/o
-    #comm.Barrier() 
 
 print " [r:%d] I'm finished!" % rank
 # clean backup
