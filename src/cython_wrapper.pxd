@@ -143,6 +143,7 @@ cdef extern from "funcs.h":
         Int NStep
         void build_HistSeq(const T s);
         #Doub MinStep
+        MatDoub step_save
 
 
     cdef cppclass rhs: # (*1)

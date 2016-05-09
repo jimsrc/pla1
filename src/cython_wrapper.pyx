@@ -472,6 +472,25 @@ cdef class mgr:
             return ndarray
 
 
+    property step_save:
+        def __get__(self):
+            cdef Doub *ptr
+            cdef np.ndarray ndarray
+            cdef int nx, ny
+            nx = self.outbs.step_save.nrows()
+            ny = self.outbs.step_save.ncols()
+            arrw = ArrayWrapper_2d()
+            ptr = &(self.outbs.step_save[0][0])
+            #print self.outbs.HistStep[0][1]
+            arrw.set_data(nx, ny, <void*> ptr, survive=True)
+
+            ndarray = np.array(arrw, copy=False)
+            ndarray.base = <PyObject*> arrw
+            Py_INCREF(arrw)
+            #free(self.ptr)
+            return ndarray
+
+
 def nans(sh):
     return np.nan*np.ones(sh)
 

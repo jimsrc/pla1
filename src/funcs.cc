@@ -160,6 +160,7 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
     printf(" NStep: %d\n", NStep);
     printf(" MaxStep: %g\n", MaxStep);
     //printf(" HistStep: %g\n", HistStep[0][1]);
+    //step_save = MatDoub(2, Stepper::MAXSTP, 0.0);
     #endif //MONIT_STEP
 }
 
