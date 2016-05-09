@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import src.cython_wrapper as cw
-import funcs as ff
+import shared.funcs as ff
 
 #-----------------------------------------
 AU_in_cm = 1.5e13

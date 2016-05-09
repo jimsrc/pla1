@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import src.cython_wrapper as cw
-import funcs as ff
+import shared.funcs as ff
 from pylab import pause
 #--- parameters
 from params import (
