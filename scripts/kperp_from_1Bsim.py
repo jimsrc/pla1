@@ -33,7 +33,7 @@ po['rtol']     = 0.0 #1e-6
 fname_inp = './R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.h5'.format(**po)
 
 #print fname_inp
-
+"""
 o = ff.get_sqrs(fname_inp)
 nplas = o['nplas']
 ntime = o['ntime']
@@ -44,12 +44,34 @@ tadim = o['tadim']
 tdim = o['tdim']
 wc = o['wc']
 rl = o['rl']
+"""
 
-#--- figura
-fig = figure(1, figsize=(6,4))
-ax  = fig.add_subplot(111)
-ax.plot(tadim, kxx, '-o')
-ax.grid()
 
-fig.savefig('test.png')
-close(fig)
+#Eps = (3.33e-6, 1.0e-5, 3.33e-5, 1.0e-4)
+Eps = (1.0e-5, 3.33e-5, 1.0e-4)
+Ks  = ('kxx', 'kyy', 'kzz')
+o = {}
+for kk in Ks:
+    #--- figura
+    fig = figure(1, figsize=(6,4))
+    ax  = fig.add_subplot(111)
+    for eps_o in Eps:
+        po['atol']     = (po['lambda_min']*AUincm)*eps_o/rl
+        fname_inp = './R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.h5'.format(**po)
+        o[kk] = ff.get_sqrs(fname_inp)
+        tadim = o[kk]['tadim']
+        kprof = o[kk][kk]
+        label = '$\epsilon: %2.2e, atol:%2.1e$' % (eps_o, po['atol'])
+        ax.plot(tadim, kprof, '-o', ms=3, label=label)
+
+    ax.set_ylim(1e17, 1e21)
+    ax.set_yscale('log')
+    ax.set_xscale('log')
+    ax.set_ylabel('%s [cm2/s]' % kk)
+    ax.legend(loc='best')
+    ax.grid()
+    fname_fig = 'test_%s.png' % kk
+    fig.savefig(fname_fig, dpi=135)
+    close(fig)
+
+#EOF
