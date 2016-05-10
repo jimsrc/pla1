@@ -25,7 +25,7 @@ po['Bo']         = 5e-5                         # [Gauss]
 po['n_modos']    = 128
 po['lambda_min'] = 5e-5 #((5e-5)*AUincm)
 #--- corregimos input
-po['rigidity'] = 4.33306E+07
+po['rigidity'] =  1.37352E+08 #4.33306E+07
 rl = cw.calc_Rlarmor(po['rigidity'],po['Bo'])   # [cm]
 eps_o = 1.0e-5 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 po['atol']     = (po['lambda_min']*AUincm)*eps_o/rl
@@ -47,8 +47,8 @@ rl = o['rl']
 """
 
 
-#Eps = (3.33e-6, 1.0e-5, 3.33e-5, 1.0e-4)
-Eps = (1.0e-5, 3.33e-5, 1.0e-4)
+Eps = (3.33e-6, 1.0e-5, 3.33e-5, 1.0e-4)
+#Eps = (1.0e-5, 3.33e-5, 1.0e-4)
 Ks  = ('kxx', 'kyy', 'kzz')
 o = {}
 for kk in Ks:
@@ -70,7 +70,7 @@ for kk in Ks:
     ax.set_ylabel('%s [cm2/s]' % kk)
     ax.legend(loc='best')
     ax.grid()
-    fname_fig = 'test_%s.png' % kk
+    fname_fig = './R.{rigidity:1.2e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.png'.format(**po)
     fig.savefig(fname_fig, dpi=135)
     close(fig)
 
