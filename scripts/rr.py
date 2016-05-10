@@ -28,9 +28,9 @@ pd['n_modos']    = 128
 pd['lambda_min'] = ((5e-5)*AU_in_cm)
 #--- corregimos input
 psim['rigidity'] = 4.33306E+07
-psim['tmax']     = 4e4 #0.3e4 #4e4
+psim['tmax']     = 4.4e4 #0.3e4 #4e4
 rl = cw.calc_Rlarmor(psim['rigidity'],pd['Bo']) #[cm]
-eps_o = 3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
+eps_o = 3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 psim['atol']     = pd['lambda_min']*eps_o/rl
 psim['rtol']     = 0.0 #1e-6
 #---------------------------
@@ -61,6 +61,8 @@ if rank==0 and isfile(fname_out):  # backup if already exists
     os.system('mv {fname} {fname}_'.format(fname=fname_out))
 #new = True # new-file flag
 
+fname_out_tmp = fname_out+'_%02d'%rank # output of each processor
+fo = h5(fname_out_tmp, 'w') 
 nbin = 1000 # for step-size histograms
 for npla in plas: #[25:]:
     #--- set particle id && direction
@@ -76,7 +78,8 @@ for npla in plas: #[25:]:
     print " [r:%d] simulation (pla:%d) finished!" % (rank, npla)
     dpath = 'pla%03d/' % npla
     print " [r:%d] now i'll write" % rank
-    ff.SaveToFile_ii(rank, m, dpath, fname_out)
+    ff.SaveToFile(m, dpath, fo)
+    #ff.SaveToFile_ii(rank, m, dpath, fname_out)
 
     #--- histos of step-size
     st      = m.step_save # shape: (2,Odeint::MAXSTP)
@@ -88,13 +91,29 @@ for npla in plas: #[25:]:
     HStp          = h[0].T # filter-out zero values
     bins_StepTot  = 0.5*(h[1][:-1] + h[1][1:])
     bins_StepPart = 0.5*(h[2][:-1] + h[2][1:])
-    ff.w2file(rank, fname_out, HStp.sum(axis=0), dpath+'HistStep/HStep')
-    ff.w2file(rank, fname_out, bins_StepPart, dpath+'HistStep/bins_StepPart')
-    ff.w2file(rank, fname_out, nbin, dpath+'HistStep/nbin')
+    fo[dpath+'HistStep/HStep'] = HStp.sum(axis=0)
+    fo[dpath+'HistStep/bins_StepPart'] = bins_StepPart
+    fo[dpath+'HistStep/nbin'] = nbin
     print " [r:{rank}] closing: {fname}".format(rank=rank,fname=fname_out)
 
+fo.close()
 print " [r:%d] I'm finished!" % rank
-# clean backup
+comm.Barrier() # I need everyone to stop touching the files
+# let's unify all files into one
 if rank==0:
+    fout = h5(fname_out, 'w')
+    for r in range(wsize):
+        fnm_inp = fname_out+'_%02d'%r
+        finp = h5(fnm_inp, 'r')
+        cont = finp.keys()       # list of groups
+        for c in cont:           # iterate over each group
+            finp.copy(c, fout)
+        finp.close()
+        os.system('rm {fname}'.format(fname=fnm_inp))
+
+    print " ----> We generated: "+fout.filename
+    fout.close()
+    # clean backup
     os.system('rm {fname}_'.format(fname=fname_out))
+    print " [r:%d] I'm finished!" % rank
 #EOF
