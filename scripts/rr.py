@@ -30,7 +30,7 @@ pd['lambda_min'] = ((5e-5)*AU_in_cm)
 psim['rigidity'] = 4.33306E+07
 psim['tmax']     = 4.4e4 #0.3e4 #4e4
 rl = cw.calc_Rlarmor(psim['rigidity'],pd['Bo']) #[cm]
-eps_o = 3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
+eps_o = 3.33e-4 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 psim['atol']     = pd['lambda_min']*eps_o/rl
 psim['rtol']     = 0.0 #1e-6
 #---------------------------
