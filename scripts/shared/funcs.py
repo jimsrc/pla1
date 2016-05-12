@@ -50,8 +50,8 @@ class Hmgr:
 
 
 def load_traj(fname):
-    f      = h5(fname, 'r')
     print " ---> reading: " + fname
+    f      = h5(fname, 'r')
     PNAMES = f.keys()    # particle names
     n      = len(PNAMES) # nmbr of plas in this file
     # take a sample to find out the times
