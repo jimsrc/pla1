@@ -3,9 +3,8 @@
 from h5py import File as h5
 from os.path import isfile, isdir
 import numpy as np
-from pylab import pause
-from numpy import min, max
-
+from pylab import pause, find
+#from numpy import min, max
 
 
 class Hmgr:
@@ -29,7 +28,7 @@ class Hmgr:
         """ Obtain the max && min of all the histogram domains """
         PNAMES  = self.f.keys()
         self.Np = len(PNAMES)
-        self.bmin = 1e31
+        self.bmin = 1.0e31
         self.bmax = 0.0
         for pnm in PNAMES:
             hx = self.f[pnm+'/HistStep/bins_StepPart'].value
@@ -39,8 +38,8 @@ class Hmgr:
 
     def pile_to_hist(self, hx, hin):
         hbd = self.hbd
-        assert (hx[0]>=hbd[0]) & (hx[-1]<=hbd[-1]), \
-            " RIDICULOUS ***ERROR*** IN OUR BOUNDARIES!!"
+        #assert (hx[0]>=hbd[0]) & (hx[-1]<=hbd[-1]), \
+        #    " RIDICULOUS ***ERROR*** IN OUR BOUNDARIES!!"
 
         for i in range(hx.size):
             #i = 0
