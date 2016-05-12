@@ -22,6 +22,7 @@ Ek/eV   Rigidity/V   Rl/AU          beta
 """
 AUincm = 1.5e13                   # [cm]
 po = {}
+#po['Lc_slab']    = 0.01*AUincm
 po['Bo']         = 5e-5                         # [Gauss]
 po['n_modos']    = 128
 po['lambda_min'] = 5e-5 #((5e-5)*AUincm)
@@ -32,28 +33,52 @@ rl = cw.calc_Rlarmor(po['rigidity'],po['Bo'])   # [cm]
 #po['atol']     = (po['lambda_min']*AUincm)*eps_o/rl
 po['rtol']     = 0.0 #1e-6
 
-
 sym = ('o', 's', '^', '*')
 Eps = (3.33e-6, 1e-5, 3.33e-5, 1e-4, 3.33e-4, 1e-3, 3.33e-3, 1e-2,3.33e-2)
 
-eps_o = Eps[0]
-po['atol']     = (po['lambda_min']*AUincm)*eps_o/rl
-fname_inp = './R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.h5'.format(**po)
-#for eps_o, i in zip(Eps, range(len(Eps))):
-f = h5(fname_inp, 'r')
+#eps_o = Eps[0]
+for eps_o in Eps:
+    po['atol']     = (po['lambda_min']*AUincm)*eps_o/rl
+    fname_inp = './R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.h5'.format(**po)
+    #for eps_o, i in zip(Eps, range(len(Eps))):
+    f = h5(fname_inp, 'r')
 
-wc = f['pla000/scl_wc']                     # [s-1]
-vp = f['pla000/scl_vel']                    # [cm/s]
-rl = f['pla000/scl_rl']                     # [cm]
-PNAMES = f.keys()
-Np     = len(PNAMES)
+    wc = f['pla000/scl_wc'].value             # [s-1]
+    vp = f['pla000/scl_vel'].value            # [cm/s]
+    rl = f['pla000/scl_rl'].value             # [cm]
+    PNAMES = f.keys()
+    Np     = len(PNAMES)
 
-hmg = Hmgr(f, 1000)
-hmg.get_hstep_extremes()
+    hmg = ff.Hmgr(f, nbin=1000)
+    hmg.get_hstep_extremes()
 
-for pnm, ip in zip(PNAMES, range(Np)):
-    h  = f[pnm+'/HistStep/HStep'].value
-    hx = f[pnm+'/HistStep/bins_StepPart'].value
-    hmg.pile_to_hist(hx, h)
+    for pnm, ip in zip(PNAMES, range(Np)):
+        h  = f[pnm+'/HistStep/HStep'].value
+        hx = f[pnm+'/HistStep/bins_StepPart'].value
+        hmg.pile_to_hist(hx, h)
+
+    fig = figure(1, figsize=(6,4))
+    ax  = fig.add_subplot(111)
+    ax2 = ax.twiny()
+    opt = {'ms': 3, }
+    label = '$\epsilon: %1.1e$\n' % eps_o +\
+            '$atol: %1.1e$' % po['atol']
+    dRbin = (hmg.hbin/wc)*vp/(po['lambda_min']*AUincm)
+    ax2.plot(dRbin, hmg.h, '-o', label=label, **opt)
+    ax2.set_xlim(dRbin[0], dRbin[-1])
+    ax2.set_xlabel('$\Delta r/\lambda_{min}$')
+    ax.plot(hmg.hbin, hmg.h, '-o', label=label, **opt)
+    ax.grid()
+    ax.legend(loc='best', fontsize=9)
+    ax.set_yscale('log')
+    ax.set_xlabel('$\Omega dt$')
+    ax.set_ylabel('#')
+    ax.set_xlim(hmg.hbin[0], hmg.hbin[-1])
+    ax.set_ylim(1.0, 1e6)
+    fname_fig = './R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.png'.format(**po)
+    print " ---> generating: " + fname_fig
+    fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
+    close(fig)
+    f.close()
 
 #EOF
