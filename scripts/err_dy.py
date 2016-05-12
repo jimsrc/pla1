@@ -36,8 +36,12 @@ po['rtol']     = 0.0 #1e-6
 sym = ('o', 's', '^', '*')
 Eps = (3.33e-6, 1e-5, 3.33e-5, 1e-4, 3.33e-4, 1e-3, 3.33e-3, 1e-2,3.33e-2)
 
-#eps_o = Eps[0]
-for eps_o in Eps:
+neps = len(Eps)
+#fig = figure(1, figsize=(6,4*neps))
+fig = figure(1, figsize=(6,4))
+ax  = fig.add_subplot(111)
+ax2 = ax.twiny()
+for eps_o, ie in zip(Eps, range(neps)):
     po['atol']     = (po['lambda_min']*AUincm)*eps_o/rl
     fname_inp = './R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.h5'.format(**po)
     #for eps_o, i in zip(Eps, range(len(Eps))):
@@ -57,28 +61,31 @@ for eps_o in Eps:
         hx = f[pnm+'/HistStep/bins_StepPart'].value
         hmg.pile_to_hist(hx, h)
 
-    fig = figure(1, figsize=(6,4))
-    ax  = fig.add_subplot(111)
-    ax2 = ax.twiny()
-    opt = {'ms': 3, }
-    label = '$\epsilon: %1.1e$\n' % eps_o +\
-            '$atol: %1.1e$' % po['atol']
+    
+    isym = np.mod(ie,len(sym))
+    msym = sym[isym-1]
+    opt = {'ms': 3, 'mec':'none', 'marker': msym,'ls':''}
+    label = '$\epsilon: %1.1e$' % eps_o #+\
+    #'$atol: %1.1e$' % po['atol']
     dRbin = (hmg.hbin/wc)*vp/(po['lambda_min']*AUincm)
-    ax2.plot(dRbin, hmg.h, '-o', label=label, **opt)
+    ax2.plot(dRbin, hmg.h, label=label, **opt)
     ax2.set_xlim(dRbin[0], dRbin[-1])
     ax2.set_xlabel('$\Delta r/\lambda_{min}$')
-    ax.plot(hmg.hbin, hmg.h, '-o', label=label, **opt)
+    ax2.set_xscale('log')
+    ax.plot(hmg.hbin, hmg.h, label=label, **opt)
     ax.grid()
-    ax.legend(loc='best', fontsize=9)
+    ax.legend(loc='best', fontsize=7)
+    ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlabel('$\Omega dt$')
     ax.set_ylabel('#')
     ax.set_xlim(hmg.hbin[0], hmg.hbin[-1])
     ax.set_ylim(1.0, 1e6)
-    fname_fig = './R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.png'.format(**po)
-    print " ---> generating: " + fname_fig
-    fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
-    close(fig)
+    #print " ---> generating: " + fname_fig
     f.close()
+
+fname_fig = './R.{rigidity:1.2e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.png'.format(**po)
+fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
+close(fig)
 
 #EOF
