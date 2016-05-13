@@ -27,14 +27,15 @@ po['Bo']         = 5e-5                         # [Gauss]
 po['n_modos']    = 128
 po['lambda_min'] = 5e-5 #((5e-5)*AUincm)
 #--- corregimos input
-po['rigidity'] =  1.37352E+08 #4.33306E+07
+po['rigidity'] = 4.44583E+08
 rl = cw.calc_Rlarmor(po['rigidity'],po['Bo'])   # [cm]
 #eps_o = 1.0e-5 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 #po['atol']     = (po['lambda_min']*AUincm)*eps_o/rl
 po['rtol']     = 0.0 #1e-6
 
 sym = ('o', 's', '^', '*')
-Eps = (3.33e-6, 1e-5, 3.33e-5, 1e-4, 3.33e-4, 1e-3, 3.33e-3, 1e-2,3.33e-2)
+#Eps = (3.33e-6, 1e-5, 3.33e-5, 1e-4, 3.33e-4, 1e-3, 3.33e-3, 1e-2,3.33e-2)
+Eps = (3.33e-6, 1e-5, 3.3e-5, 1e-4, 3.33e-4)
 
 neps = len(Eps)
 #fig = figure(1, figsize=(6,4*neps))
@@ -61,7 +62,6 @@ for eps_o, ie in zip(Eps, range(neps)):
         hx = f[pnm+'/HistStep/bins_StepPart'].value
         hmg.pile_to_hist(hx, h)
 
-    
     isym = np.mod(ie,len(sym))
     msym = sym[isym-1]
     opt = {'ms': 3, 'mec':'none', 'marker': msym,'ls':''}
@@ -70,21 +70,21 @@ for eps_o, ie in zip(Eps, range(neps)):
     dRbin = (hmg.hbin/wc)*vp/(po['lambda_min']*AUincm)
     ax2.plot(dRbin, hmg.h, label=label, **opt)
     ax2.set_xlim(dRbin[0], dRbin[-1])
-    ax2.set_xlabel('$\Delta r/\lambda_{min}$')
-    ax2.set_xscale('log')
     ax.plot(hmg.hbin, hmg.h, label=label, **opt)
-    ax.grid()
-    ax.legend(loc='best', fontsize=7)
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_xlabel('$\Omega dt$')
-    ax.set_ylabel('#')
     ax.set_xlim(hmg.hbin[0], hmg.hbin[-1])
-    ax.set_ylim(1.0, 1e6)
     #print " ---> generating: " + fname_fig
     f.close()
 
-fname_fig = './R.{rigidity:1.2e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.png'.format(**po)
+ax2.set_xlabel('$\Delta r/\lambda_{min}$')
+ax2.set_xscale('log')
+ax.set_ylim(1.0, 1e6)
+ax.grid()
+ax.legend(loc='best', fontsize=7)
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.set_xlabel('$\Omega dt$')
+ax.set_ylabel('#')
+fname_fig = './err.dy_R.{rigidity:1.2e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.png'.format(**po)
 fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
 close(fig)
 

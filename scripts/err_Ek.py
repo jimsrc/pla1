@@ -27,14 +27,13 @@ po['Bo']         = 5e-5                         # [Gauss]
 po['n_modos']    = 128
 po['lambda_min'] = 5e-5 #((5e-5)*AUincm)
 #--- corregimos input
-po['rigidity'] =  1.37352E+08 #4.33306E+07
+po['rigidity'] = 4.44583E+08
 rl = cw.calc_Rlarmor(po['rigidity'],po['Bo'])   # [cm]
-#eps_o = 1.0e-5 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
-#po['atol']     = (po['lambda_min']*AUincm)*eps_o/rl
 po['rtol']     = 0.0 #1e-6
 
 sym = ('o', 's', '^', '*')
-Eps = (3.33e-6, 1e-5, 3.33e-5, 1e-4, 3.33e-4, 1e-3, 3.33e-3, 1e-2,3.33e-2)
+#Eps = (3.33e-6, 1e-5, 3.33e-5, 1e-4, 3.33e-4, 1e-3, 3.33e-3, 1e-2,3.33e-2)
+Eps = (3.33e-6, 1e-5, 3.3e-5, 1e-4, 3.33e-4)
 neps = len(Eps)
 fig = figure(1, figsize=(6,4))
 ax  = fig.add_subplot(111)
