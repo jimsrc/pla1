@@ -69,16 +69,16 @@ pother = {
 m = cw.mgr()
 
 m.set_Bmodel(pdict=pd, nB=nB)
-m.build(**pother)
-
-m.SetSim(**psim)
-m.RunSim()
-
-fname_out = 'test.h5'
-ff.save_to_h5(m, fname_out)
-
-h_step = m.HistStep
-h_seq  = m.HistSeq
+#m.build(**pother)
+#
+#m.SetSim(**psim)
+#m.RunSim()
+#
+#fname_out = 'test.h5'
+#ff.save_to_h5(m, fname_out)
+#
+#h_step = m.HistStep
+#h_seq  = m.HistSeq
 #minst = m.MinStep
 
 #m.runsim(**psim)
