@@ -277,11 +277,11 @@ void MODEL_TURB::fix_B_realization(const int nBrz){
 	long seed = 100*nBrz;   // semilla queda en funcion del nro de realizacion
     rann0(seed);rann0(seed);//para "aleatorizar" a 'seed'
 
-	p_turb.sem.slab[0]	= rann0(seed);
-	p_turb.sem.slab[1] 	= rann0(seed);
-	p_turb.sem.slab[2] 	= rann0(seed);
-	p_turb.sem.two[0] 	= rann0(seed);
-	p_turb.sem.two[1] 	= rann0(seed);
+	rann0(seed); p_turb.sem.slab[0] = seed;
+	rann0(seed); p_turb.sem.slab[1] = seed;
+	rann0(seed); p_turb.sem.slab[2] = seed;
+	rann0(seed); p_turb.sem.two[0] 	= seed;
+	rann0(seed); p_turb.sem.two[1] 	= seed;
 
 	p_turb.fases.construir_fases_random(p_turb.sem);
 }

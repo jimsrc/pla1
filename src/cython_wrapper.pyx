@@ -259,7 +259,8 @@ cdef class mgr:
         s.par.dB      = <double*> calloc(ndim, sizeof(double))
         s.par.dB_SLAB = <double*> calloc(ndim, sizeof(double))
         s.par.dB_2D   = <double*> calloc(ndim, sizeof(double))
-        
+
+        #NOTE: al 's.pt' lo construi en 'self.build_pturb()'
         s.par.p_turb  = s.pt[0] #le paso todos los parametros! (MAGIA!!??!?)
         s.par.p_turb.build_spectra()
         s.par.fix_B_realization(nB=nB)
@@ -323,6 +324,25 @@ cdef class mgr:
     def save2file(self):
         self.outbs.save2file()
     
+
+    def Bxyz(self, xyz):
+        cdef double pos[3]
+        pos[0] = xyz[0]
+        pos[1] = xyz[1]
+        pos[2] = xyz[2]
+        self.par.calc_B(&(pos[0]))
+        B = np.zeros(3)
+        B[0] = self.par.B[0]
+        B[1] = self.par.B[1]
+        B[2] = self.par.B[2]
+        return B
+
+
+    def sems(self):
+        cdef long s0   = self.pt.sem.slab[0]
+        cdef long two0 = self.pt.sem.two[0]
+        return s0, two0
+
 
     property tsave:
         def __get__(self):
