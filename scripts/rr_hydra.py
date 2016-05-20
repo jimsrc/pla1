@@ -12,6 +12,7 @@ from params import (
 from h5py import File as h5
 from os.path import isfile, isdir
 import os, sys
+from glob import glob
 
 """
 (Bo = 5nT; omega=omega_{rel})
@@ -26,10 +27,10 @@ Ek/eV   Rigidity/V   Rl/AU          beta
 pd['n_modos']    = 128
 pd['lambda_min'] = ((5e-5)*AU_in_cm)
 #--- corregimos input
-psim['rigidity'] = 4.33306E+07
-psim['tmax']     = 4.4e4 #0.3e4 #4e4
+psim['rigidity'] = 1.69604E+09
+psim['tmax']     = 4e4 #0.3e4 #4e4
 rl = cw.calc_Rlarmor(psim['rigidity'],pd['Bo']) #[cm]
-eps_o = 3.33e-4 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
+eps_o = 3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 psim['atol']     = pd['lambda_min']*eps_o/rl
 psim['rtol']     = 0.0 #1e-6
 #---------------------------
@@ -49,8 +50,8 @@ m.set_Bmodel(pdict=pd, nB=nB)
 #comm        = MPI.COMM_WORLD
 #rank        = comm.Get_rank()   # proc rank
 #wsize       = comm.Get_size()   # number of proc
-rank = sys.argv[1]
-wsize = sys.argv[2]
+rank = int(sys.argv[1])
+wsize = int(sys.argv[2])
 #---------------------------
 if rank==0:
     print " simul parameters\n", psim
@@ -96,5 +97,19 @@ for npla in plas: #[25:]:
     print " [r:{rank}] closing: {fname}".format(rank=rank,fname=fname_out)
 
 fo.close()
+pause(1)
+os.system('touch %s_finished'%fname_out_tmp)
 print " [r:%d] I'm finished!" % rank
+
+if rank==0:
+    #--- let's check if everyone has already finished
+    n = 0
+    while n<wsize:
+        pause(2) # wait before next check
+        fs = glob(fname_out+'_*_finished') #list of files
+        n = len(fs)
+
+    #--- now proceed to unify
+    ff.unify_all(fname_out, wsize)
+
 #EOF
