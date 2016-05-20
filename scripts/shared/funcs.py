@@ -23,13 +23,12 @@ def unify_all(fname_out, wsize):
         for c in cont:           # iterate over each group
             finp.copy(c, fout)
         finp.close()
+	print " --> removing partial files..."
         os.system('rm {fname}'.format(fname=fnm_inp))
 
     print " ----> We generated: "+fout.filename
     fout.close()
-    # clean backup
-    os.system('rm {fname}_'.format(fname=fname_out))
-    print " [r:%d] FINISHED UNIFYING OUTPUT :D" % rank
+    print " ----> FINISHED UNIFYING OUTPUT :D"
 
 
 
