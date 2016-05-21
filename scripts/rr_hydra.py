@@ -30,7 +30,7 @@ pd['lambda_min'] = ((5e-5)*AU_in_cm)
 psim['rigidity'] = 1.69604E+09
 psim['tmax']     = 4e4 #0.3e4 #4e4
 rl = cw.calc_Rlarmor(psim['rigidity'],pd['Bo']) #[cm]
-eps_o = 3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
+eps_o = 1.0e-5 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 psim['atol']     = pd['lambda_min']*eps_o/rl
 psim['rtol']     = 0.0 #1e-6
 #---------------------------
@@ -108,8 +108,11 @@ if rank==0:
         pause(2) # wait before next check
         fs = glob(fname_out+'_*_finished') #list of files
         n = len(fs)
-
+    
     #--- now proceed to unify
     ff.unify_all(fname_out, wsize)
+    #--- now we can delete the "*_finished" files
+    for fnm in fs:
+        os.system('rm '+fnm)
 
 #EOF
