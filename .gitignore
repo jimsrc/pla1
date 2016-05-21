@@ -2,6 +2,8 @@
 *.[ox]
 *.log
 *.so
+*a.out
+*.swp
 
 *.png
 *.dat
