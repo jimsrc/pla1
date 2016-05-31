@@ -25,7 +25,7 @@ po['Bo']         = 5e-5                         # [Gauss]
 po['n_modos']    = 128
 po['lambda_min'] = 5e-5 #((5e-5)*AUincm)
 #--- corregimos input
-po['rigidity'] = 4.44583E+08
+po['rigidity'] = 1.69604E+09
 rl = cw.calc_Rlarmor(po['rigidity'],po['Bo'])   # [cm]
 #eps_o = 1.0e-5 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 #po['atol']     = (po['lambda_min']*AUincm)*eps_o/rl
@@ -48,8 +48,26 @@ rl = o['rl']
 
 sym = ('o', 's', '^', '*')
 #Eps = (3.33e-6, 1e-5, 3.33e-5, 1e-4, 3.33e-4, 1e-3, 3.33e-3, 1e-2,3.33e-2)
-Eps = (3.33e-6, 1e-5, 3.3e-5, 1e-4)
-#Eps = (1.0e-5, 3.33e-5, 1.0e-4)
+Eps = (3.33e-6, 1.0e-5, 3.3e-5, 1e-4, 3.33e-4)
+
+
+#--- check which files exist
+okk = []
+for eps_o, i in zip(Eps, range(len(Eps))):
+    po['atol']     = (po['lambda_min']*AUincm)*eps_o/rl
+    fname_inp = './R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.h5'.format(**po)
+    ok = isfile(fname_inp)
+    print ok, fname_inp
+    okk += [ ok ]
+if not len(okk)==np.sum(okk):
+    print " ---> missing files!"
+    raise SystemExit
+else:
+    print " ---> all ok. Continue?"
+    print raw_input()
+#---------------------------
+
+
 Ks  = ('kxx', 'kyy', 'kzz')
 o = {}
 for kk in Ks:
@@ -68,7 +86,7 @@ for kk in Ks:
         msym = sym[isym-1]
         ax.plot(tadim, kprof, '-o', ms=2, lw=0.5, marker=msym, label=label, alpha=0.6, mec='none')
 
-    ax.set_ylim(1e19, 1e23)#(1e17, 1e21)
+    ax.set_ylim(1e20, 1e24)#(1e17, 1e21)
     ax.set_yscale('log')
     ax.set_xscale('log')
     ax.set_xlabel('$\Omega t$ [1]')

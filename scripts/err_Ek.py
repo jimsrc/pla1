@@ -27,13 +27,32 @@ po['Bo']         = 5e-5                         # [Gauss]
 po['n_modos']    = 128
 po['lambda_min'] = 5e-5 #((5e-5)*AUincm)
 #--- corregimos input
-po['rigidity'] = 4.44583E+08
+po['rigidity'] = 1.69604E+09
 rl = cw.calc_Rlarmor(po['rigidity'],po['Bo'])   # [cm]
 po['rtol']     = 0.0 #1e-6
 
 sym = ('o', 's', '^', '*')
 #Eps = (3.33e-6, 1e-5, 3.33e-5, 1e-4, 3.33e-4, 1e-3, 3.33e-3, 1e-2,3.33e-2)
 Eps = (3.33e-6, 1e-5, 3.3e-5, 1e-4, 3.33e-4)
+
+
+#--- check which files exist
+okk = []
+for eps_o, i in zip(Eps, range(len(Eps))):
+    po['atol']     = (po['lambda_min']*AUincm)*eps_o/rl
+    fname_inp = './R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.h5'.format(**po)
+    ok = isfile(fname_inp)
+    print ok, fname_inp
+    okk += [ ok ]
+if not len(okk)==np.sum(okk):
+    print " ---> missing files!"
+    raise SystemExit
+else:
+    print " ---> all ok. Continue?"
+    print raw_input()
+#---------------------------
+
+
 neps = len(Eps)
 fig = figure(1, figsize=(6,4))
 ax  = fig.add_subplot(111)
