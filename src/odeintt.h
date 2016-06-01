@@ -31,10 +31,17 @@ struct Odeint {
 	PARAMS par;
 	//------------------- scattering stuff
 	void save_history(void);
+    #ifdef MONIT_SCATTERING
 	void check_scattering(void);
+    #endif //MONIT_SCATTERING 
 	double mu_old, mu_new, Bmod, vmod, dtau;
 	// ------------------ otros
 	int wrank;
+
+    #ifdef KILL_HANDLER
+    static Odeint<Stepper>* _thisptr;
+    void abort_mission(int signum); // remove current *.owned files
+    #endif //KILL_HANDLER
 // (*): en el constructor, paso las direcciones de memoria de al Stepper 's' para
 // les haga las modificaciones q quiera.
 };

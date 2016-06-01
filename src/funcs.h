@@ -1,6 +1,12 @@
 #ifndef FUNCS_H
 #define FUNCS_H
 
+#ifdef CYTHON
+    #define PRIVATE_OR_PUBLIC public
+#else
+    #define PRIVATE_OR_PUBLIC private
+#endif //CYTHON
+
 //#include "control.h"
 //#include "general.h"
 #include "nr3.h"
@@ -10,7 +16,7 @@
 class PARAMS : public MODEL_TURB{
 	public:
         #ifdef CYTHON
-        PARAMS(){};         // good to have for cython handling
+        PARAMS(){};// good to have for cython handling
         #endif //CYTHON
 		PARAMS(string);
 		void calc_Bfield(VecDoub_I &);
@@ -46,7 +52,7 @@ class Output {
 		VecDoub xsave;
 		MatDoub ysave;
 		//void build(string, Int, Doub, Int, char*); 
-		void build(const string, Int, Doub, Int, int, int, char*);
+		void build(const string, Int, Doub, Int, Int, int, int, char*);
 		Output(void);
 		//Output(string, const Int, char*); // mal implementado
 		void init(const Int, const Doub, const Doub);
@@ -55,9 +61,6 @@ class Output {
 		void save(const Doub, VecDoub_I &);
 		void out(const Int,const Doub,VecDoub_I &,Stepper &,const Doub);
 		void save2file(void);
-		ofstream ofile_trj;
-        ofstream ofile_misc;
-        ofstream ofile_own; 
         void claim_own(void);
 		bool file_exist(void);
 		void resizeTau(void);
@@ -86,24 +89,33 @@ class Output {
         //void monit_step(const Doub hdid);
         void monit_step(const Stepper s);
         void build_HistSeq(const Stepper s);
-        MatDoub step_save;
         #endif //MONIT_STEP
 
 	private:
 		PARAMS *pm;
-		double pos[3], vmod, bmod;
+		Doub pos[3], vmod, bmod;
 		void save_pitch(void);
-		double bx, by, bz, vx, vy, vz;
+		Doub bx, by, bz, vx, vy, vz;
 		VecDoub XSaveGen;	// tiempos de la salida
-		int n_tscales, cc, ndec, inid, nd, base, maxd;	
+		Int n_tscales, cc, ndec, inid, nd, base, maxd;	
 		string str_tscale; //tipo de escala temporal para la salida
-		double decade, dt;
+		Doub decade, dt;
 		void set_savetimes(Doub);
+		ofstream ofile_trj;
+        ofstream ofile_misc;
+        ofstream ofile_own; 
+    
+    PRIVATE_OR_PUBLIC: // depends on CYTHON macro
 		//----- histo del 'Tau'
 		MatDoub HistTau;
-		double dTau, maxTau, avrTau;
-		int nHistTau, nTau, dimHistTau;
 		void build_HistTau(void);
+		Doub dTau, maxTau, avrTau;
+		Int nHistTau, nTau, dimHistTau;
+
+        //--- histo del theta_coll
+        Int nThColl; // has to be even!
+        MatDoub HistThColl;
+        void build_ThetaColl(void);
 };
 
 
@@ -111,8 +123,8 @@ class Output {
 
 double calc_gamma(double v);
 void read_params(string fname, Doub &RIGIDITY, Doub &FRAC_GYROPERIOD, 
-        Doub &NMAX_GYROPERIODS, int &NPOINTS, Doub &ATOL, Doub &RTOL, 
-        int &n_Brealiz, string& str_timescale, Doub& tmaxHistTau, int& nHist);
+        Doub &NMAX_GYROPERIODS, Int &NPOINTS, Doub &ATOL, Doub &RTOL, 
+        Int &n_Brealiz, string& str_timescale, Doub& tmaxHistTau, Int& nHist, Int& nThColl);
 void init_orientation(int i, Doub **array_ori, VecDoub &y);
 void LiberaMat(Doub **Mat, int i);
 Doub **AllocMat(int nFilas, int nColumnas);
