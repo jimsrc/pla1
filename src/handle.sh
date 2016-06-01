@@ -10,6 +10,7 @@ function get_sources(){
     defs_turb.h
     funcs.cc
     funcs.h
+    nr3.h
     stepperbs.cc
     stepperbs.h
     odeintt.h
