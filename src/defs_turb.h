@@ -15,14 +15,15 @@ class PARAMS_SEM{
 /*-------------------------- fases random -------------------------------*/
 class FASES{
 	private:
-		Int n_modos;
+		Int Nm_slab;
+        Int Nm_2d;
 
 	public:
 		FASES(void) {};
 		//~FASES(void);
-		void build(int, PARAMS_SEM *);
-		Doub *phi_s, *a_s, *b_s;
-		Doub *phi_2d, *b_2d;
+		void build(Int, Int, PARAMS_SEM *);
+		Doub *phi_s, *a_s, *b_s; // fases for slab
+		Doub *phi_2d, *b_2d;     // fases for 2d
 		void construir_fases_random(PARAMS_SEM);
 };
 
@@ -44,10 +45,12 @@ class PARAMS_TURB{
 
 		string FNAME_INPUT;
 
-		Int n_modos;
-		Doub lambda_min;
-        Doub lambda_max;
-		Doub Lc_slab, Lc_2d;	// longitudes de correlacion
+		//Int n_modos;
+		Int Nm_slab;
+		Int Nm_2d;
+        Doub lmin_s, lmax_s;    // escalas de turbulencia Slab
+        Doub lmin_2d, lmax_2d;  // escalas de turbulencia 2D
+		Doub Lc_slab, Lc_2d;	// longitudes de correlacion slab && 2d
 		Doub sigma_Bo_ratio;
 		Doub percent_slab;
 		Doub percent_2d;
@@ -55,8 +58,8 @@ class PARAMS_TURB{
 		Doub Bo;
 		Doub sigma_S;
 		Doub sigma_2D;
-		Doub *dk;
-		Doub *k;
+		Doub *dk_s, *dk_2d;
+		Doub *k_s, *k_2d;
 		Doub *Bk_SLAB;
 		Doub *Bk_2D;
 
@@ -69,28 +72,31 @@ class PARAMS_TURB{
 
 /*------------------ parametros turbulencia -----------------------*/
 class MODEL_TURB{
-	/*private:
-		PARAMS_TURB p_turb;*/
+	private:
+		//PARAMS_TURB p_turb;
+		void calc_dB_SLAB(const Doub *);
+		void calc_dB_2D(const Doub *);
+		void calc_dB(const Doub *);
+		Doub *dB_SLAB;	// [G]
+		Doub *dB_2D;		// [G]
+        #ifndef CYTHON
+		PARAMS_TURB p_turb;
+        #endif //CYTHON
+
 	public:
 		string FNAME_INPUT;
-		MODEL_TURB(string fname_input); //{build(fname_input);};  // constructor
+		MODEL_TURB(string fname_input); //{build(fname_input);}; //constructor
 		MODEL_TURB(void) {};			// constructor "trivial"
 		//~MODEL_TURB(void);			// destructor
 
 		void build(string);
-		void calc_dB_SLAB(const Doub *);
-		void calc_dB_2D(const Doub *);
-		void calc_dB(const Doub *);
 		void calc_B(const Doub *);
-
-		PARAMS_TURB params_turb(void);
 
 		Doub *B;		// [G]
 		Doub *dB;		// [G]
-		Doub *dB_SLAB;	// [G]
-		Doub *dB_2D;		// [G]
-		PARAMS_TURB p_turb;
-		void next_B_realization(void);
+        #ifdef CYTHON
+		PARAMS_TURB p_turb; //public only for cython
+        #endif // CYTHON
         void fix_B_realization(const int); // fija la realizacion en funcion del argumento
 };
 
