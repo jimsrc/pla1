@@ -18,7 +18,11 @@
 #include "control.h"
 #include "nr3.h"
 #include <cstdlib>
-//#include "control.h"
+
+#ifdef KILL_HANDLER
+#include_next "signal.h"
+#endif //KILL_HANDLER
+
 
 // TODO: make ALL members static!! (const parece no funcionar)
 class ESCALAS{

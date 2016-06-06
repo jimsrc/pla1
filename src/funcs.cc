@@ -30,8 +30,9 @@ double calc_gamma(double v){
 
 /* lee parametros input en main() */
 void read_params(string fname, Doub &RIGIDITY, Doub &FRAC_GYROPERIOD, 
-        Doub &NMAX_GYROPERIODS, int &NPOINTS, Doub &ATOL, Doub &RTOL, 
-        int &n_Brealiz, string& str_timescale, Doub& tmaxHistTau, int& nHist){
+        Doub &NMAX_GYROPERIODS, Int &NPOINTS, Doub &ATOL, Doub &RTOL, 
+        Int &n_Brealiz, string& str_timescale, Doub& tmaxHistTau, 
+        Int& nHist, Int& nThColl){
 	string dummy;
 	ifstream filein(fname.c_str());
 	if (!filein.good()) {
@@ -45,9 +46,10 @@ void read_params(string fname, Doub &RIGIDITY, Doub &FRAC_GYROPERIOD,
 	filein >> ATOL			>> dummy;  // [units of *y] abs tolerance
 	filein >> RTOL			>> dummy;  // [1] rel tolerance
 	filein >> n_Brealiz		>> dummy;  // [1] nmbr of B-field realizations
-	filein >> str_timescale		>> dummy;  // [string] nombre de la escala temporal para la salida
-	filein >> tmaxHistTau		>> dummy;  //
-	filein >> nHist			>> dummy;  //
+	filein >> str_timescale >> dummy;  // [string] nombre de la escala temporal para la salida
+	filein >> tmaxHistTau	>> dummy;  // [1] max collision time (in gyro-period units) for histogram of collision times 
+	filein >> nHist			>> dummy;  // [1] nmbr of bins for histogram of collision-times
+	filein >> nThColl		>> dummy;  // [1] nmbr of bins for histogram of the angle between the x-y plane and z axis.
 }
 
 
@@ -121,7 +123,7 @@ Doub **read_orientations(string fname, int &n){
 //----------------------- class Ouput
 //void Output<Stepper>::build(string str_tscalee, Int nsavee, Doub tmaxHistTau, Int nHist, char* fname_out){ 
 template <class Stepper>
-void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistTau, Int nHist, int i, int j, char *dir_out){
+void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistTau, Int nHist, Int nThColl_, int i, int j, char *dir_out){
 	kmax	= 500;
 	nsave	= nsavee;
 	count	= 0;
@@ -132,19 +134,32 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
 	sprintf(fname_trj,  "%s_traj.dat",  fname_out);
 	sprintf(fname_misc, "%s_misc.dat", fname_out);
 	sprintf(fname_owned, "%s.owned", fname_out);
+
+	str_tscale = str_tscalee;	// tipo de escala temporal para la salida
+
+    #ifdef MONIT_SCATTERING
 	//-------- cosas de scatterings:
 	nfilTau = 500;
-	nreb	= 0;		// nro inic de rebotes
-	ncolTau	= 3;		// 3 columnas:uno para el tau de scattering, y 2 para las posic parall/perp
+	nreb	= 0;  // nro inic de rebotes
+	ncolTau	= 4;  // 4 columnas: 1 para el tau de scattering, 2 para las posic parall/perp, y 1 para el angulo entre el plano x-y y z.
 	Tau 	= MatDoub(nfilTau, ncolTau, 0.0); // (*) para grabbar tiempos de scattering, y la posic x
 	// (*): inicializo en ceros
-	str_tscale = str_tscalee;	// tipo de escala temporal para la salida
-	//---- histograma del 'Tau'
+
+	//-------- histograma del 'Tau'
 	nHistTau 	= nHist;				// nro de bines
 	dTau 		= tmaxHistTau / nHistTau;		// ancho del bin
 	dimHistTau	= 2;
 	HistTau		= MatDoub(nHistTau, dimHistTau, 0.0);	// histog 1-D
 	nsteps		= 0;
+
+    //-------- histograma del 'ThetaColl'
+    if(fmod(nThColl_, 2.0)!=0.0) {
+        printf("\n ---> ERROR: 'nThColl' has to be even!!\n");
+        exit(1);
+    }
+    nThColl     = nThColl_;
+    HistThColl  = MatDoub(nThColl, 2, 0.0); // histog 1-D
+    #endif //MONIT_SCATTERING
 
     #ifdef MONIT_STEP
     HistStep    = MatDoub(NStep, 4);
@@ -160,7 +175,7 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
     //printf(" NStep: %d\n", NStep);
     //printf(" MaxStep: %g\n", MaxStep);
     //printf(" HistStep: %g\n", HistStep[0][1]);
-    //step_save = MatDoub(2, Stepper::MAXSTP, 0.0);
+    //NOTE: 'step_save' es inicializado en Odeint::Odeint(..)
     #endif //MONIT_STEP
 }
 
@@ -412,11 +427,32 @@ void Output<Stepper>::build_HistTau(){
 	avrTau /= nreb;
 }
 
+
+template <class Stepper>
+void Output<Stepper>::build_ThetaColl(){
+    /* Warning: 'nThColl' has to be even! */
+    int nth;
+    Doub dth = 180.0/nThColl; // resolucion del histo
+
+    // dominio en th=(-90,90) [deg]
+    for(int i=0; i<nThColl; i++){
+        HistThColl[i][0] = -90.0 + (i+.5)*dth; // [deg]
+    }
+
+    // Tau[:][3] ---> theta de colision
+    for(int i=0; i<nreb; i++){
+        nth =  int(Tau[i][3]/dth);
+        nth += nThColl/2; // correction to avoid negative indexes
+        HistThColl[nth][1]++;
+    }
+}
+
+
 template <class Stepper>
 void Output<Stepper>::save2file(){
 	double t, x, y, z, v;
 	double vx, vy, vz;
-        double err, gamma;
+    double err, gamma;
 	//-------------------- guardo la trayectoria
 	//printf(" COUNT @ save2file: %d\n", count); getchar();
 	ofile_trj.open(fname_trj);
@@ -440,23 +476,42 @@ void Output<Stepper>::save2file(){
 		ofile_trj << setw(5) << setprecision(8) << mu[i] << " ";
 		ofile_trj << setw(5) << setprecision(8) << err << endl;
 	}
-	//--- cerramos archivo de trayectoria
+	// cerramos archivo de trayectoria
 	ofile_trj.close();
-	//------------------- guardamos otras cosas sobre la historia de la trayectoria
+
+	/**** guardamos otras cosas sobre la historia de la trayectoria ***/
 	//--- nro de rebotes, y colission-time promedio
 	ofile_misc.open(fname_misc);
-	ofile_misc << "nro_rebotes: " << nreb << endl;
+    ofile_misc << "# ***** MISC INFO *****" << endl;
+
+    #ifdef MONIT_SCATTERING
+    ofile_misc << "# Histogram on measured collision-times 'Tau'" << endl;
+	ofile_misc << "# nro_rebotes: " << nreb << endl;
 	//--- histograma de 'Taus'
 	build_HistTau();
-	ofile_misc << "average_Tau: " <<setw(10)<<setprecision(8)<< avrTau << endl;	// [1]
-	ofile_misc << "trun/min: " <<setw(10)<<setprecision(8)<< (trun/60.) << endl;	// [sec]
-	ofile_misc << "steps: " <<setw(10)<<setprecision(10)<< nsteps << endl;
-	ofile_misc << "#####" << endl;			// cadena para separar tipos de dato q grabo
+	ofile_misc << "# average_Tau: " <<setw(10)<<setprecision(8)<< avrTau << endl;	// [1]
+	ofile_misc << "# trun/min: " <<setw(10)<<setprecision(8)<< (trun/60.) << endl;	// [sec]
+	ofile_misc << "# steps: " <<setw(10)<<setprecision(10)<< nsteps << endl;
+	ofile_misc << "#####" << endl;	// cadena para separar tipos de dato q grabo
 	for(int i=0; i<nHistTau; i++){
 		ofile_misc << HistTau[i][0] << " ";			// [1] bin centrado
 		ofile_misc << setw(10) << HistTau[i][1] << endl;	// [1] nro de cuentas en este bin
 	}
-	//--- cerramos archivo de misc
+
+    //--- histograma del theta-en-colision
+    build_ThetaColl();
+	ofile_misc << "#####" << endl;	// cadena para separar tipos de dato q grabo
+    ofile_misc << "# Histogram on angle between x-y plane and z axis (Theta_Coll)"<< endl;
+	ofile_misc << "#####" << endl;	// cadena para separar tipos de dato q grabo
+    for(Int i=0; i<nThColl; i++){
+        ofile_misc << HistThColl[i][0] << " "; // [deg] bin centrado
+        ofile_misc << setw(10) << HistThColl[i][1] << endl; // [1] nro de cuentas
+    }
+    #else
+    ofile_misc << "# +++++ NO SCATTERING INFORMATION +++++" << endl;
+    #endif //MONIT_SCATTERING
+
+	// cerramos archivo de misc
 	ofile_misc.close();
 }
 
@@ -475,7 +530,7 @@ void Output<Stepper>::toc(){
 //------------------------------------------- class PARAMS
 PARAMS::PARAMS(string fname_turb):
 	MODEL_TURB(fname_turb) {
-	}
+}
 
 
 void PARAMS::calc_Bfield(VecDoub_I &y){

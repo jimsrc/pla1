@@ -2,9 +2,10 @@
 #ifndef GENERAL_CC
 #define GENERAL_CC
 
-#include "general.h"
 #include "control.h"
+#include "general.h"
 //using namespace std;
+
 
 void ESCALAS::build(const double RIGIDITY){
 	// valores por defecto

@@ -24,23 +24,31 @@ Ek/eV   Rigidity/V   Rl/AU          beta
 1e10    1.0898E+10   4.853544E-02   9.963142E-01
 """
 #--- set B-turbulence model
-pd['n_modos']    = 128
-pd['lambda_min'] = ((5e-5)*AU_in_cm)
+pd.update({
+    'Nm_slab'       : 128,
+    'Nm_2d'         : 128,
+    'lmin_s'        : ((5e-5)*AU_in_cm),
+    'lmax_s'        : 1.0*AU_in_cm,
+    'lmin_2d'       : ((5e-5)*AU_in_cm),
+    'lmax_2d'       : 1.0*AU_in_cm,
+})
+
 #--- corregimos input
 psim['rigidity'] = 4.33306E+07
 psim['tmax']     = 4.4e4 #0.3e4 #4e4
 rl = cw.calc_Rlarmor(psim['rigidity'],pd['Bo']) #[cm]
 eps_o = 3.33e-4 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
-psim['atol']     = pd['lambda_min']*eps_o/rl
+lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # smallest turb scale
+psim['atol']     = lmin*eps_o/rl
 psim['rtol']     = 0.0 #1e-6
 #---------------------------
 #--- output
 po = {}
 po.update(psim)
 po.update(pd)
-po['lambda_min'] /= AU_in_cm
+po['lmin_s'] /= AU_in_cm
 dir_out = '.'
-fname_out = dir_out+'/R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.h5'.format(**po)
+fname_out = dir_out+'/R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_NmS.{Nm_slab:04d}_lminS.{lmin_s:1.1e}.h5'.format(**po)
 
 # call simulator
 m = cw.mgr()

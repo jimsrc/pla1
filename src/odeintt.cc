@@ -30,6 +30,21 @@ void Odeint<Stepper>::integrate(Doub xx2) {
 }
 */
 
+
+#ifdef KILL_HANDLER
+template<class Stepper>
+void Odeint<Stepper>::abort_mission(int signum){
+    printf(" [r:%d] ---> ABORTANDO SIMULACION (signal: %d): %s\n", wrank, signum, out.fname_owned);
+    char syscommand[4000];
+    sprintf(syscommand, "rm %s", out.fname_owned);
+    if (system(syscommand)==0)
+        printf(" [r:%d] removed: %s\n", wrank, out.fname_owned);
+    else
+        printf(" [r:%d] Couldn't remove!: %s\n", wrank, out.fname_owned);
+}
+#endif //KILL_HANDLER
+
+
 template<class Stepper>
 void Odeint<Stepper>::integrate() {
     #ifdef MONIT_STEP
@@ -51,12 +66,13 @@ void Odeint<Stepper>::integrate() {
 			h=x2-x;
 		s.step(h, derivs);
 
+        #ifdef MONIT_SCATTERING
 		check_scattering();				//--- scattering stuff
+        #endif //MONIT_SCATTERING
 
 		if (s.hdid == h) ++nok; else ++nbad;
 
         #ifdef MONIT_STEP
-        //out.monit_step(s);               // monitoreo del step
         out.step_save[0][nstp] = s.hdid;            // total step-size
         out.step_save[1][nstp] = s.hdid/s.nstep;    // partial (true) step-size
         #endif //MONIT_STEP
@@ -81,6 +97,8 @@ void Odeint<Stepper>::integrate() {
 	throw("Too many steps in routine Odeint");
 }
 
+
+#ifdef MONIT_SCATTERING
 template<class Stepper>
 void Odeint<Stepper>::check_scattering(){
 	par.calc_Bfield(y);
@@ -90,19 +108,22 @@ void Odeint<Stepper>::check_scattering(){
 	mu_new /= vmod*Bmod;
 	//-------------------------
 	dtau += s.hdid;			// controlo cuanto pasa hasta el prox rebote
-	//dtauu += s.hdid;
 	//-------------------------
 	if(mu_old*mu_new<0.0){
 		out.nreb++;
 		//printf(" [rank:%d] --> nreb: %d\n", wrank, out.nreb); //getchar();
-		if(out.nreb>=out.nfilTau) out.resizeTau();
+		if(out.nreb>=out.nfilTau) 
+            out.resizeTau();
 		// guardo cosas de la "colisiones" con las irregularidades:
-		out.Tau[out.nreb-1][0] = dtau;				// [1] tiempo-de-colision instantaneo
+		out.Tau[out.nreb-1][0] = dtau;	// [1] tiempo-de-colision instantaneo
 		out.Tau[out.nreb-1][1] = sqrt(y[0]*y[0]+y[2]*y[2]);	// [1] psic "perpend" en q ocurre dicha "colision"
-		out.Tau[out.nreb-1][2] = y[4];				// [1] posic "parall"  en q ocurre dicha "colision"
+		out.Tau[out.nreb-1][2] = y[4];	// [1] posic "parall"  en q ocurre dicha "colision"
+        out.Tau[out.nreb-1][3] = asin(y[5]/vmod)*180./M_PI;  // [deg] angulo entre plano x-y y z.
 		dtau = 0.0;
 	}
 }
+#endif //MONIT_SCATTERING
+
 
 template<class Stepper>
 void Odeint<Stepper>::save_history(){

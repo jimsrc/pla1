@@ -2,19 +2,6 @@
 #from libc.math cimport sqrt, sin, cos
 from libc.math cimport sqrt, pow
 
-#--- esto hay q sacarlo
-cdef extern from "tt.h":
-    cpdef cppclass jim:
-        jim()
-        int a
-        int b
-        double aa
-        PARAMS_SEM s
-    
-    int run(double x1, double rigidity)
-    int run2(double x1, double rigidity, PARAMS_TURB* ptt)
-    int run3(double x1, double rigidity, PARAMS_TURB pt);
-
 
 #--- estructuras c++
 cdef extern from "nr3.h":
@@ -75,15 +62,16 @@ cdef extern from "defs_turb.h":
     cpdef cppclass PARAMS_TURB:
         PARAMS_TURB()
         void build_spectra()
-        Int n_modos
-        Doub lambda_min
-        Doub lambda_max
+        Int Nm_slab, Nm_2d
+        Doub lmin_s, lmax_s
+        Doub lmin_2d, lmax_2d
+        #Int n_modos
+        #Doub lambda_min
+        #Doub lambda_max
         Doub Lc_slab, Lc_2d
         Doub sigma_Bo_ratio;
-        Doub percent_slab;
-        Doub percent_2d;
-        Doub gS    # potencia espectral slab
-        Doub g2D   # potencia espectral 2D
+        Doub percent_slab, percent_2d;
+        Doub gS, g2D # potencia espectral slab/2D
         Doub Bo    # campo uniforme
         Doub sigma_S    # intensidad slab
         Doub sigma_2D   # intensidad 2D
@@ -119,7 +107,8 @@ cdef extern from "funcs.h":
         void build(
             char* str_tscalee, 
             Int nsave, Doub tmaxHistTau, 
-            Int nHist, int i, int j, 
+            Int nHist, Int nThColl_,
+            int i, int j, 
             char *dir_out)
         void set_Bmodel(PARAMS *par)
         void save2file()
@@ -138,12 +127,12 @@ cdef extern from "funcs.h":
         VecDoub xsave # time
         MatDoub ysave # posic && veloc
         #--- MONIT_STEP
-        MatDoub HistStep
-        MatDoub HistSeq
-        Int NStep
-        void build_HistSeq(const T s);
-        #Doub MinStep
+        #MatDoub HistStep
+        #MatDoub HistSeq
+        #Int NStep
+        #void build_HistSeq(const T s);
         MatDoub step_save
+        #--------------
 
 
     cdef cppclass rhs: # (*1)
@@ -185,24 +174,5 @@ cdef extern from "odeintt.h":
 
 cdef double AU_in_cm #= 1.5e13
 #AU_in_cm = 1.5e13 # corre ok, pero no funciona
-"""
-cdef extern from "<vector>" namespace "std":
-    cdef cppclass vector[T]:
-        vector() except +
-        vector(vector&) except +
-        vector(size_t) except +
-        vector(size_t, T&) except +
-        T& operator[](size_t)
-        void clear()
-        void push_back(T&)
-        size_t size()
-"""
 
-"""
-cdef extern from "c_code.cpp":
-    double *compute(int size)"""
-#cdef extern from "exec.cc":
-#    int run_orbit(double* y_init, double x1, double x2)
-#    cdef cppclass jjj:
-#        jjj()
-#        int a
+#EOF

@@ -8,10 +8,9 @@ ext = Extension(
     name = modname,
     sources=[
         "%s.pyx" % modname, 
-        "tt.cc", 
         "defs_turb.cc", 
         "funcs.cc",
-        "general.cc", # para q sepa quien es 'scl'
+        "general.cc", # declara a 'scl'
         "odeintt.cc", 
         "stepperbs.cc",
     ],
