@@ -15,9 +15,12 @@ ph  = ori[:,1]
 #--- B-field parameters only
 pd = {
     # parametros fisicos
-    'n_modos'       : 128,
-    'lambda_min'    : ((5e-5)*AU_in_cm),
-    'lambda_max'    : 1.0*AU_in_cm,
+    'Nm_slab'       : 128,
+    'Nm_2d'         : 128,
+    'lmin_s'        : ((5e-5)*AU_in_cm),
+    'lmax_s'        : 1.0*AU_in_cm,
+    'lmin_2d'       : ((5e-5)*AU_in_cm),
+    'lmax_2d'       : 1.0*AU_in_cm,
     'Lc_slab'       : 0.01*AU_in_cm,
     'Lc_2d'         : 0.01*AU_in_cm,
     'sigma_Bo_ratio': 1.0,
@@ -60,6 +63,7 @@ pother = {
     'nsave'         : 20,
     'tmaxHistTau'   : 150,
     'nHist'         : 150,
+    'nThColl'       : 100,
     'i'             : npla,
     'j'             : nB,
     'dir_out'       : './',
@@ -69,10 +73,10 @@ pother = {
 m = cw.mgr()
 
 m.set_Bmodel(pdict=pd, nB=nB)
-#m.build(**pother)
+m.build(**pother)
 #
-#m.SetSim(**psim)
-#m.RunSim()
+m.SetSim(**psim)
+m.RunSim()
 #
 #fname_out = 'test.h5'
 #ff.save_to_h5(m, fname_out)
