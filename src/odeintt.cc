@@ -91,10 +91,10 @@ void Odeint<Stepper>::integrate() {
 			out.nsteps = nstp;			// me gusta saber el nro total de pasos
 			return;
 		}
-		if (abs(s.hnext) <= hmin) throw_nr("Step size too small in Odeint");
+		if (abs(s.hnext) <= hmin) throw("Step size too small in Odeint");
 		h=s.hnext;
 	}
-	throw_nr("Too many steps in routine Odeint");
+	throw("Too many steps in routine Odeint");
 }
 
 

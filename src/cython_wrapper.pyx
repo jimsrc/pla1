@@ -214,12 +214,6 @@ cdef class mgr:
         self.bsode.integrate()
         print "end."
         self.outbs.toc()
-        """
-        template<class Stepper>
-        void Odeint<Stepper>::integrate(Doub xx2) {
-            x2 = xx2;
-            integrate();
-        }"""
 
 
     def set_Bmodel(self, pdict, nB=0):
@@ -235,8 +229,8 @@ cdef class mgr:
         self.outbs.set_Bmodel(self.par)
 
 
-    def build(self, str_timescale, nsave, tmaxHistTau, nHist, i, j, dir_out):
-        self.outbs.build(str_timescale, nsave, tmaxHistTau, nHist, i, j, dir_out)
+    def build(self, str_timescale, nsave, tmaxHistTau, nHist, nThColl, i, j, dir_out):
+        self.outbs.build(str_timescale, nsave, tmaxHistTau, nHist, nThColl, i, j, dir_out)
 
 
     def build_par(s, nB=0):
@@ -275,14 +269,17 @@ cdef class mgr:
 
         pd = s.pdict
         # parametros fisicos
-        s.pt.n_modos = pd['n_modos']
-        s.pt.lambda_min = pd['lambda_min']
-        s.pt.lambda_max = pd['lambda_max']
+        s.pt.Nm_slab = pd['Nm_slab']
+        s.pt.Nm_2d   = pd['Nm_2d']
+        s.pt.lmin_s  = pd['lmin_s']
+        s.pt.lmax_s  = pd['lmax_s']
+        s.pt.lmin_2d = pd['lmin_2d']
+        s.pt.lmax_2d = pd['lmax_2d']
         s.pt.Lc_slab = pd['Lc_slab']
-        s.pt.Lc_2d = pd['Lc_2d']
+        s.pt.Lc_2d   = pd['Lc_2d']
         s.pt.sigma_Bo_ratio = pd['sigma_Bo_ratio']
         s.pt.percent_slab = pd['percent_slab']
-        s.pt.percent_2d = pd['percent_2d']
+        s.pt.percent_2d   = pd['percent_2d']
         s.pt.Bo = pd['Bo']
         # semillas
         s.pt.sem.slab[0] = pd['sem_slab0']
@@ -387,11 +384,6 @@ cdef class mgr:
             v[:,1] = self.ysave[2,:n]   # [1]
             v[:,2] = self.ysave[4,:n]   # [1]
             return v
-    """
-    property MinStep:
-        def __get__(self):
-            return self.outbs.MinSte
-    """
 
     property vel:
         def __get__(self):
@@ -450,48 +442,6 @@ cdef class mgr:
             }
             return v
 
-    property HistStep:
-        def __get__(self):
-            cdef double *ptr
-            cdef np.ndarray ndarray
-            cdef int nx, ny
-            #nx = self.outbs.NStep #500 #6        # 'nvar' en c++
-            nx = self.outbs.HistStep.nrows()
-            ny = self.outbs.HistStep.ncols()
-            arrw = ArrayWrapper_2d()
-
-            ptr = &(self.outbs.HistStep[0][0])
-            #print self.outbs.HistStep[0][1]
-            arrw.set_data(nx, ny, <void*> ptr, survive=True)
-
-            ndarray = np.array(arrw, copy=False)
-            ndarray.base = <PyObject*> arrw
-            Py_INCREF(arrw)
-            #free(self.ptr)
-            return ndarray
-
-
-    property HistSeq:
-        def __get__(self):
-            cdef double *ptr
-            cdef np.ndarray ndarray
-            cdef int nx, ny
-            nx = self.outbs.HistSeq.nrows()
-            #ny = self.outbs.count        # nro of saved times
-            ny = self.outbs.HistSeq.ncols()
-            arrw = ArrayWrapper_2d()
-
-            ptr = &(self.outbs.HistSeq[0][0])
-            #print self.outbs.HistStep[0][1]
-            arrw.set_data(nx, ny, <void*> ptr, survive=True)
-
-            ndarray = np.array(arrw, copy=False)
-            ndarray.base = <PyObject*> arrw
-            Py_INCREF(arrw)
-            #free(self.ptr)
-            return ndarray
-
-
     property step_save:
         def __get__(self):
             cdef Doub *ptr
@@ -505,6 +455,25 @@ cdef class mgr:
             arrw.set_data(nx, ny, <void*> ptr, survive=True)
 
             ndarray = np.array(arrw, copy=False)
+            ndarray.base = <PyObject*> arrw
+            Py_INCREF(arrw)
+            #free(self.ptr)
+            return ndarray
+
+    property Tau:
+        def __get__(self):
+            cdef Doub *ptr
+            cdef np.ndarray ndarray
+            cdef int nx, ny
+            nx = self.outbs.Tau.nrows()
+            ny = self.outbs.Tau.ncols()
+            arrw = ArrayWrapper_2d()
+            ptr = &(self.outbs.Tau[0][0])
+            arrw.set_data(nx, ny, <void*> ptr, survive=True)
+            ndarray = np.array(arrw, copy=False)
+            #--- lo reducimos al trozo no-trivial
+            ndarray = ndarray[:self.outbs.nreb,:]
+            #------------------------------------
             ndarray.base = <PyObject*> arrw
             Py_INCREF(arrw)
             #free(self.ptr)

@@ -1,12 +1,5 @@
 #ifndef FUNCS_H
 #define FUNCS_H
-
-#ifdef CYTHON
-    #define PRIVATE_OR_PUBLIC public
-#else
-    #define PRIVATE_OR_PUBLIC private
-#endif //CYTHON
-
 //#include "control.h"
 //#include "general.h"
 #include "nr3.h"

@@ -77,27 +77,22 @@ class MODEL_TURB{
 		void calc_dB_SLAB(const Doub *);
 		void calc_dB_2D(const Doub *);
 		void calc_dB(const Doub *);
-		Doub *dB_SLAB;	// [G]
-		Doub *dB_2D;		// [G]
-        #ifndef CYTHON
-		PARAMS_TURB p_turb;
-        #endif //CYTHON
 
 	public:
 		string FNAME_INPUT;
 		MODEL_TURB(string fname_input); //{build(fname_input);}; //constructor
 		MODEL_TURB(void) {};			// constructor "trivial"
 		//~MODEL_TURB(void);			// destructor
-
 		void build(string);
 		void calc_B(const Doub *);
+        void fix_B_realization(const int); // fija la realizacion en funcion del argumento
 
+    PRIVATE_OR_PUBLIC:
+		PARAMS_TURB p_turb; //public only for cython
+		Doub *dB_SLAB;	// [G]
+		Doub *dB_2D;		// [G]
 		Doub *B;		// [G]
 		Doub *dB;		// [G]
-        #ifdef CYTHON
-		PARAMS_TURB p_turb; //public only for cython
-        #endif // CYTHON
-        void fix_B_realization(const int); // fija la realizacion en funcion del argumento
 };
 
 #endif //DEFS_TURB_H
