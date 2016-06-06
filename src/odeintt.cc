@@ -17,6 +17,9 @@ Odeint<Stepper>::Odeint(VecDoub_IO &ystartt, const Doub xx1, const Doub xx2,
 	h=SIGN(h1,x2-x1);
 	for (Int i=0;i<nvar;i++) y[i]=ystart[i];
 	out.init(s.neqn, x1, x2);
+    #ifdef MONIT_STEP
+    out.step_save = MatDoub(2,MAXSTP,0.0);
+    #endif //MONIT_STEP
 }
 
 /*
@@ -45,7 +48,7 @@ void Odeint<Stepper>::abort_mission(int signum){
 template<class Stepper>
 void Odeint<Stepper>::integrate() {
     #ifdef MONIT_STEP
-    out.build_HistSeq(s);       // inicializa histog del "nseq"
+    //out.build_HistSeq(s);       // inicializa histog del "nseq"
     #endif
 
 	int i=0;
@@ -70,7 +73,8 @@ void Odeint<Stepper>::integrate() {
 		if (s.hdid == h) ++nok; else ++nbad;
 
         #ifdef MONIT_STEP
-        out.monit_step(s);               // monitoreo del step
+        out.step_save[0][nstp] = s.hdid;            // total step-size
+        out.step_save[1][nstp] = s.hdid/s.nstep;    // partial (true) step-size
         #endif //MONIT_STEP
 
 		if (dense){

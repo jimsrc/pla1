@@ -89,6 +89,7 @@ class Output {
         //void monit_step(const Doub hdid);
         void monit_step(const Stepper s);
         void build_HistSeq(const Stepper s);
+        MatDoub step_save;
         #endif //MONIT_STEP
 
 	private:

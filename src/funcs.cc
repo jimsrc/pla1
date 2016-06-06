@@ -172,9 +172,10 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
         HistStep[i][2] = (i+.5)*(dstep_part);
         HistStep[i][3] = 0.0;               // counts
     }
-    printf(" NStep: %d\n", NStep);
-    printf(" MaxStep: %g\n", MaxStep);
+    //printf(" NStep: %d\n", NStep);
+    //printf(" MaxStep: %g\n", MaxStep);
     //printf(" HistStep: %g\n", HistStep[0][1]);
+    //NOTE: 'step_save' es inicializado en Odeint::Odeint(..)
     #endif //MONIT_STEP
 }
 
