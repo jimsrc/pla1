@@ -12,6 +12,7 @@ from params import (
 from h5py import File as h5
 from os.path import isfile, isdir
 import os, sys
+from glob import glob
 
 """
 (Bo = 5nT; omega=omega_{rel})
@@ -23,23 +24,30 @@ Ek/eV   Rigidity/V   Rl/AU          beta
 1e10    1.0898E+10   4.853544E-02   9.963142E-01
 """
 #--- set B-turbulence model
-pd['n_modos']    = 128
-pd['lambda_min'] = ((5e-5)*AU_in_cm)
+pd.update({
+    'Nm_slab'   : 128,
+    'Nm_2d'     : 128,
+    'lmin_s'    : ((5e-5)*AU_in_cm),
+    'lmax_s'    : 1.0*AU_in_cm,
+    'lmin_2d'   : ((5e-5)*AU_in_cm),
+    'lmax_2d'   : 1.0*AU_in_cm,
+})
 #--- corregimos input
-psim['rigidity'] = 4.33306E+07
-psim['tmax']     = 4.4e4 #0.3e4 #4e4
+psim['rigidity'] = 1.69604E+09
+psim['tmax']     = 4e4 #0.3e4 #4e4
 rl = cw.calc_Rlarmor(psim['rigidity'],pd['Bo']) #[cm]
-eps_o = 3.33e-4 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
-psim['atol']     = pd['lambda_min']*eps_o/rl
+eps_o = 1.0e-5 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
+lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # smallest turb scale
+psim['atol']     = lmin*eps_o/rl
 psim['rtol']     = 0.0 #1e-6
 #---------------------------
 #--- output
 po = {}
 po.update(psim)
 po.update(pd)
-po['lambda_min'] /= AU_in_cm
+po['lmin_s'] /= AU_in_cm
 dir_out = '.'
-fname_out = dir_out+'/R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.h5'.format(**po)
+fname_out = dir_out+'/R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}_lminS.{lmin_s:1.1e}.h5'.format(**po)
 
 # call simulator
 m = cw.mgr()
@@ -49,8 +57,8 @@ m.set_Bmodel(pdict=pd, nB=nB)
 #comm        = MPI.COMM_WORLD
 #rank        = comm.Get_rank()   # proc rank
 #wsize       = comm.Get_size()   # number of proc
-rank = sys.argv[1]
-wsize = sys.argv[2]
+rank  = int(sys.argv[1])
+wsize = int(sys.argv[2])
 #---------------------------
 if rank==0:
     print " simul parameters\n", psim
@@ -96,5 +104,22 @@ for npla in plas: #[25:]:
     print " [r:{rank}] closing: {fname}".format(rank=rank,fname=fname_out)
 
 fo.close()
+pause(1)
+os.system('touch %s_finished'%fname_out_tmp)
 print " [r:%d] I'm finished!" % rank
+
+if rank==0:
+    #--- let's check if everyone has already finished
+    n = 0
+    while n<wsize:
+        pause(2) # wait before next check
+        fs = glob(fname_out+'_*_finished') #list of files
+        n = len(fs)
+    
+    #--- now proceed to unify
+    ff.unify_all(fname_out, wsize)
+    #--- now we can delete the "*_finished" files
+    for fnm in fs:
+        os.system('rm '+fnm)
+
 #EOF

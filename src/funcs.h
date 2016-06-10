@@ -74,14 +74,6 @@ class Output {
         char fname_owned[200];
 
         #ifdef MONIT_STEP
-        MatDoub HistStep;
-        MatDoub HistSeq;
-        static const Doub MaxStep=1.0;
-        static const Int NStep=500;
-        Doub dstep, dstep_part;
-        //void monit_step(const Doub hdid);
-        void monit_step(const Stepper s);
-        void build_HistSeq(const Stepper s);
         MatDoub step_save;
         #endif //MONIT_STEP
 

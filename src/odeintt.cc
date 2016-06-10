@@ -47,10 +47,6 @@ void Odeint<Stepper>::abort_mission(int signum){
 
 template<class Stepper>
 void Odeint<Stepper>::integrate() {
-    #ifdef MONIT_STEP
-    //out.build_HistSeq(s);       // inicializa histog del "nseq"
-    #endif
-
 	int i=0;
 	derivs(par, x, y, dydx);
 	if (dense)

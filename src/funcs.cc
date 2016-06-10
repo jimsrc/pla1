@@ -162,19 +162,6 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
     #endif //MONIT_SCATTERING
 
     #ifdef MONIT_STEP
-    HistStep    = MatDoub(NStep, 4);
-    dstep       = MaxStep/(1.0*NStep);
-    dstep_part  = dstep/8.;
-    //MinStep     = 1e3;
-    for(int i=0; i<NStep; i++){
-        HistStep[i][0] = (i+.5)*dstep;
-        HistStep[i][1] = 0.0;               // counts
-        HistStep[i][2] = (i+.5)*(dstep_part);
-        HistStep[i][3] = 0.0;               // counts
-    }
-    //printf(" NStep: %d\n", NStep);
-    //printf(" MaxStep: %g\n", MaxStep);
-    //printf(" HistStep: %g\n", HistStep[0][1]);
     //NOTE: 'step_save' es inicializado en Odeint::Odeint(..)
     #endif //MONIT_STEP
 }
@@ -280,42 +267,6 @@ void Output<Stepper>::resizeTau(){	// redimensiona el vector 'xsave' hacia el do
 		for(Int j=0; j<ncolTau; j++)
 			Tau[i][j] = tempmat[i][j];
 }
-
-
-#ifdef MONIT_STEP
-template <class Stepper>
-void Output<Stepper>::build_HistSeq(const Stepper s){
-    HistSeq = MatDoub(s.IMAXX, 2);
-    for(int i=0; i<s.IMAXX; i++){
-        HistSeq[i][0] = s.nseq[i];
-        HistSeq[i][1] = 0.0;
-    }
-}
-
-
-template <class Stepper>
-//void Output<Stepper>::monit_step(const Doub hdid){
-void Output<Stepper>::monit_step(const Stepper s){
-    /*if(hdid!=0.05)
-        MinStep = MIN(MinStep, hdid);*/
-    int ns;
-    if(s.hdid<=MaxStep){
-        // h total
-        ns = int(s.hdid/dstep);
-        HistStep[ns][1]++;
-    }
-    if((s.hdid/s.nstep)<=(NStep*dstep_part)){
-        // h partial
-        ns = int((s.hdid/s.nstep)/(dstep_part));
-        HistStep[ns][3]++;
-    }
-    //
-    for(int i=0; i<HistSeq.nrows(); i++){
-        if(s.nstep==HistSeq[i][0])
-            HistSeq[i][1]++;
-    }
-}
-#endif //MONIT_STEP
 
 
 template <class Stepper>

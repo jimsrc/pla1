@@ -127,10 +127,6 @@ cdef extern from "funcs.h":
         VecDoub xsave # time
         MatDoub ysave # posic && veloc
         #--- MONIT_STEP
-        #MatDoub HistStep
-        #MatDoub HistSeq
-        #Int NStep
-        #void build_HistSeq(const T s);
         MatDoub step_save
         #--------------
 

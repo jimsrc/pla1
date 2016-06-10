@@ -308,11 +308,11 @@ endif
 set shortmess=aoO
 badd +16 odeintt.h
 badd +5 odeintt.cc
-badd +92 funcs.h
+badd +89 funcs.h
 badd +126 funcs.cc
-badd +45 defs_turb.h
+badd +65 defs_turb.h
 badd +7 defs_turb.cc
-badd +29 general.h
+badd +26 general.h
 badd +1 general.cc
 badd +16 makefile
 badd +33 exec.cc
@@ -334,8 +334,8 @@ badd +7 ~/simulacion/cython/cythonbook/08-wrapping-cxx/06-templated-classes/temp
 badd +41 stepperbs.h
 badd +369 stepperbs.cc
 badd +1 cython_wrapper.pyd
-badd +148 cython_wrapper.pxd
-badd +1 array_wrapper.pyx
+badd +3 cython_wrapper.pxd
+badd +28 array_wrapper.pyx
 args odeintt.h
 edit setup.py
 set splitbelow splitright
@@ -353,13 +353,13 @@ wincmd w
 wincmd t
 set winheight=1 winwidth=1
 exe '1resize ' . ((&lines * 28 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 49 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 50 + 88) / 177)
 exe '2resize ' . ((&lines * 18 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 49 + 86) / 172)
+exe 'vert 2resize ' . ((&columns * 50 + 88) / 177)
 exe '3resize ' . ((&lines * 47 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 74 + 86) / 172)
+exe 'vert 3resize ' . ((&columns * 77 + 88) / 177)
 exe '4resize ' . ((&lines * 47 + 28) / 57)
-exe 'vert 4resize ' . ((&columns * 47 + 86) / 172)
+exe 'vert 4resize ' . ((&columns * 48 + 88) / 177)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
 xnoremap <buffer> <silent> \a} `>a}`<i{
@@ -474,7 +474,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 5 - ((2 * winheight(0) + 14) / 28)
+let s:l = 5 - ((0 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -847,13 +847,13 @@ normal! zt
 normal! 0
 wincmd w
 exe '1resize ' . ((&lines * 28 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 49 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 50 + 88) / 177)
 exe '2resize ' . ((&lines * 18 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 49 + 86) / 172)
+exe 'vert 2resize ' . ((&columns * 50 + 88) / 177)
 exe '3resize ' . ((&lines * 47 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 74 + 86) / 172)
+exe 'vert 3resize ' . ((&columns * 77 + 88) / 177)
 exe '4resize ' . ((&lines * 47 + 28) / 57)
-exe 'vert 4resize ' . ((&columns * 47 + 86) / 172)
+exe 'vert 4resize ' . ((&columns * 48 + 88) / 177)
 tabedit cython_wrapper.pxd
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -865,9 +865,9 @@ wincmd w
 wincmd w
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 51 + 86) / 172)
-exe 'vert 2resize ' . ((&columns * 64 + 86) / 172)
-exe 'vert 3resize ' . ((&columns * 55 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 52 + 88) / 177)
+exe 'vert 2resize ' . ((&columns * 66 + 88) / 177)
+exe 'vert 3resize ' . ((&columns * 57 + 88) / 177)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
 xnoremap <buffer> <silent> \a} `>a}`<i{
@@ -982,12 +982,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 168 - ((17 * winheight(0) + 27) / 54)
+let s:l = 130 - ((26 * winheight(0) + 27) / 54)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-168
-normal! 016l
+130
+normal! 08l
 wincmd w
 argglobal
 edit cython_wrapper.pyx
@@ -1104,7 +1104,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 386 - ((44 * winheight(0) + 27) / 54)
+let s:l = 386 - ((3 * winheight(0) + 27) / 54)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -1226,405 +1226,16 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 502 - ((17 * winheight(0) + 27) / 54)
+let s:l = 502 - ((0 * winheight(0) + 27) / 54)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 502
-normal! 012l
+normal! 06l
 wincmd w
-2wincmd w
-exe 'vert 1resize ' . ((&columns * 51 + 86) / 172)
-exe 'vert 2resize ' . ((&columns * 64 + 86) / 172)
-exe 'vert 3resize ' . ((&columns * 55 + 86) / 172)
-tabedit array_wrapper.pyx
-set splitbelow splitright
-wincmd _ | wincmd |
-vsplit
-1wincmd h
-wincmd _ | wincmd |
-split
-1wincmd k
-wincmd w
-wincmd w
-wincmd t
-set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 9 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 98 + 86) / 172)
-exe '2resize ' . ((&lines * 44 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 98 + 86) / 172)
-exe 'vert 3resize ' . ((&columns * 73 + 86) / 172)
-argglobal
-vnoremap <buffer> 	 :py isort_visual()
-xnoremap <buffer> <silent> \a} `>a}`<i{
-xnoremap <buffer> <silent> \a{ `>a}`<i{
-xnoremap <buffer> <silent> \a) `>a)`<i(
-xnoremap <buffer> <silent> \a( `>a)`<i(
-xnoremap <buffer> <silent> \a' `>a'`<i'
-xnoremap <buffer> <silent> \a] `>a]`<i[
-xnoremap <buffer> <silent> \a[ `>a]`<i[
-xnoremap <buffer> <silent> \a" `>a"`<i"
-xnoremap <buffer> <silent> \a` `>a``<i`
-setlocal keymap=
-setlocal noarabic
-setlocal autoindent
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal colorcolumn=
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:XCOMM,n:>,fb:-
-setlocal commentstring=#%s
-setlocal complete=.,w,b,u,t,i
-setlocal concealcursor=
-setlocal conceallevel=0
-setlocal completefunc=
-setlocal nocopyindent
-setlocal cryptmethod=
-setlocal nocursorbind
-setlocal nocursorcolumn
-set cursorline
-setlocal cursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'pyrex'
-setlocal filetype=pyrex
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcq
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=2
-setlocal imsearch=2
-setlocal include=^\\s*\\(from\\|import\\)
-setlocal includeexpr=substitute(v:fname,'\\.','/','g')
-setlocal indentexpr=GetPythonIndent(v:lnum)
-setlocal indentkeys=0{,0},:,!^F,o,O,e,<:>,=elif,=except
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keywordprg=pydoc
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-set number
-setlocal number
-setlocal numberwidth=4
-setlocal omnifunc=pythoncomplete#Complete
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norelativenumber
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=4
-setlocal noshortname
-setlocal nosmartindent
-setlocal softtabstop=4
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=%!airline#statusline(1)
-setlocal suffixesadd=.py
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'pyrex'
-setlocal syntax=pyrex
-endif
-setlocal tabstop=4
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal undofile
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 3 - ((2 * winheight(0) + 4) / 9)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-3
-normal! 017l
-wincmd w
-argglobal
-edit array_wrapper.pyx
-vnoremap <buffer> 	 :py isort_visual()
-xnoremap <buffer> <silent> \a} `>a}`<i{
-xnoremap <buffer> <silent> \a{ `>a}`<i{
-xnoremap <buffer> <silent> \a) `>a)`<i(
-xnoremap <buffer> <silent> \a( `>a)`<i(
-xnoremap <buffer> <silent> \a' `>a'`<i'
-xnoremap <buffer> <silent> \a] `>a]`<i[
-xnoremap <buffer> <silent> \a[ `>a]`<i[
-xnoremap <buffer> <silent> \a" `>a"`<i"
-xnoremap <buffer> <silent> \a` `>a``<i`
-setlocal keymap=
-setlocal noarabic
-setlocal autoindent
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal colorcolumn=
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:XCOMM,n:>,fb:-
-setlocal commentstring=#%s
-setlocal complete=.,w,b,u,t,i
-setlocal concealcursor=
-setlocal conceallevel=0
-setlocal completefunc=
-setlocal nocopyindent
-setlocal cryptmethod=
-setlocal nocursorbind
-setlocal nocursorcolumn
-set cursorline
-setlocal cursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'pyrex'
-setlocal filetype=pyrex
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcq
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=2
-setlocal imsearch=2
-setlocal include=^\\s*\\(from\\|import\\)
-setlocal includeexpr=substitute(v:fname,'\\.','/','g')
-setlocal indentexpr=GetPythonIndent(v:lnum)
-setlocal indentkeys=0{,0},:,!^F,o,O,e,<:>,=elif,=except
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keywordprg=pydoc
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-set number
-setlocal number
-setlocal numberwidth=4
-setlocal omnifunc=pythoncomplete#Complete
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norelativenumber
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=4
-setlocal noshortname
-setlocal nosmartindent
-setlocal softtabstop=4
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=%!airline#statusline(2)
-setlocal suffixesadd=.py
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'pyrex'
-setlocal syntax=pyrex
-endif
-setlocal tabstop=4
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal undofile
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 31 - ((21 * winheight(0) + 22) / 44)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-31
-normal! 0
-wincmd w
-argglobal
-edit array_wrapper.pyx
-vnoremap <buffer> 	 :py isort_visual()
-xnoremap <buffer> <silent> \a} `>a}`<i{
-xnoremap <buffer> <silent> \a{ `>a}`<i{
-xnoremap <buffer> <silent> \a) `>a)`<i(
-xnoremap <buffer> <silent> \a( `>a)`<i(
-xnoremap <buffer> <silent> \a' `>a'`<i'
-xnoremap <buffer> <silent> \a] `>a]`<i[
-xnoremap <buffer> <silent> \a[ `>a]`<i[
-xnoremap <buffer> <silent> \a" `>a"`<i"
-xnoremap <buffer> <silent> \a` `>a``<i`
-setlocal keymap=
-setlocal noarabic
-setlocal autoindent
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal colorcolumn=
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:XCOMM,n:>,fb:-
-setlocal commentstring=#%s
-setlocal complete=.,w,b,u,t,i
-setlocal concealcursor=
-setlocal conceallevel=0
-setlocal completefunc=
-setlocal nocopyindent
-setlocal cryptmethod=
-setlocal nocursorbind
-setlocal nocursorcolumn
-set cursorline
-setlocal cursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'pyrex'
-setlocal filetype=pyrex
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcq
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=2
-setlocal imsearch=2
-setlocal include=^\\s*\\(from\\|import\\)
-setlocal includeexpr=substitute(v:fname,'\\.','/','g')
-setlocal indentexpr=GetPythonIndent(v:lnum)
-setlocal indentkeys=0{,0},:,!^F,o,O,e,<:>,=elif,=except
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keywordprg=pydoc
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-set number
-setlocal number
-setlocal numberwidth=4
-setlocal omnifunc=pythoncomplete#Complete
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norelativenumber
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=4
-setlocal noshortname
-setlocal nosmartindent
-setlocal softtabstop=4
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=%!airline#statusline(3)
-setlocal suffixesadd=.py
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'pyrex'
-setlocal syntax=pyrex
-endif
-setlocal tabstop=4
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal undofile
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 28 - ((23 * winheight(0) + 27) / 54)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-28
-normal! 08l
-wincmd w
-2wincmd w
-exe '1resize ' . ((&lines * 9 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 98 + 86) / 172)
-exe '2resize ' . ((&lines * 44 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 98 + 86) / 172)
-exe 'vert 3resize ' . ((&columns * 73 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 52 + 88) / 177)
+exe 'vert 2resize ' . ((&columns * 66 + 88) / 177)
+exe 'vert 3resize ' . ((&columns * 57 + 88) / 177)
 tabedit odeintt.h
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -1637,11 +1248,11 @@ split
 wincmd w
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 78 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 80 + 88) / 177)
 exe '2resize ' . ((&lines * 18 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 93 + 86) / 172)
+exe 'vert 2resize ' . ((&columns * 96 + 88) / 177)
 exe '3resize ' . ((&lines * 35 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 93 + 86) / 172)
+exe 'vert 3resize ' . ((&columns * 96 + 88) / 177)
 argglobal
 xnoremap <buffer> <silent> \a} `>a}`<i{
 xnoremap <buffer> <silent> \a{ `>a}`<i{
@@ -1876,12 +1487,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 18 - ((12 * winheight(0) + 9) / 18)
+let s:l = 49 - ((7 * winheight(0) + 9) / 18)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-18
-normal! 027l
+49
+normal! 0
 wincmd w
 argglobal
 edit odeintt.cc
@@ -1997,19 +1608,19 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 47 - ((8 * winheight(0) + 17) / 35)
+let s:l = 20 - ((16 * winheight(0) + 17) / 35)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-47
-normal! 0
+20
+normal! 011l
 wincmd w
-2wincmd w
-exe 'vert 1resize ' . ((&columns * 78 + 86) / 172)
+3wincmd w
+exe 'vert 1resize ' . ((&columns * 80 + 88) / 177)
 exe '2resize ' . ((&lines * 18 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 93 + 86) / 172)
+exe 'vert 2resize ' . ((&columns * 96 + 88) / 177)
 exe '3resize ' . ((&lines * 35 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 93 + 86) / 172)
+exe 'vert 3resize ' . ((&columns * 96 + 88) / 177)
 tabedit funcs.h
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -2021,12 +1632,9 @@ wincmd w
 wincmd w
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 51 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 69 + 86) / 172)
-exe '2resize ' . ((&lines * 51 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 63 + 86) / 172)
-exe '3resize ' . ((&lines * 51 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 38 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 71 + 88) / 177)
+exe 'vert 2resize ' . ((&columns * 65 + 88) / 177)
+exe 'vert 3resize ' . ((&columns * 39 + 88) / 177)
 argglobal
 xnoremap <buffer> <silent> \a} `>a}`<i{
 xnoremap <buffer> <silent> \a{ `>a}`<i{
@@ -2140,12 +1748,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 13 - ((12 * winheight(0) + 25) / 51)
+let s:l = 77 - ((31 * winheight(0) + 27) / 54)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-13
-normal! 0
+77
+normal! 08l
 wincmd w
 argglobal
 edit funcs.cc
@@ -2261,12 +1869,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 287 - ((27 * winheight(0) + 25) / 51)
+let s:l = 166 - ((22 * winheight(0) + 27) / 54)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-287
-normal! 0
+166
+normal! 013l
 wincmd w
 argglobal
 enew
@@ -2383,13 +1991,10 @@ setlocal winfixwidth
 setlocal nowrap
 setlocal wrapmargin=0
 wincmd w
-2wincmd w
-exe '1resize ' . ((&lines * 51 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 69 + 86) / 172)
-exe '2resize ' . ((&lines * 51 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 63 + 86) / 172)
-exe '3resize ' . ((&lines * 51 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 38 + 86) / 172)
+3wincmd w
+exe 'vert 1resize ' . ((&columns * 71 + 88) / 177)
+exe 'vert 2resize ' . ((&columns * 65 + 88) / 177)
+exe 'vert 3resize ' . ((&columns * 39 + 88) / 177)
 tabedit stepperbs.h
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -2403,11 +2008,11 @@ wincmd w
 wincmd t
 set winheight=1 winwidth=1
 exe '1resize ' . ((&lines * 51 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 74 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 76 + 88) / 177)
 exe '2resize ' . ((&lines * 29 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 97 + 86) / 172)
+exe 'vert 2resize ' . ((&columns * 100 + 88) / 177)
 exe '3resize ' . ((&lines * 21 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 97 + 86) / 172)
+exe 'vert 3resize ' . ((&columns * 100 + 88) / 177)
 argglobal
 xnoremap <buffer> <silent> \a} `>a}`<i{
 xnoremap <buffer> <silent> \a{ `>a}`<i{
@@ -2521,12 +2126,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 41 - ((21 * winheight(0) + 25) / 51)
+let s:l = 57 - ((37 * winheight(0) + 25) / 51)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-41
-normal! 01l
+57
+normal! 011l
 wincmd w
 argglobal
 edit stepperbs.cc
@@ -2642,12 +2247,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 339 - ((0 * winheight(0) + 14) / 29)
+let s:l = 340 - ((5 * winheight(0) + 14) / 29)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-339
-normal! 04l
+340
+normal! 013l
 wincmd w
 argglobal
 edit stepperbs.cc
@@ -2770,13 +2375,13 @@ normal! zt
 282
 normal! 027l
 wincmd w
-2wincmd w
+3wincmd w
 exe '1resize ' . ((&lines * 51 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 74 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 76 + 88) / 177)
 exe '2resize ' . ((&lines * 29 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 97 + 86) / 172)
+exe 'vert 2resize ' . ((&columns * 100 + 88) / 177)
 exe '3resize ' . ((&lines * 21 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 97 + 86) / 172)
+exe 'vert 3resize ' . ((&columns * 100 + 88) / 177)
 tabedit stepperbs.cc
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -2786,9 +2391,9 @@ wincmd w
 wincmd t
 set winheight=1 winwidth=1
 exe '1resize ' . ((&lines * 47 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 86 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 89 + 88) / 177)
 exe '2resize ' . ((&lines * 47 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 85 + 86) / 172)
+exe 'vert 2resize ' . ((&columns * 87 + 88) / 177)
 argglobal
 xnoremap <buffer> <silent> \a} `>a}`<i{
 xnoremap <buffer> <silent> \a{ `>a}`<i{
@@ -3030,11 +2635,11 @@ normal! zt
 30
 normal! 031l
 wincmd w
-2wincmd w
+3wincmd w
 exe '1resize ' . ((&lines * 47 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 86 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 89 + 88) / 177)
 exe '2resize ' . ((&lines * 47 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 85 + 86) / 172)
+exe 'vert 2resize ' . ((&columns * 87 + 88) / 177)
 tabedit general.h
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -3048,11 +2653,11 @@ wincmd w
 wincmd t
 set winheight=1 winwidth=1
 exe '1resize ' . ((&lines * 47 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 101 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 104 + 88) / 177)
 exe '2resize ' . ((&lines * 19 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 70 + 86) / 172)
+exe 'vert 2resize ' . ((&columns * 72 + 88) / 177)
 exe '3resize ' . ((&lines * 27 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 70 + 86) / 172)
+exe 'vert 3resize ' . ((&columns * 72 + 88) / 177)
 argglobal
 xnoremap <buffer> <silent> \a} `>a}`<i{
 xnoremap <buffer> <silent> \a{ `>a}`<i{
@@ -3415,13 +3020,13 @@ normal! zt
 4
 normal! 040l
 wincmd w
-2wincmd w
+3wincmd w
 exe '1resize ' . ((&lines * 47 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 101 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 104 + 88) / 177)
 exe '2resize ' . ((&lines * 19 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 70 + 86) / 172)
+exe 'vert 2resize ' . ((&columns * 72 + 88) / 177)
 exe '3resize ' . ((&lines * 27 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 70 + 86) / 172)
+exe 'vert 3resize ' . ((&columns * 72 + 88) / 177)
 tabedit defs_turb.h
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -3438,13 +3043,13 @@ wincmd w
 wincmd t
 set winheight=1 winwidth=1
 exe '1resize ' . ((&lines * 47 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 62 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 64 + 88) / 177)
 exe '2resize ' . ((&lines * 16 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 109 + 86) / 172)
+exe 'vert 2resize ' . ((&columns * 112 + 88) / 177)
 exe '3resize ' . ((&lines * 2 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 109 + 86) / 172)
+exe 'vert 3resize ' . ((&columns * 112 + 88) / 177)
 exe '4resize ' . ((&lines * 27 + 28) / 57)
-exe 'vert 4resize ' . ((&columns * 109 + 86) / 172)
+exe 'vert 4resize ' . ((&columns * 112 + 88) / 177)
 argglobal
 xnoremap <buffer> <silent> \a} `>a}`<i{
 xnoremap <buffer> <silent> \a{ `>a}`<i{
@@ -3928,16 +3533,16 @@ normal! zt
 363
 normal! 07l
 wincmd w
-2wincmd w
+3wincmd w
 exe '1resize ' . ((&lines * 47 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 62 + 86) / 172)
+exe 'vert 1resize ' . ((&columns * 64 + 88) / 177)
 exe '2resize ' . ((&lines * 16 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 109 + 86) / 172)
+exe 'vert 2resize ' . ((&columns * 112 + 88) / 177)
 exe '3resize ' . ((&lines * 2 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 109 + 86) / 172)
+exe 'vert 3resize ' . ((&columns * 112 + 88) / 177)
 exe '4resize ' . ((&lines * 27 + 28) / 57)
-exe 'vert 4resize ' . ((&columns * 109 + 86) / 172)
-tabnext 2
+exe 'vert 4resize ' . ((&columns * 112 + 88) / 177)
+tabnext 3
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
 endif
