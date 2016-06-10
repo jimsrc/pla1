@@ -1,5 +1,5 @@
 #!/bin/bash 
-#PBS -l nodes=2:ppn=24
+#PBS -l nodes=1:ppn=24
 #PBS -q larga
 #PBS -M jimmy.ilws@gmail.com
 #PBS -m abe 
@@ -12,7 +12,7 @@ EXEC=/home/jimmy.meza/pla1/scripts/ifc.x
 cd $THIS_DIR
 PY_SCRIPT=rr_hydra.py
 INPUTS="$PY_SCRIPT dummy_str"
-NPROCS="-np 48"
+NPROCS="-np 24"
 
 # corrida
 mpirun $NPROCS $EXEC $INPUTS

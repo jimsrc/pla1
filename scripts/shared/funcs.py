@@ -11,6 +11,11 @@ from Bparker.Bparker import return_B as Bparker_vector
 from numpy.linalg import norm
 
 
+def Lc_memilia(r=1.0):
+    Lc = 0.89*(r**(0.43))*1e6/(1e8) # [AU]
+    return Lc
+
+
 def Bo_parker(r=1.0, th=np.pi/2., ph=0.0):
     """ input:
     r  [AU]  : heliodistance
