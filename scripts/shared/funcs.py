@@ -7,6 +7,21 @@ from pylab import pause, find
 #from numpy import min, max
 import os
 from glob import glob
+from Bparker.Bparker import return_B as Bparker_vector
+from numpy.linalg import norm
+
+
+def Bo_parker(r=1.0, th=np.pi/2., ph=0.0):
+    """ input:
+    r  [AU]  : heliodistance
+    th [rad] : spherical polar angle (co-latitude)
+    ph [rad] : azimuth
+    default: (r=1.0, th=pi/2, ph=0.0)
+    """
+    #--- calc B-field at position (r, th)
+    pos = np.array([r, th, ph], dtype=np.float32) #[AU], [rad], [rad]: position
+    Bo  = norm(Bparker_vector(pos)) # [Gauss]
+    return Bo
 
 
 def unify_all(fname_out, wsize):

@@ -13,6 +13,7 @@ from h5py import File as h5
 from os.path import isfile, isdir
 import os, sys
 from glob import glob
+#from Bparker.Bparker import return_B as Bparker
 
 """
 (Bo = 5nT; omega=omega_{rel})
@@ -45,7 +46,7 @@ pd.update({
     'Lc_slab'       : 0.01*AU_in_cm,
     'Lc_2d'         : 0.01*AU_in_cm,
     'sigma_Bo_ratio': 1.0,
-    'Bo'            : 41.4286e-5,   # [Gauss]
+    'Bo'            : ff.Bo_parker(r=0.3),   # [Gauss]
 })
 #--- corregimos input
 psim['rigidity'] = 1.69604E+09
