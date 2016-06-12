@@ -53,21 +53,30 @@ pd.update({
 })
 #--- corregimos input
 psim['rigidity'] = 1.69604E+09
-psim['tmax']     = 4e4 #0.3e4 #4e4
+psim['tmax']     = 1.2e2 #0.3e4 #4e4
 rl = cw.calc_Rlarmor(psim['rigidity'],pd['Bo']) #[cm]
-eps_o = 3.33e-4 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
-lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # smallest turb scale
-psim['atol']     = lmin*eps_o/rl
+eps_o = 3.33e-3 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
+lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
+psim['atol']     = lmin*eps_o/rl  # [1]
 psim['rtol']     = 0.0 #1e-6
 
 #--- output
 po = {}
 po.update(psim)
 po.update(pd)
-#po['lmin_s'] /= AU_in_cm
+# add some stuff
+po.update({
+    'r'     : ro,            # [AU] heliodistance
+    'eps_o' : eps_o,         # [1]  precision
+    'lmin'  : lmin/AU_in_cm, # [AU] minimum turb scale
+})
+# convert system's lenghts to [AU]
+for pnm in pd.keys():
+    if pnm.startswith(('lmin_','Lc_')):
+        po[pnm] = pd[pnm]/AU_in_cm # [AU]
+
 dir_out = '.'
-#fname_out = dir_out+'/R.{rigidity:1.2e}_atol.{atol:1.1e}_rtol.{rtol:1.1e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}_lmin.{lmin:1.1e}.h5'.format(lmin=lmin, **po)
-fname_out = dir_out+'/r.{r:1.2f}_R.{rigidity:1.2e}_eps.{eps_o:1.2e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}_lmin.{lmin:1.1e}.h5'.format(r=ro, eps_o=eps_o, lmin=lmin/AU_in_cm, **po)
+fname_out = dir_out+'/r.{r:1.2f}_R.{rigidity:1.2e}_eps.{eps_o:1.2e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}_lmin.{lmin:1.1e}.h5'.format(**po)
 
 #--- call simulator
 m = cw.mgr()
@@ -121,7 +130,7 @@ for npla in plas: #[25:]:
     fo[dpath+'HistStep/HStep'] = HStp.sum(axis=0)
     fo[dpath+'HistStep/bins_StepPart'] = bins_StepPart
     fo[dpath+'HistStep/nbin'] = nbin
-    print " [r:{rank}] closing: {fname}".format(rank=rank,fname=fname_out)
+    print " [r:{rank}] closing: {fname}".format(rank=rank,fname=fo.filename)
 
 fo.close()
 pause(1)
@@ -137,7 +146,7 @@ if rank==0:
         n = len(fs)
     
     #--- now proceed to unify
-    ff.unify_all(fname_out, wsize)
+    ff.unify_all(fname_out, psim=po, wsize=wsize)
     #--- now we can delete the "*_finished" files
     for fnm in fs:
         os.system('rm '+fnm)

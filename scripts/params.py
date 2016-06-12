@@ -2,11 +2,13 @@
 parameters file
 """
 import numpy as np
+from os import environ
 
 AU_in_cm = 1.5e13
 
+fname_ori = '{PLA1}/scripts/orientations_122.in'.format(**environ)
 #ori = np.loadtxt('orientations_isotropic_Nth16_Nph8.in')
-ori = np.loadtxt('orientations_122.in')
+ori = np.loadtxt(fname_ori)
 mu  = np.cos(ori[:,0])
 ph  = ori[:,1]
 

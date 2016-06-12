@@ -5,7 +5,7 @@ from os.path import isfile, isdir
 import numpy as np
 from pylab import pause, find
 #from numpy import min, max
-import os
+import os, sys
 from glob import glob
 from Bparker.Bparker import return_B as Bparker_vector
 from numpy.linalg import norm
@@ -29,7 +29,7 @@ def Bo_parker(r=1.0, th=np.pi/2., ph=0.0):
     return Bo
 
 
-def unify_all(fname_out, wsize):
+def unify_all(fname_out, psim, wsize):
     """ function to unify all the
         output .h5 of all processors.
 	NOTE: this is for working in
@@ -45,6 +45,9 @@ def unify_all(fname_out, wsize):
         finp.close()
 	print " --> removing partial files..."
         os.system('rm {fname}'.format(fname=fnm_inp))
+
+    for pnm in psim.keys():
+        fout['psim/%s'%pnm] = psim[pnm]
 
     print " ----> We generated: "+fout.filename
     fout.close()
