@@ -115,21 +115,7 @@ for npla in plas: #[25:]:
     print " [r:%d] simulation (pla:%d) finished!" % (rank, npla)
     dpath = 'pla%03d/' % npla
     print " [r:%d] now i'll write" % rank
-    ff.SaveToFile(m, dpath, fo)
-
-    #--- histos of step-size
-    st      = m.step_save # shape: (2,Odeint::MAXSTP)
-    st_tot  = st[0,:][st[0,:]!=0] # filter-out zero values
-    st_part = st[1,:][st[1,:]!=0] # ""
-    h       = np.histogram2d(st_tot, st_part, 
-              bins=[nbin, nbin], 
-              normed=False)
-    HStp          = h[0].T # filter-out zero values
-    bins_StepTot  = 0.5*(h[1][:-1] + h[1][1:])
-    bins_StepPart = 0.5*(h[2][:-1] + h[2][1:])
-    fo[dpath+'HistStep/HStep'] = HStp.sum(axis=0)
-    fo[dpath+'HistStep/bins_StepPart'] = bins_StepPart
-    fo[dpath+'HistStep/nbin'] = nbin
+    ff.SaveToFile(m, dpath, fo, nbin)
     print " [r:{rank}] closing: {fname}".format(rank=rank,fname=fo.filename)
 
 fo.close()

@@ -242,7 +242,14 @@ def SaveToFile_ii(rank, m, dpath, fname_out):
 
 
 
-def SaveToFile(m, dpath='', f=file):
+def SaveToFile(m, dpath='', f=None, nbin=None):
+    """
+    input:
+    - m     : cython-wrapper-module
+    - dpath : directory-path for .h5 file
+    - f     : output file object
+    - nbin  : number of bins for step-size histos
+    """
     vsave = {
         'tadim'     : m.tsave,      # [omega^-1]
         'ysave'     : m.ysave,      # [1]
@@ -258,9 +265,24 @@ def SaveToFile(m, dpath='', f=file):
     }
 
     #print " ---> saving: " + f.filename
+    #--- variables
     for name in vsave.keys():
         dname = dpath + name   # anteponemos algo
         f[dname] = vsave[name]
+
+    #--- histos of step-size
+    st      = m.step_save # shape: (2,Odeint::MAXSTP)
+    st_tot  = st[0,:][st[0,:]!=0] # filter-out zero values
+    st_part = st[1,:][st[1,:]!=0] # ""
+    h       = np.histogram2d(st_tot, st_part, 
+              bins=[nbin, nbin], 
+              normed=False)
+    HStp          = h[0].T # filter-out zero values
+    bins_StepTot  = 0.5*(h[1][:-1] + h[1][1:])
+    bins_StepPart = 0.5*(h[2][:-1] + h[2][1:])
+    f[dpath+'HistStep/HStep'] = HStp.sum(axis=0)
+    f[dpath+'HistStep/bins_StepPart'] = bins_StepPart
+    f[dpath+'HistStep/nbin'] = nbin
 
 
 
