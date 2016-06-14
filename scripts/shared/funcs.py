@@ -79,6 +79,9 @@ class Hmgr:
         self.bmin = 1.0e31
         self.bmax = 0.0
         for pnm in PNAMES:
+            if not pnm.startswith('pla'):
+                continue
+            print '--->', pnm
             hx = self.f[pnm+'/HistStep/bins_StepPart'].value
             self.bmin = min(self.bmin, hx[0])
             self.bmax = max(self.bmax, hx[-1])
@@ -109,7 +112,7 @@ def load_traj(fname):
     y = np.zeros((n,nt))
     z = np.zeros((n,nt))
     for pname, i in zip(PNAMES, range(n)):
-        if pname=='psim':
+        if not pname.startswith('pla'):
             continue
 
         print " --> pname: ", pname
