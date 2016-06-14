@@ -109,6 +109,9 @@ def load_traj(fname):
     y = np.zeros((n,nt))
     z = np.zeros((n,nt))
     for pname, i in zip(PNAMES, range(n)):
+        if pname=='psim':
+            continue
+
         print " --> pname: ", pname
         x[i,:], y[i,:], z[i,:] = f[pname+'/xyz'].value.T # [1]
 

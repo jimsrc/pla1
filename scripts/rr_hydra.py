@@ -75,7 +75,7 @@ for pnm in pd.keys():
     if pnm.startswith(('lmin_','Lc_')):
         po[pnm] = pd[pnm]/AU_in_cm # [AU]
 
-dir_out = '.'
+dir_out = '../out'
 fname_out = dir_out+'/r.{r:1.2f}_R.{rigidity:1.2e}_eps.{eps_o:1.2e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}_lmin.{lmin:1.1e}.h5'.format(**po)
 
 #--- call simulator
