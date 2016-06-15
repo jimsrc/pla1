@@ -27,7 +27,7 @@ dir_fig = '../figs'
 AUincm = 1.5e13                   # [cm]
 po = {}
 po['Bo']         = 5e-5                         # [Gauss]
-po['n_modos']    = 128
+#po['n_modos']    = 128
 po['lambda_min'] = 5e-5 #((5e-5)*AUincm)
 #--- corregimos input
 po['rigidity'] =  1.37352E+08 #4.33306E+07
@@ -53,13 +53,14 @@ rl = o['rl']
 
 sym = ('o', 's', '^', '*')
 #Eps = (3.33e-6, 1e-5, 3.33e-5, 1e-4, 3.33e-4, 1e-3, 3.33e-3, 1e-2,3.33e-2)
-eps_o = 3.33e-4
+eps_o = 3.33e-5
 Ks  = ('kxx', 'kyy', 'kzz')
 NMs = [
     # (Nm_slab, Nm_2d, index)
     (256, 256, 0),
     (128, 128, 1),
-    (64,  128, 2)
+    (64,  128, 2),
+    (64,   64, 3)
 ]
 lmin = 5e-5
 ro   = 0.2

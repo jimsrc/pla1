@@ -27,8 +27,8 @@ AUincm = 1.5e13                   # [cm]
 po = {}
 #po['Lc_slab']    = 0.01*AUincm
 po['Bo']         = 5e-5                         # [Gauss]
-po['n_modos']    = 128
-po['lambda_min'] = 5e-5 #((5e-5)*AUincm)
+#po['n_modos']    = 128
+#po['lambda_min'] = 5e-5 #((5e-5)*AUincm)
 #--- corregimos input
 po['rigidity'] =  1.37352E+08 #4.33306E+07
 rl = cw.calc_Rlarmor(po['rigidity'],po['Bo'])   # [cm]
@@ -36,12 +36,13 @@ rl = cw.calc_Rlarmor(po['rigidity'],po['Bo'])   # [cm]
 
 sym = ('o', 's', '^', '*')
 #Eps = (3.33e-6, 1e-5, 3.33e-5, 1e-4, 3.33e-4, 1e-3, 3.33e-3, 1e-2,3.33e-2)
-eps_o = 3.33e-4
+eps_o = 3.33e-5
 NMs = [
     # (Nm_slab, Nm_2d, index)
     (256, 256, 0),
     (128, 128, 1),
-    (64,  128, 2)
+    (64,  128, 2),
+    (64,   64, 3)
 ]
 lmin = 5e-5
 ro   = 0.2
@@ -88,13 +89,12 @@ for Nm_s, Nm_2d, i in NMs:
     opt = {'ms': 3, 'mec':'none', 'marker': msym,'ls':''}
     #label = '$\epsilon: %1.1e$' % eps_o #+\
     label = '$Nm^s, Nm^{2d}: %d, %d$' % (Nm_s, Nm_2d)
-    dRbin = (hmg.hbin/wc)*vp/(po['lambda_min']*AUincm)
+    dRbin = (hmg.hbin/wc)*vp/(lmin*AUincm)
     ax2.plot(dRbin, hmg.h, label=label, **opt)
     ax2.set_xlim(dRbin[0], dRbin[-1])
     ax2.set_xlabel('$\Delta r/\lambda_{min}$')
     ax2.set_xscale('log')
     ax.plot(hmg.hbin, hmg.h, label=label, **opt)
-    ax.grid()
     ax.legend(loc='best', fontsize=7)
     ax.set_xscale('log')
     ax.set_yscale('log')
@@ -105,6 +105,7 @@ for Nm_s, Nm_2d, i in NMs:
     #print " ---> generating: " + fname_fig
     f.close()
 
+ax.grid()
 #fname_fig = './R.{rigidity:1.2e}_rtol.{rtol:1.1e}_Nm.{n_modos:04d}_lmin.{lambda_min:1.1e}.png'.format(**po)
 fname_fig = dir_fig+'/errdy_r.{r:1.2f}_R.{rigidity:1.2e}_eps.{eps_o:1.2e}_lmin.{lmin:1.1e}.png'.format(**po)
 fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
