@@ -18,5 +18,6 @@ ps = {
 gp = sf.GralPlot(ps=ps, check=None, check_all=False)
 gp.do_checks()
 gp.plot_kdiff()
+gp.plot_errdy()
 
 #EOF

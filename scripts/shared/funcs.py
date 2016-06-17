@@ -18,6 +18,8 @@ class GralPlot(object):
         self.ps = ps
         self.check = check
         self.check_all = check_all
+        # symbols to iterate over
+        self.sym = ('o', 's', '^', '*')
 
 
     def do_checks(self):
@@ -45,11 +47,78 @@ class GralPlot(object):
             f.close()
 
 
+    def plot_errdy(self, nbin=1000):
+        """
+        input:
+        - nbin: number of bins for step-size histogram
+        """
+        AUincm = 1.5e13             # [cm]
+        ps  = self.ps
+        sym = self.sym
+        #--- figure
+        fig = figure(1, figsize=(6,4))
+        ax  = fig.add_subplot(111)
+        ax2 = ax.twiny()
+
+        #--- figname
+        FigCode = ''
+        for myid in ps['id']: FigCode += '%04d'%myid
+        fname_fig = ps['dir_dst'] + '/errdy_' + FigCode + '.png'
+
+        # iterate over all input-files
+        id_indexes = range(len(ps['id'])) # indexes
+        for fid, i in zip(ps['id'], id_indexes):
+            fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
+            f = h5(fname_inp, 'r')
+
+            wc = f['pla000/scl_wc'].value       # [s-1]
+            vp = f['pla000/scl_vel'].value      # [cm/s]
+            rl = f['pla000/scl_rl'].value       # [cm]
+            PNAMES = f.keys()
+            Np     = len(PNAMES)
+
+            hmg = Hmgr(f, nbin=nbin)
+            hmg.get_hstep_extremes()
+
+            for pnm in PNAMES:
+                if not pnm.startswith('pla'):
+                    continue
+
+                h  = f[pnm+'/HistStep/HStep'].value
+                hx = f[pnm+'/HistStep/bins_StepPart'].value
+                hmg.pile_to_hist(hx, h)
+
+            isym = np.mod(i,len(sym))
+            #msym = sym[isym-1]
+            opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1], 'ls':''}
+            label = ps['label'][i]
+            lmin = f['psim/lmin'].value # [AU]
+            dRbin = (hmg.hbin/wc)*vp/(lmin*AUincm)
+            ax2.plot(dRbin, hmg.h, label=label, **opt)
+            ax2.set_xlim(dRbin[0], dRbin[-1])
+            ax2.set_xlabel('$\Delta r/\lambda_{min}$')
+            ax2.set_xscale('log')
+            ax.plot(hmg.hbin, hmg.h, label=label, **opt)
+            ax.legend(loc='best', fontsize=7)
+            ax.set_xscale('log')
+            ax.set_yscale('log')
+            ax.set_xlabel('$\Omega dt$')
+            ax.set_ylabel('#')
+            ax.set_xlim(hmg.hbin[0], hmg.hbin[-1])
+            #ax.set_ylim(1.0, 1e6)
+            #print " ---> generating: " + fname_fig
+            f.close()
+
+        ax.grid()
+        fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
+        close(fig)
+
+
     def plot_kdiff(self):
         ps = self.ps
         Ks = ('kxx', 'kyy', 'kzz')
         o  = {}
-        sym = ('o', 's', '^', '*')
+        sym = self.sym
         #--- plot kxx, kyy, kzz
         for kk in Ks:
             print " ---> plotting " + kk + ':'
