@@ -7,7 +7,7 @@ import shared.funcs as sf
 ps = {
 'dir_src'   : '%s/out' % os.environ['PLA1'],
 'dir_dst'   : '%s/figs' % os.environ['PLA1'],
-'id'        : (9, 10, 11, 12, 5),
+'id'        : (4, 13, 14, 15, 16),
 'Nm_slab'   : (64, 64, 128, 128, 256),
 'Nm_2d'     : (64, 128, 128, 256, 256),
 #'eps_o'     : (3.33e-6, 1e-5, 3.33e-5, 4.64e-5, 1e-4, 3.33e-4, 4.64e-4, 1e-3),
