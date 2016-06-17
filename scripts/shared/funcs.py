@@ -23,6 +23,7 @@ class GralPlot(object):
 
 
     def do_checks(self):
+        ps = self.ps
         # should we check file keys?
         if self.check is not None:
             for fid in ps['id']:
@@ -35,16 +36,26 @@ class GralPlot(object):
 
         # should we check *all* 'ps' keys?
         if self.check_all:
-            for fid in ps['id']:
+            for fid, i in zip(ps['id'], range(len(ps['id']))):
                 fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
                 f = h5(fname_inp, 'r')
                 for ch in ps.keys(): # check all parameters
-                    if ch.startswith('dir_'): # skip dir-names
+                    if ch.startswith(('dir_','label','id')): # skip
                         continue
                     # check we have that key in file
                     ok = ch in f['psim'].keys()
-                    assert ok, ' ---> MISSING KEY in .h5 file!!'
+                    if not ok:
+                        print "---> MISSING KEY in .h5 file: ", ch
+                        raise SystemExit
+                    #print " -----> i: ", i , ch
+                    if ps[ch][i] != f['psim/'+ch].value:
+                        print " ---> different simul-param: ", ps[ch][i], f['psim/'+ch].value, ch, fid
+                        print " ---> Aborting..."
+                        raise SystemExit
             f.close()
+            print "\n ####################################### "
+            print "      ALL SIM-PARAMETERS CHECK OK!"
+            print " #######################################\n"
 
 
     def plot_errEk(self, ylim=None):
@@ -172,7 +183,7 @@ class GralPlot(object):
         close(fig)
 
 
-    def plot_kdiff(self):
+    def plot_kdiff(self, xscale='log', yscale='log', xlim=None, ylim=None):
         ps = self.ps
         Ks = ('kxx', 'kyy', 'kzz')
         o  = {}
@@ -205,10 +216,14 @@ class GralPlot(object):
                 }
                 ax.plot(tadim, kprof, '-o', **opt)
 
-            ax.set_yscale('log')
-            ax.set_xscale('log')
+            ax.set_yscale(yscale)
+            ax.set_xscale(xscale)
             ax.set_xlabel('$\Omega t$ [1]')
             ax.set_ylabel('%s [cm2/s]' % kk)
+            if xlim is not None:
+                ax.set_xlim(xlim)
+            if ylim is not None:
+                ax.set_ylim(ylim)
             ax.legend(loc='best', fontsize=6)
             ax.grid()
 
