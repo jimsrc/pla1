@@ -47,6 +47,64 @@ class GralPlot(object):
             f.close()
 
 
+    def plot_errEk(self, ylim=None):
+        """
+        - ylim: tuple for ax.set_ylim()
+        """
+        ps  = self.ps
+        sym = self.sym
+
+        #--- figure
+        fig = figure(1, figsize=(6,4))
+        ax  = fig.add_subplot(111)
+
+        #--- figname
+        FigCode = ''
+        for myid in ps['id']: FigCode += '%04d'%myid
+        fname_fig = ps['dir_dst'] + '/errEk_' + FigCode + '.png'
+
+        # iterate over all input-files
+        id_indexes = range(len(ps['id'])) # indexes
+        for fid, i in zip(ps['id'], id_indexes):
+            fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
+            f = h5(fname_inp, 'r')
+            tadim = f['pla000/tadim']
+            wc = f['pla000/scl_wc'].value             # [s-1]
+            vp = f['pla000/scl_vel'].value            # [cm/s]
+            rl = f['pla000/scl_rl'].value             # [cm]
+            PNAMES = [] #f.keys()
+            for nm in f.keys():
+                if nm.startswith('pla'):
+                    PNAMES += [ nm ]
+
+            Np = len(PNAMES)
+            err = np.zeros((Np,tadim.size))
+            for pnm, ip in zip(PNAMES, range(Np)):
+                err[ip,:] = np.abs(f[pnm+'/err'].value)
+
+            #--- stats over pla realizations
+            err_avr = err.mean(axis=0)
+            err_med = np.median(err, axis=0)
+            err_std = err.std(axis=0)
+
+            isym = np.mod(i,len(sym))
+            opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1],'ls':''}
+            #label = '$Nm^s, Nm^{2d}: %d, %d$' % (Nm_s, Nm_2d)
+            label = ps['label'][i]
+            ax.plot(tadim, err_avr, label=label, **opt)
+
+        ax.legend(loc='best', fontsize=7)
+        ax.set_yscale('log')
+        ax.set_xscale('log')
+        ax.grid()
+        ax.set_ylabel('energy error  [1]')
+        if ylim is not None:
+            ax.set_ylim(ylim)
+
+        fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
+        close(fig)
+
+
     def plot_errdy(self, nbin=1000):
         """
         input:

@@ -19,5 +19,6 @@ gp = sf.GralPlot(ps=ps, check=None, check_all=False)
 gp.do_checks()
 gp.plot_kdiff()
 gp.plot_errdy()
+gp.plot_errEk(ylim=(1e-4, 10.))
 
 #EOF
