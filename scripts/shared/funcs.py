@@ -11,6 +11,75 @@ import os, sys
 from glob import glob
 from Bparker.Bparker import return_B as Bparker_vector
 from numpy.linalg import norm
+# for hash generation/encoding
+from Crypto.Cipher import AES
+import base64
+
+class GenHash(object):
+    # the block size for the cipher object; must be 16, 24, or 32 for AES
+    BLOCK_SIZE = 32
+    # padding character, so that the value encrypted is 
+    # always multiple of 'BLOCK_SIZE'
+    PADDING = '{'
+    # one-liner to sufficiently pad the text to be encrypted
+    pad = lambda self, s:\
+        s + (self.BLOCK_SIZE - len(s) % self.BLOCK_SIZE) * self.PADDING
+    # one-liners to encrypt/encode and decrypt/decode a string
+    # encrypt with AES, encode with base64
+    EncodeAES = lambda self, c, s:\
+        base64.b64encode(c.encrypt(self.pad(s)))
+    DecodeAES = lambda self, c, e:\
+        c.decrypt(base64.b64decode(e)).rstrip(self.PADDING)
+
+    def __init__(self, **kargs):
+        """
+        input:
+        - secret: used for encryption
+        routine:
+        - create a "secret" key (used to encrypt the message/key)
+        - create a cipher object (using the "secret")
+        """
+        # generate a random secret key (if not given as argument)
+        secret = kargs.get('secret', os.urandom(self.BLOCK_SIZE))
+        self.myhash = {}
+        # create a cipher object using the random secret
+        self.myhash['cipher'] = AES.new(secret)
+
+    def encode(self, mykey):
+        """ encode a string """
+        #MyKey = 'This_passWD :P'
+        self.myhash['key'] =  mykey
+
+        self.myhash['encoded'] = self.EncodeAES(self.myhash['cipher'], mykey)
+        print 'Encrypted string:\n', self.myhash['encoded']
+
+
+    def decode(self):
+        """ decode the encoded string """
+        assert 'encoded' in self.myhash, " ### ERROR ###: Need to encode first!"
+        decoded = self.DecodeAES(self.myhash['cipher'], self.myhash['encoded'])
+        print 'Decrypted string:\n', decoded
+        return decoded
+
+
+
+class GenAnalysis(object):
+    def __init__(self, idlist, **kargs):
+        self.idlist = idlist
+        #---- other arguments
+        self.fprefix = kargs.get('prefix', 'o_') # input fname prefix
+
+    def gen_hash(self):
+        gh = GenHash()
+        # I want hash properties available
+        self.myhash = gh.myhash
+        # encode a string
+        #MyKey = 'This_passWD :P'
+        MyKey = ''
+        for myid in self.idlist:
+            MyKey += '%04d' % myid
+        gh.encode(MyKey)
+
 
 
 class GralPlot(object):
