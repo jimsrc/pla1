@@ -317,14 +317,14 @@ badd +41 params.py
 badd +29 err_study.py
 badd +1 err_study_mpi.py
 badd +1 _ErrAtolFuncs.py
-badd +6 shared/funcs.py
+badd +22 shared/funcs.py
 badd +1 kperp_from_1Bsim.py
 badd +1 err_dy.py
 badd +18 rr_hydra.py
 badd +69 gg2.py
 badd +1 err_Ek.py
 badd +1 juguete.py
-badd +0 gen_analysis.py
+badd +3 gen_analysis.py
 args test.py
 edit err_study.py
 set splitbelow splitright
@@ -592,7 +592,7 @@ set winheight=1 winwidth=1
 exe '1resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 83 + 81) / 162)
 exe '2resize ' . ((&lines * 53 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 83 + 81) / 162)
+exe 'vert 2resize ' . ((&columns * 78 + 81) / 162)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
 xnoremap <buffer> <silent> \a} `>a}`<i{
@@ -839,7 +839,7 @@ wincmd w
 exe '1resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 83 + 81) / 162)
 exe '2resize ' . ((&lines * 53 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 83 + 81) / 162)
+exe 'vert 2resize ' . ((&columns * 78 + 81) / 162)
 tabedit juguete.py
 set splitbelow splitright
 wincmd t
@@ -958,136 +958,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 11 - ((10 * winheight(0) + 27) / 54)
+let s:l = 23 - ((22 * winheight(0) + 26) / 53)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-11
-normal! 029l
-tabedit gen_analysis.py
-set splitbelow splitright
-wincmd t
-set winheight=1 winwidth=1
-argglobal
-vnoremap <buffer> 	 :py isort_visual()
-xnoremap <buffer> <silent> \a} `>a}`<i{
-xnoremap <buffer> <silent> \a{ `>a}`<i{
-xnoremap <buffer> <silent> \a) `>a)`<i(
-xnoremap <buffer> <silent> \a( `>a)`<i(
-xnoremap <buffer> <silent> \a' `>a'`<i'
-xnoremap <buffer> <silent> \a] `>a]`<i[
-xnoremap <buffer> <silent> \a[ `>a]`<i[
-xnoremap <buffer> <silent> \a" `>a"`<i"
-xnoremap <buffer> <silent> \a` `>a``<i`
-setlocal keymap=
-setlocal noarabic
-setlocal autoindent
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal colorcolumn=
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:XCOMM,n:>,fb:-
-setlocal commentstring=#%s
-setlocal complete=.,w,b,u,t,i
-setlocal concealcursor=
-setlocal conceallevel=0
-setlocal completefunc=
-setlocal nocopyindent
-setlocal cryptmethod=
-setlocal nocursorbind
-setlocal nocursorcolumn
-set cursorline
-setlocal cursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'python'
-setlocal filetype=python
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcq
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=2
-setlocal imsearch=2
-setlocal include=^\\s*\\(from\\|import\\)
-setlocal includeexpr=substitute(v:fname,'\\.','/','g')
-setlocal indentexpr=GetPythonIndent(v:lnum)
-setlocal indentkeys=0{,0},:,!^F,o,O,e,<:>,=elif,=except
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keywordprg=pydoc
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-set number
-setlocal number
-setlocal numberwidth=4
-setlocal omnifunc=pythoncomplete#Complete
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norelativenumber
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=4
-setlocal noshortname
-setlocal nosmartindent
-setlocal softtabstop=4
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=%!airline#statusline(1)
-setlocal suffixesadd=.py
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'python'
-setlocal syntax=python
-endif
-setlocal tabstop=4
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal undofile
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 4 - ((3 * winheight(0) + 27) / 54)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-4
-normal! 0
+23
+normal! 012l
 tabedit shared/funcs.py
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -1106,12 +982,12 @@ wincmd t
 set winheight=1 winwidth=1
 exe '1resize ' . ((&lines * 46 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 92 + 81) / 162)
-exe '2resize ' . ((&lines * 7 + 28) / 57)
+exe '2resize ' . ((&lines * 6 + 28) / 57)
 exe 'vert 2resize ' . ((&columns * 92 + 81) / 162)
 exe '3resize ' . ((&lines * 26 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 74 + 81) / 162)
-exe '4resize ' . ((&lines * 27 + 28) / 57)
-exe 'vert 4resize ' . ((&columns * 74 + 81) / 162)
+exe 'vert 3resize ' . ((&columns * 69 + 81) / 162)
+exe '4resize ' . ((&lines * 26 + 28) / 57)
+exe 'vert 4resize ' . ((&columns * 69 + 81) / 162)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
 xnoremap <buffer> <silent> \a} `>a}`<i{
@@ -1226,11 +1102,11 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 292 - ((39 * winheight(0) + 23) / 46)
+let s:l = 474 - ((22 * winheight(0) + 23) / 46)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-292
+474
 normal! 031l
 wincmd w
 argglobal
@@ -1348,7 +1224,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 7 - ((3 * winheight(0) + 3) / 7)
+let s:l = 7 - ((2 * winheight(0) + 3) / 6)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -1470,11 +1346,11 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 127 - ((11 * winheight(0) + 13) / 26)
+let s:l = 297 - ((11 * winheight(0) + 13) / 26)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-127
+297
 normal! 012l
 wincmd w
 argglobal
@@ -1592,21 +1468,21 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 282 - ((6 * winheight(0) + 13) / 27)
+let s:l = 465 - ((5 * winheight(0) + 13) / 26)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-282
+465
 normal! 012l
 wincmd w
 exe '1resize ' . ((&lines * 46 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 92 + 81) / 162)
-exe '2resize ' . ((&lines * 7 + 28) / 57)
+exe '2resize ' . ((&lines * 6 + 28) / 57)
 exe 'vert 2resize ' . ((&columns * 92 + 81) / 162)
 exe '3resize ' . ((&lines * 26 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 74 + 81) / 162)
-exe '4resize ' . ((&lines * 27 + 28) / 57)
-exe 'vert 4resize ' . ((&columns * 74 + 81) / 162)
+exe 'vert 3resize ' . ((&columns * 69 + 81) / 162)
+exe '4resize ' . ((&lines * 26 + 28) / 57)
+exe 'vert 4resize ' . ((&columns * 69 + 81) / 162)
 tabedit shared/funcs.py
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -1619,11 +1495,11 @@ wincmd w
 wincmd w
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 16 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 93 + 81) / 162)
-exe '2resize ' . ((&lines * 37 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 93 + 81) / 162)
-exe 'vert 3resize ' . ((&columns * 68 + 81) / 162)
+exe '1resize ' . ((&lines * 26 + 28) / 57)
+exe 'vert 1resize ' . ((&columns * 121 + 81) / 162)
+exe '2resize ' . ((&lines * 27 + 28) / 57)
+exe 'vert 2resize ' . ((&columns * 121 + 81) / 162)
+exe 'vert 3resize ' . ((&columns * 40 + 81) / 162)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
 xnoremap <buffer> <silent> \a} `>a}`<i{
@@ -1738,12 +1614,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 32 - ((11 * winheight(0) + 8) / 16)
+let s:l = 197 - ((11 * winheight(0) + 13) / 26)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-32
-normal! 050l
+197
+normal! 016l
 wincmd w
 argglobal
 edit shared/funcs.py
@@ -1860,16 +1736,16 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 79 - ((16 * winheight(0) + 18) / 37)
+let s:l = 162 - ((18 * winheight(0) + 13) / 27)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-79
-normal! 024l
+162
+normal! 061l
 wincmd w
 argglobal
-edit shared/funcs.py
-vnoremap <buffer> 	 :py isort_visual()
+enew
+file __Tagbar__
 xnoremap <buffer> <silent> \a} `>a}`<i{
 xnoremap <buffer> <silent> \a{ `>a}`<i{
 xnoremap <buffer> <silent> \a) `>a)`<i(
@@ -1881,19 +1757,19 @@ xnoremap <buffer> <silent> \a" `>a"`<i"
 xnoremap <buffer> <silent> \a` `>a``<i`
 setlocal keymap=
 setlocal noarabic
-setlocal autoindent
-setlocal balloonexpr=
+setlocal noautoindent
+setlocal balloonexpr=TagbarBalloonExpr()
 setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
+setlocal bufhidden=hide
+setlocal nobuflisted
+setlocal buftype=nofile
 setlocal nocindent
-setlocal cinkeys=0{,0},0),:,!^F,o,O,e
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
 setlocal cinoptions=
 setlocal cinwords=if,else,while,do,for,switch
 setlocal colorcolumn=
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:XCOMM,n:>,fb:-
-setlocal commentstring=#%s
+setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
+setlocal commentstring=/*%s*/
 setlocal complete=.,w,b,u,t,i
 setlocal concealcursor=
 setlocal conceallevel=0
@@ -1910,11 +1786,11 @@ setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
 setlocal expandtab
-if &filetype != 'python'
-setlocal filetype=python
+if &filetype != 'tagbar'
+setlocal filetype=tagbar
 endif
 setlocal foldcolumn=0
-setlocal foldenable
+setlocal nofoldenable
 setlocal foldexpr=0
 setlocal foldignore=#
 setlocal foldlevel=0
@@ -1929,25 +1805,25 @@ setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
 setlocal grepprg=
 setlocal iminsert=2
 setlocal imsearch=2
-setlocal include=^\\s*\\(from\\|import\\)
-setlocal includeexpr=substitute(v:fname,'\\.','/','g')
-setlocal indentexpr=GetPythonIndent(v:lnum)
-setlocal indentkeys=0{,0},:,!^F,o,O,e,<:>,=elif,=except
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
 setlocal noinfercase
 setlocal iskeyword=@,48-57,_,192-255
-setlocal keywordprg=pydoc
+setlocal keywordprg=
 setlocal nolinebreak
 setlocal nolisp
 setlocal nolist
 setlocal makeprg=
 setlocal matchpairs=(:),{:},[:]
 setlocal modeline
-setlocal modifiable
+setlocal nomodifiable
 setlocal nrformats=octal,hex
 set number
-setlocal number
+setlocal nonumber
 setlocal numberwidth=4
-setlocal omnifunc=pythoncomplete#Complete
+setlocal omnifunc=
 setlocal path=
 setlocal nopreserveindent
 setlocal nopreviewwindow
@@ -1965,12 +1841,12 @@ setlocal nospell
 setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
 setlocal spellfile=
 setlocal spelllang=en
-setlocal statusline=%!airline#statusline(3)
-setlocal suffixesadd=.py
-setlocal swapfile
+setlocal statusline=%#airline_a_inactive#\ Tagbar\ %#airline_a_to_airline_b_inactive#>%#airline_b_inactive#\ Name\ %#airline_b_to_airline_c_inactive#>%#airline_c_inactive#\ funcs.py\ 
+setlocal suffixesadd=
+setlocal noswapfile
 setlocal synmaxcol=3000
-if &syntax != 'python'
-setlocal syntax=python
+if &syntax != 'tagbar'
+setlocal syntax=tagbar
 endif
 setlocal tabstop=4
 setlocal tags=
@@ -1978,40 +1854,28 @@ setlocal textwidth=0
 setlocal thesaurus=
 setlocal undofile
 setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
+setlocal winfixwidth
+setlocal nowrap
 setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 292 - ((26 * winheight(0) + 27) / 54)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-292
-normal! 012l
 wincmd w
 2wincmd w
-exe '1resize ' . ((&lines * 16 + 28) / 57)
-exe 'vert 1resize ' . ((&columns * 93 + 81) / 162)
-exe '2resize ' . ((&lines * 37 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 93 + 81) / 162)
-exe 'vert 3resize ' . ((&columns * 68 + 81) / 162)
-tabedit kperp_from_1Bsim.py
+exe '1resize ' . ((&lines * 26 + 28) / 57)
+exe 'vert 1resize ' . ((&columns * 121 + 81) / 162)
+exe '2resize ' . ((&lines * 27 + 28) / 57)
+exe 'vert 2resize ' . ((&columns * 121 + 81) / 162)
+exe 'vert 3resize ' . ((&columns * 40 + 81) / 162)
+tabedit shared/funcs.py
 set splitbelow splitright
 wincmd _ | wincmd |
 vsplit
 1wincmd h
 wincmd w
-wincmd _ | wincmd |
-split
-1wincmd k
-wincmd w
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 96 + 81) / 162)
-exe '2resize ' . ((&lines * 26 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 70 + 81) / 162)
-exe '3resize ' . ((&lines * 27 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 70 + 81) / 162)
+exe '1resize ' . ((&lines * 53 + 28) / 57)
+exe 'vert 1resize ' . ((&columns * 80 + 81) / 162)
+exe '2resize ' . ((&lines * 53 + 28) / 57)
+exe 'vert 2resize ' . ((&columns * 81 + 81) / 162)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
 xnoremap <buffer> <silent> \a} `>a}`<i{
@@ -2126,7 +1990,273 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 95 - ((39 * winheight(0) + 27) / 54)
+let s:l = 109 - ((23 * winheight(0) + 26) / 53)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+109
+normal! 08l
+wincmd w
+argglobal
+edit shared/funcs.py
+vnoremap <buffer> 	 :py isort_visual()
+xnoremap <buffer> <silent> \a} `>a}`<i{
+xnoremap <buffer> <silent> \a{ `>a}`<i{
+xnoremap <buffer> <silent> \a) `>a)`<i(
+xnoremap <buffer> <silent> \a( `>a)`<i(
+xnoremap <buffer> <silent> \a' `>a'`<i'
+xnoremap <buffer> <silent> \a] `>a]`<i[
+xnoremap <buffer> <silent> \a[ `>a]`<i[
+xnoremap <buffer> <silent> \a" `>a"`<i"
+xnoremap <buffer> <silent> \a` `>a``<i`
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
+setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:XCOMM,n:>,fb:-
+setlocal commentstring=#%s
+setlocal complete=.,w,b,u,t,i
+setlocal concealcursor=
+setlocal conceallevel=0
+setlocal completefunc=
+setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
+setlocal nocursorcolumn
+set cursorline
+setlocal cursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'python'
+setlocal filetype=python
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=tcq
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=2
+setlocal imsearch=2
+setlocal include=^\\s*\\(from\\|import\\)
+setlocal includeexpr=substitute(v:fname,'\\.','/','g')
+setlocal indentexpr=GetPythonIndent(v:lnum)
+setlocal indentkeys=0{,0},:,!^F,o,O,e,<:>,=elif,=except
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=pydoc
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal modeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+setlocal numberwidth=4
+setlocal omnifunc=pythoncomplete#Complete
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norelativenumber
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=4
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=%!airline#statusline(2)
+setlocal suffixesadd=.py
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'python'
+setlocal syntax=python
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal undofile
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 37 - ((26 * winheight(0) + 26) / 53)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+37
+normal! 0
+wincmd w
+2wincmd w
+exe '1resize ' . ((&lines * 53 + 28) / 57)
+exe 'vert 1resize ' . ((&columns * 80 + 81) / 162)
+exe '2resize ' . ((&lines * 53 + 28) / 57)
+exe 'vert 2resize ' . ((&columns * 81 + 81) / 162)
+tabedit kperp_from_1Bsim.py
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+wincmd _ | wincmd |
+split
+1wincmd k
+wincmd w
+wincmd t
+set winheight=1 winwidth=1
+exe '1resize ' . ((&lines * 53 + 28) / 57)
+exe 'vert 1resize ' . ((&columns * 96 + 81) / 162)
+exe '2resize ' . ((&lines * 26 + 28) / 57)
+exe 'vert 2resize ' . ((&columns * 65 + 81) / 162)
+exe '3resize ' . ((&lines * 26 + 28) / 57)
+exe 'vert 3resize ' . ((&columns * 65 + 81) / 162)
+argglobal
+vnoremap <buffer> 	 :py isort_visual()
+xnoremap <buffer> <silent> \a} `>a}`<i{
+xnoremap <buffer> <silent> \a{ `>a}`<i{
+xnoremap <buffer> <silent> \a) `>a)`<i(
+xnoremap <buffer> <silent> \a( `>a)`<i(
+xnoremap <buffer> <silent> \a' `>a'`<i'
+xnoremap <buffer> <silent> \a] `>a]`<i[
+xnoremap <buffer> <silent> \a[ `>a]`<i[
+xnoremap <buffer> <silent> \a" `>a"`<i"
+xnoremap <buffer> <silent> \a` `>a``<i`
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
+setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:XCOMM,n:>,fb:-
+setlocal commentstring=#%s
+setlocal complete=.,w,b,u,t,i
+setlocal concealcursor=
+setlocal conceallevel=0
+setlocal completefunc=
+setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
+setlocal nocursorcolumn
+set cursorline
+setlocal cursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'python'
+setlocal filetype=python
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=tcq
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=2
+setlocal imsearch=2
+setlocal include=^\\s*\\(from\\|import\\)
+setlocal includeexpr=substitute(v:fname,'\\.','/','g')
+setlocal indentexpr=GetPythonIndent(v:lnum)
+setlocal indentkeys=0{,0},:,!^F,o,O,e,<:>,=elif,=except
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=pydoc
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal modeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+setlocal numberwidth=4
+setlocal omnifunc=pythoncomplete#Complete
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norelativenumber
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=4
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=%!airline#statusline(1)
+setlocal suffixesadd=.py
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'python'
+setlocal syntax=python
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal undofile
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 95 - ((38 * winheight(0) + 26) / 53)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -2370,7 +2500,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 11 - ((10 * winheight(0) + 13) / 27)
+let s:l = 11 - ((0 * winheight(0) + 13) / 26)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -2378,11 +2508,12 @@ normal! zt
 normal! 0
 wincmd w
 2wincmd w
+exe '1resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 96 + 81) / 162)
 exe '2resize ' . ((&lines * 26 + 28) / 57)
-exe 'vert 2resize ' . ((&columns * 70 + 81) / 162)
-exe '3resize ' . ((&lines * 27 + 28) / 57)
-exe 'vert 3resize ' . ((&columns * 70 + 81) / 162)
+exe 'vert 2resize ' . ((&columns * 65 + 81) / 162)
+exe '3resize ' . ((&lines * 26 + 28) / 57)
+exe 'vert 3resize ' . ((&columns * 65 + 81) / 162)
 tabedit err_dy.py
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -3415,7 +3546,7 @@ exe '1resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 130 + 81) / 162)
 exe '2resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 2resize ' . ((&columns * 36 + 81) / 162)
-tabnext 6
+tabnext 5
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
 endif

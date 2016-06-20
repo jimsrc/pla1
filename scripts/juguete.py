@@ -18,11 +18,17 @@ for Nms, Nm2d in zip(ps['Nm_slab'], ps['Nm_2d']):
     #ps['label'] += [ '$\epsilon: %1.2e$'%e ]
     ps['label'] += [ '$Nm^{slab}, Nm^{2d}: %d, %d$' % (Nms, Nm2d) ]
 
+ga = sf.GenAnalysis(ps, prefix='o_')
+ga.gen_hash()  # genera el identificador
+ga.make_pdf()
+
+
+"""
 gp = sf.GralPlot(ps=ps, check=('eps_o',), check_all=True)
 #gp = sf.GralPlot(ps=ps, check=None, check_all=False)
 gp.do_checks()
 gp.plot_kdiff()
 gp.plot_errdy()
 gp.plot_errEk(ylim=(1e-4, 10.))
-
+"""
 #EOF

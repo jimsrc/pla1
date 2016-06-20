@@ -14,6 +14,27 @@ from numpy.linalg import norm
 # for hash generation/encoding
 from Crypto.Cipher import AES
 import base64
+# for multiple-page pdf generation
+from matplotlib.backends.backend_pdf import PdfPages
+# para hacer tablas, y transformarlas en .tex
+from tabulate import tabulate
+# para mergear .pdf files
+from PyPDF2 import PdfFileMerger, PdfFileReader
+
+
+
+def DecodeHex_and_GetIDs(fname_key=None):
+    f = open(fname_key, 'r')
+    key = f.readline()
+    gh = GenHash()
+    decoded_str = gh.decode(encoded=key)
+    n = len(decoded_str)/4
+    IDs = []
+    for i in range(n):
+        IDs += [ int(decoded_str[4*i:4*(i+1)]) ]
+
+    return decoded_str, IDs
+
 
 class GenHash(object):
     # the block size for the cipher object; must be 16, 24, or 32 for AES
@@ -40,7 +61,8 @@ class GenHash(object):
         - create a cipher object (using the "secret")
         """
         # generate a random secret key (if not given as argument)
-        secret = kargs.get('secret', os.urandom(self.BLOCK_SIZE))
+        #secret = kargs.get('secret', os.urandom(self.BLOCK_SIZE))
+        secret = '___JimmyMasias__' # THIS MUST BE FIXED!!
         self.myhash = {}
         # create a cipher object using the random secret
         self.myhash['cipher'] = AES.new(secret)
@@ -52,22 +74,27 @@ class GenHash(object):
 
         self.myhash['encoded'] = self.EncodeAES(self.myhash['cipher'], mykey)
         print 'Encrypted string:\n', self.myhash['encoded']
+        return self.myhash['encoded']
 
 
-    def decode(self):
+    def decode(self, **kargs):
         """ decode the encoded string """
-        assert 'encoded' in self.myhash, " ### ERROR ###: Need to encode first!"
-        decoded = self.DecodeAES(self.myhash['cipher'], self.myhash['encoded'])
+        encoded = kargs.get('encoded', self.myhash.get('encoded',None))
+        assert encoded is not None,\
+            " ### ERROR ###: Need 'encode' string from somewhere!"
+        decoded = self.DecodeAES(self.myhash['cipher'], encoded)
         print 'Decrypted string:\n', decoded
         return decoded
 
 
 
 class GenAnalysis(object):
-    def __init__(self, idlist, **kargs):
-        self.idlist = idlist
+    def __init__(self, ps, **kargs):
+        self.idlist = ps['id']
+        self.ps     = ps
         #---- other arguments
         self.fprefix = kargs.get('prefix', 'o_') # input fname prefix
+
 
     def gen_hash(self):
         gh = GenHash()
@@ -78,9 +105,152 @@ class GenAnalysis(object):
         MyKey = ''
         for myid in self.idlist:
             MyKey += '%04d' % myid
-        gh.encode(MyKey)
+
+        return gh.encode(MyKey)
+
+    def make_pdf(self):
+        """ Este metodo llama a los generadores de figuras 'self::plot_...()', y los
+        pone uno en c/pagina de .pdf
+        Antes de esto, genera una pagina q contiene la tabla de simulation-parameters, y 
+        la pone antes de los plots.
+        """
+        ps = self.ps
+        fname_base = self.myhash['encoded'].encode('hex')[:16]
+
+        # construimos la pagina de parametros! :-)
+        PdfOk, fname_param = self.build_params_pdf(fname_base)
+        print " ---> PdfOk: ", PdfOk 
+
+        fname_out_tmp  = '_tmp_fig_' + fname_base + '.pdf'
+        fname_out = 'fig_' + fname_base + '.pdf'
+        pdf_pages = PdfPages(fname_out_tmp)
+
+        gp = GralPlot(ps, check=None, check_all=None)
+        gp.do_checks()
+
+        #--- 1st page
+        fig, ax = gp.plot_errEk(OneFigFile=False)
+        ax.set_ymargin(1.)
+        pdf_pages.savefig(fig)
+        close(fig)
+
+        #--- 2nd page
+        fig, ax, ax2 = gp.plot_errdy(OneFigFile=False)
+        #ax.set_ymargin(1.)
+        pdf_pages.savefig(fig)
+        close(fig)
+
+        #--- 3rd page
+        fig, ax = gp.plot_kdiff(OneFigFile=False)
+        pdf_pages.savefig(fig)
+        close(fig)
+
+        #--- Write the PDF document to the disk
+        pdf_pages.close()
+        print " ---> we generated the temp-file: " + fname_out
+
+        # ahora mergueamos los .pdf
+        fnames_to_mergue = [fname_param, fname_out_tmp]
+        merger = PdfFileMerger()
+        for fname in fnames_to_mergue:
+            merger.append(PdfFileReader(file(fname, 'rb')))
+
+        merger.write(fname_out)
+        print " -----> Mergueamos los .pdf aqui:\n " + fname_out 
+
+        # borrando cosas temporales
+        fnames_gb = fnames_to_mergue + [self.fname_tab_base+'*']
+        print " -----> eliminandos .pdf temporales: ", fnames_gb
+        for fnm in fnames_gb:
+            os.system('rm '+fnm)
+
+        #--- save code into an ASCII .key file (with my identifier)
+        fname_key = fname_base + '.key'
+        os.system('echo ' + self.myhash['encoded'] + ' > '+fname_key)
+        print " ---> saved key into:\n"+fname_key
 
 
+    def build_params_pdf(self, fname_base):
+        p_comm, p_diff = self.compare_psim() # dictionaries
+        tbcomm = [['name', 'value']]
+        tbdiff = [['name', 'value']]
+
+        # primero las semillas
+        for nm in p_comm.keys():
+            if nm.startswith('sem_'):
+                name = '\\texttt{%s}'%nm.replace('_', u'\_')
+                tbcomm += [[ name, p_comm[nm] ]]
+        # ahora si el resto
+        for nm in p_comm.keys():
+            if not nm.startswith('sem_'):
+                name = '\\texttt{%s}'%nm.replace('_', u'\_')
+                tbcomm += [[ name, p_comm[nm] ]]
+
+        # build tex table
+        tab = tabulate(tbcomm, tablefmt='latex', headers='firstrow')
+
+        #--- beginin of .tex document
+        with open(os.environ['HOME']+'/utils/tex_begin.txt', 'r') as f:
+            tex_begin_lines = f.readlines()
+
+        self.fname_tab_base = fname_tab_base = '_tmp.table_'
+        f = open(fname_tab_base+'.tex', 'w')
+        for line in tex_begin_lines:
+            f.write(line)
+
+        for line in tab:
+            f.write(line)
+        f.write('\n\end{document}')
+        f.close()
+
+        cmd = 'pdflatex --interaction=nonstopmode {fname}'.format(fname=fname_tab_base+'.tex')
+        return os.system(cmd), fname_tab_base+'.pdf'
+
+
+    def compare_psim(self):
+        """ Compare simulation-parameters to identify which
+        are the same in each file, and which are different.
+
+        output:
+        - p_comm    : parameters in common
+        - p_diff    : parameters different from one file to another
+        """
+
+        p_comm = {} # dict de params iguales
+        p_diff = {} # dict de parametros en q difieren
+        
+        fname_inp_h5_ = self.ps['dir_src'] + '/' + self.fprefix + '%04d.h5' % self.idlist[0] # pick one
+        f = h5(fname_inp_h5_, 'r')
+        p_test = {} # dict de prueba, para comparar si todos son iguales
+        for pnm in f['psim'].keys():
+            p_test[pnm] = [ f['psim/'+pnm].value ] 
+
+        for myid in self.idlist:
+            fname_inp_h5 = self.ps['dir_src'] + '/' + self.fprefix + '%04d.h5' % myid
+            f = h5(fname_inp_h5, 'r')
+            print " ------- " + fname_inp_h5 + " ------- "
+            for pnm in f['psim'].keys():
+                if pnm in ('th', 'mu'):
+                    continue
+
+                fpar = f['psim/'+pnm].value # parameter from file
+                if fpar == p_test[pnm]:
+                    p_comm[pnm] = fpar
+                else:
+                    p_diff[pnm] = fpar
+
+        print " ############ pars in common:"
+        for nm in p_comm.keys():
+            print nm, p_comm[nm]
+        print " ############ pars different:"
+        for nm in p_diff.keys():
+            print nm, p_diff[nm]
+
+        self.pars = {}
+        self.pars['common'] = p_comm
+        self.pars['different'] = p_diff
+
+        return p_comm, p_diff
 
 class GralPlot(object):
     def __init__(self, ps, check=None, check_all=False):
@@ -127,17 +297,15 @@ class GralPlot(object):
             print " #######################################\n"
 
 
-    def plot_errEk(self, ylim=None):
+    def plot_errEk(self, OneFigFile=False, xlim=None, ylim=None):
         """
         - ylim: tuple for ax.set_ylim()
         """
         ps  = self.ps
         sym = self.sym
-
-        #--- figure
+        ##--- figure
         fig = figure(1, figsize=(6,4))
         ax  = fig.add_subplot(111)
-
         #--- figname
         FigCode = ''
         for myid in ps['id']: FigCode += '%04d'%myid
@@ -176,16 +344,19 @@ class GralPlot(object):
         ax.legend(loc='best', fontsize=7)
         ax.set_yscale('log')
         ax.set_xscale('log')
-        ax.grid()
+        ax.grid(True)
         ax.set_ylabel('energy error  [1]')
         if ylim is not None:
             ax.set_ylim(ylim)
 
-        fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
-        close(fig)
+        if OneFigFile:
+            fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
+            close(fig)
+        else:
+            return fig, ax
 
 
-    def plot_errdy(self, nbin=1000):
+    def plot_errdy(self, OneFigFile=False, nbin=1000, **kargs):
         """
         input:
         - nbin: number of bins for step-size histogram
@@ -193,6 +364,8 @@ class GralPlot(object):
         AUincm = 1.5e13             # [cm]
         ps  = self.ps
         sym = self.sym
+        xlim = kargs.get('xlim', None)
+        ylim = kargs.get('ylim', None)
         #--- figure
         fig = figure(1, figsize=(6,4))
         ax  = fig.add_subplot(111)
@@ -243,20 +416,30 @@ class GralPlot(object):
             ax.set_xlabel('$\Omega dt$')
             ax.set_ylabel('#')
             ax.set_xlim(hmg.hbin[0], hmg.hbin[-1])
-            #ax.set_ylim(1.0, 1e6)
+            if ylim is not None:
+                ax.set_ylim(ylim)
+
             #print " ---> generating: " + fname_fig
             f.close()
 
-        ax.grid()
-        fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
-        close(fig)
+        ax.grid(True)
+        if OneFigFile:
+            fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
+            close(fig)
+        else:
+            return fig, ax, ax2
 
 
-    def plot_kdiff(self, xscale='log', yscale='log', xlim=None, ylim=None):
-        ps = self.ps
-        Ks = ('kxx', 'kyy', 'kzz')
-        o  = {}
-        sym = self.sym
+    def plot_kdiff(self, OneFigFile=False, **kargs):
+        ps     = self.ps
+        Ks     = ('kxx', 'kyy', 'kzz')
+        o      = {}
+        sym    = self.sym
+        #--- extra args
+        xlim   = kargs.get('xlim', None)
+        ylim   = kargs.get('ylim', None)
+        xscale = kargs.get('xscale', 'log')
+        yscale = kargs.get('yscale', 'log')
         #--- plot kxx, kyy, kzz
         for kk in Ks:
             print " ---> plotting " + kk + ':'
@@ -296,18 +479,15 @@ class GralPlot(object):
             ax.legend(loc='best', fontsize=6)
             ax.grid()
 
-            #--- figname
-            FigCode = ''
-            for myid in ps['id']: FigCode += '%04d'%myid
-            fname_fig = ps['dir_dst'] + '/%s_'%kk + FigCode + '.png'
-
-            fig.savefig(fname_fig, dpi=300, bbox_inches='tight')
-            close(fig)
-
-        # extraer xyz
-        # hallar Kxx, Kyy, Kzz
-        # llamar plot_kdiff()
-
+            if OneFigFile:
+                #--- figname
+                FigCode = ''
+                for myid in ps['id']: FigCode += '%04d'%myid
+                fname_fig = ps['dir_dst'] + '/%s_'%kk + FigCode + '.png'
+                fig.savefig(fname_fig, dpi=300, bbox_inches='tight')
+                close(fig)
+            else:
+                return fig, ax
 
 
 def Lc_memilia(r=1.0):
