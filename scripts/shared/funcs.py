@@ -120,7 +120,7 @@ class GenAnalysis(object):
         # construimos la pagina de parametros! :-)
         PdfOk, fname_param = self.build_params_pdf(fname_base)
         print " ---> PdfOk: ", PdfOk 
-
+        
         fname_out_tmp  = '_tmp_fig_' + fname_base + '.pdf'
         fname_out = 'fig_' + fname_base + '.pdf'
         pdf_pages = PdfPages(fname_out_tmp)
@@ -147,7 +147,7 @@ class GenAnalysis(object):
 
         #--- Write the PDF document to the disk
         pdf_pages.close()
-        print " ---> we generated the temp-file: " + fname_out
+        print " ---> we generated the temp-file: " + fname_out_tmp
 
         # ahora mergueamos los .pdf
         fnames_to_mergue = [fname_param, fname_out_tmp]
@@ -157,12 +157,12 @@ class GenAnalysis(object):
 
         merger.write(fname_out)
         print " -----> Mergueamos los .pdf aqui:\n " + fname_out 
-
+        
         # borrando cosas temporales
         fnames_gb = fnames_to_mergue + [self.fname_tab_base+'*']
         print " -----> eliminandos .pdf temporales: ", fnames_gb
-        for fnm in fnames_gb:
-            os.system('rm '+fnm)
+        """for fnm in fnames_gb:
+            os.system('rm '+fnm)"""
 
         #--- save code into an ASCII .key file (with my identifier)
         fname_key = fname_base + '.key'
@@ -173,8 +173,9 @@ class GenAnalysis(object):
     def build_params_pdf(self, fname_base):
         p_comm, p_diff = self.compare_psim() # dictionaries
         tbcomm = [['name', 'value']]
-        tbdiff = [['name', 'value']]
+        tbdiff = []
 
+        #--- primero, hacemos la tabla para los parametros en comun
         # primero las semillas
         for nm in p_comm.keys():
             if nm.startswith('sem_'):
@@ -187,7 +188,24 @@ class GenAnalysis(object):
                 tbcomm += [[ name, p_comm[nm] ]]
 
         # build tex table
-        tab = tabulate(tbcomm, tablefmt='latex', headers='firstrow')
+        TexTab_comm = tabulate(tbcomm, tablefmt='latex', headers='firstrow')
+
+        #--- ahora hacemos la tex-tabla para los parametros diferentes
+        header = [u'name \\texttt{\\textbackslash} ID',]
+        for myid in self.idlist:
+            header += [ '%04d'%myid ]
+
+        tbdiff += [ header ]
+        for nm in p_diff.keys():
+            pars = []
+            for myid in self.idlist:
+                fname_inp = self.ps['dir_src'] + '/' + self.fprefix + '%04d.h5' % myid
+                with h5(fname_inp, 'r') as f:
+                    par = f['psim/'+nm].value
+                    pars += [ '%2.2e' % par ]
+            tbdiff += [ ['\\texttt{$%s$}'%nm.replace('_','\_'),] + pars ]
+        
+        TexTab_diff = tabulate(tbdiff, tablefmt='latex', headers='firstrow')
 
         #--- beginin of .tex document
         with open(os.environ['HOME']+'/utils/tex_begin.txt', 'r') as f:
@@ -197,11 +215,19 @@ class GenAnalysis(object):
         f = open(fname_tab_base+'.tex', 'w')
         for line in tex_begin_lines:
             f.write(line)
-
-        for line in tab:
+        # table of common params
+        f.write(u'\\\\ \n {\\bf Common sim-parameters} \\\\ \n')
+        for line in TexTab_comm:
             f.write(line)
+        # table of different params
+        f.write('\\vspace{1cm} \n')
+        f.write(u'\\\\ \n {\\bf Different sim-parameters} \\\\ \n')
+        for line in TexTab_diff:
+            f.write(line)
+
         f.write('\n\end{document}')
         f.close()
+        #--- end of .tex document
 
         cmd = 'pdflatex --interaction=nonstopmode {fname}'.format(fname=fname_tab_base+'.tex')
         return os.system(cmd), fname_tab_base+'.pdf'
@@ -491,6 +517,8 @@ class GralPlot(object):
 
 
 def Lc_memilia(r=1.0):
+    """ formula from Maria Emilia's thesis (Sec 4.4, p.88).
+    """
     Lc = 0.89*(r**(0.43))*1e6/(1e8) # [AU]
     return Lc
 
