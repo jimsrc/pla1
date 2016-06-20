@@ -122,7 +122,7 @@ class GenAnalysis(object):
         print " ---> PdfOk: ", PdfOk 
         
         fname_out_tmp  = '_tmp_fig_' + fname_base + '.pdf'
-        fname_out = 'fig_' + fname_base + '.pdf'
+        fname_out = self.ps['dir_dst'] + '/fig_' + fname_base + '.pdf'
         pdf_pages = PdfPages(fname_out_tmp)
 
         gp = GralPlot(ps, check=None, check_all=None)
@@ -161,11 +161,11 @@ class GenAnalysis(object):
         # borrando cosas temporales
         fnames_gb = fnames_to_mergue + [self.fname_tab_base+'*']
         print " -----> eliminandos .pdf temporales: ", fnames_gb
-        """for fnm in fnames_gb:
-            os.system('rm '+fnm)"""
+        for fnm in fnames_gb:
+            os.system('rm '+fnm)
 
         #--- save code into an ASCII .key file (with my identifier)
-        fname_key = fname_base + '.key'
+        fname_key = self.ps['dir_dst'] + '/' + fname_base + '.key'
         os.system('echo ' + self.myhash['encoded'] + ' > '+fname_key)
         print " ---> saved key into:\n"+fname_key
 
@@ -339,6 +339,7 @@ class GralPlot(object):
 
         # iterate over all input-files
         id_indexes = range(len(ps['id'])) # indexes
+        err_min, err_max = 1e31, -1e31 # para ajustar el set_ylim()
         for fid, i in zip(ps['id'], id_indexes):
             fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
             f = h5(fname_inp, 'r')
@@ -360,6 +361,9 @@ class GralPlot(object):
             err_avr = err.mean(axis=0)
             err_med = np.median(err, axis=0)
             err_std = err.std(axis=0)
+            #--- calcula los minimos sin tomar en cuenta el 1er tiempo
+            err_min = np.min([err_min, np.min(err_avr[1:])])
+            err_max = np.max([err_max, np.max(err_avr[1:])])
 
             isym = np.mod(i,len(sym))
             opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1],'ls':''}
@@ -374,6 +378,8 @@ class GralPlot(object):
         ax.set_ylabel('energy error  [1]')
         if ylim is not None:
             ax.set_ylim(ylim)
+        else:
+            ax.set_ylim(err_min, err_max)
 
         if OneFigFile:
             fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
