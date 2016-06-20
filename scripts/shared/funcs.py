@@ -278,6 +278,7 @@ class GenAnalysis(object):
 
         return p_comm, p_diff
 
+
 class GralPlot(object):
     def __init__(self, ps, check=None, check_all=False):
         self.ps = ps
