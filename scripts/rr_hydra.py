@@ -35,13 +35,13 @@ r[AU]    B[nT]       Rl[AU]         Lc[AU]      Rl/Lc   Rl/(5e-5AU)
 1.0      5.0         7.553521E-03   0.0089      0.85    151.07
 2.0      1.99653571  1.891657E-02   0.0119904   1.58    378.33
 """
-ro = 0.2
+ro = 0.5
 Lc = ff.Lc_memilia(r=ro)   # [AU]
 Bo = ff.Bo_parker(r=ro)    # [Gauss]
 #--- set B-turbulence model
 pd.update({
-    'Nm_slab'       : 64,
-    'Nm_2d'         : 64,
+    'Nm_slab'       : 128,
+    'Nm_2d'         : 128,
     'lmin_s'        : (5e-5)*AU_in_cm,
     'lmax_s'        : (1.0) *AU_in_cm,
     'lmin_2d'       : (5e-5)*AU_in_cm,
@@ -52,10 +52,10 @@ pd.update({
     'Bo'            : Bo,   # [Gauss]
 })
 #--- corregimos input
-psim['rigidity'] = 1.69604E+08
-psim['tmax']     = 1.5e3 #0.3e4 #4e4
+psim['rigidity'] = 1.69604E+09
+psim['tmax']     = 1e4 #4e4
 rl = cw.calc_Rlarmor(psim['rigidity'],pd['Bo']) #[cm]
-eps_o = 3.33e-5 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
+eps_o            = 1e-5 #4.64e-5 #3.33e-6 ## ratio: (error-step)/(lambda_min)
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
 psim['atol']     = lmin*eps_o/rl  # [1]
 psim['rtol']     = 0.0 #1e-6
@@ -101,7 +101,7 @@ if rank==0 and isfile(fname_out):  # backup if already exists
 fname_out_tmp = fname_out+'_%02d'%rank # output of each processor
 fo = h5(fname_out_tmp, 'w') 
 nbin = 1000 # for step-size histograms
-for npla in plas[:10]:
+for npla in plas: #[25:]:
     #--- set particle id && direction
     pother['i']  = npla
     psim['mu']   = mu[npla]
