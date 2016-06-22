@@ -1,34 +1,39 @@
 #!/usr/bin/env ipython
 # -*- coding: utf-8 -*-
+"""
+What we do here:
+- process .h5 output-files to generate .key (hex of hash generated 
+code) && .pdf (figures).
+- example:
+$ python ./juguete.py --IDs 37,38,39,40,41 --legend Nm_slab,Nm_2d
+"""
 import os, sys
 from os.path import isfile, isdir
 import shared.funcs as sf
+import argparse
+
+# retrieve the IDentifiers :-)
+parser = argparse.ArgumentParser()
+parser.add_argument('--IDs', type=str)
+parser.add_argument('--legend', type=str)
+try:
+    pa = parser.parse_args()
+    ids = pa.IDs
+    mylist = map(int, ids.split(','))
+    mylabels = pa.legend.split(',')
+    print pa
+except IOError, msg:
+    parser.error(str(msg))
 
 ps = {
 'dir_src'   : '%s/out' % os.environ['PLA1'],
 'dir_dst'   : '%s/figs' % os.environ['PLA1'],
-'id'        : (32,  33,  34,  35, 36),
-'Nm_slab'   : (64,  64, 128, 128, 256),
-'Nm_2d'     : (64, 128, 128, 256, 256),
-#'eps_o'     : (3.33e-6, 1e-5, 3.33e-5, 4.64e-5, 1e-4, 3.33e-4, 4.64e-4, 1e-3),
-'label'     : [], #('uno', 'dos', 'tres'),
+'id'        : mylist,   # list of files identifiers
+'label'     : mylabels, # list of params for legend
 }
-
-for Nms, Nm2d in zip(ps['Nm_slab'], ps['Nm_2d']):
-    #ps['label'] += [ '$\epsilon: %1.2e$'%e ]
-    ps['label'] += [ '$Nm^{slab}, Nm^{2d}: %d, %d$' % (Nms, Nm2d) ]
 
 ga = sf.GenAnalysis(ps, prefix='o_')
 ga.gen_hash()  # genera el identificador
 ga.make_pdf()
 
-
-"""
-gp = sf.GralPlot(ps=ps, check=('eps_o',), check_all=True)
-#gp = sf.GralPlot(ps=ps, check=None, check_all=False)
-gp.do_checks()
-gp.plot_kdiff()
-gp.plot_errdy()
-gp.plot_errEk(ylim=(1e-4, 10.))
-"""
 #EOF

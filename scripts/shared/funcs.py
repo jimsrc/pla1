@@ -127,6 +127,7 @@ class GenAnalysis(object):
 
         gp = GralPlot(ps, check=None, check_all=None)
         gp.do_checks()
+        gp.build_labels()
 
         #--- 1st page
         fig, ax = gp.plot_errEk(OneFigFile=False)
@@ -288,7 +289,37 @@ class GralPlot(object):
         self.sym = ('o', 's', '^', '*')
 
 
+    def build_labels(self):
+        """ construye los labels (legenda) de acuerdo a
+        la lista de parametros en 'self.ps.keys()'
+        """
+        #--- nombres/labels de los parametros
+        names = ''
+        if len(self.ps['label'])==1:
+            names = self.ps['label'][0] + ': '
+        else:
+            for name in self.ps['label']:
+                names += name + ', '
+            names += ': '
+        
+        #--- valores de los parametros 
+        values = {}
+        for fid in self.ps['id']:
+            fname_inp = self.ps['dir_src'] + '/o_%04d'%fid + '.h5'
+            f = h5(fname_inp, 'r')
+            values[fid] = ''
+            for name in self.ps['label']:
+                values[fid] += '$%G$' % f['psim/'+name].value
+                if len(self.ps['label'])>1:  # si hay mas de uno,
+                    values[fid] += ', '      # pongo coma.
+
+        self.MyLabels = {}
+        for fid in self.ps['id']:
+            self.MyLabels[fid] = names + values[fid]
+
+
     def do_checks(self):
+        """ reviso q ciertos keys existan en el output .h5 """
         ps = self.ps
         # should we check file keys?
         if self.check is not None:
@@ -368,8 +399,7 @@ class GralPlot(object):
 
             isym = np.mod(i,len(sym))
             opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1],'ls':''}
-            #label = '$Nm^s, Nm^{2d}: %d, %d$' % (Nm_s, Nm_2d)
-            label = ps['label'][i]
+            label = self.MyLabels[fid]  #ps['label'][i]
             ax.plot(tadim, err_avr, label=label, **opt)
 
         ax.legend(loc='best', fontsize=7)
@@ -435,7 +465,7 @@ class GralPlot(object):
             isym = np.mod(i,len(sym))
             #msym = sym[isym-1]
             opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1], 'ls':''}
-            label = ps['label'][i]
+            label = self.MyLabels[fid] #ps['label'][i]
             lmin = f['psim/lmin'].value # [AU]
             dRbin = (hmg.hbin/wc)*vp/(lmin*AUincm)
             ax2.plot(dRbin, hmg.h, label=label, **opt)
@@ -488,14 +518,14 @@ class GralPlot(object):
                 o[kk] = get_sqrs(fname_inp)
                 tadim = o[kk]['tadim']      # [1]
                 kprof = o[kk][kk]           # [cm2/s]
-                #label = '$Nm^s, Nm^{2d}: %d, %d$' % (Nm_s, Nm_2d)
                 isym  = np.mod(i,len(sym))
                 print " i, len(sym), isym: ", i, len(sym), isym;# raw_input()
                 opt = {
                 'ms'        : 2,
                 'lw'        : 0.5,
                 'marker'    : sym[isym-1],
-                'label'     : ps['label'][i],
+                #'label'     : ps['label'][i],
+                'label'     : self.MyLabels[fid],
                 'alpha'     : 0.6,
                 'mec'       : 'none',
                 }
