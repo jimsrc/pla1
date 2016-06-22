@@ -52,8 +52,8 @@ pd.update({
     'Bo'            : Bo,   # [Gauss]
 })
 #--- corregimos input
-psim['rigidity'] = 1.69604E+09
-psim['tmax']     = 4e4 #0.3e4 #4e4
+psim['rigidity'] = 1.69604E+08
+psim['tmax']     = 1.5e3 #0.3e4 #4e4
 rl = cw.calc_Rlarmor(psim['rigidity'],pd['Bo']) #[cm]
 eps_o = 3.33e-5 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
@@ -101,7 +101,7 @@ if rank==0 and isfile(fname_out):  # backup if already exists
 fname_out_tmp = fname_out+'_%02d'%rank # output of each processor
 fo = h5(fname_out_tmp, 'w') 
 nbin = 1000 # for step-size histograms
-for npla in plas: #[25:]:
+for npla in plas[:10]:
     #--- set particle id && direction
     pother['i']  = npla
     psim['mu']   = mu[npla]

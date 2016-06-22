@@ -1,0 +1,20 @@
+- CASO r=0.3 AU
+  - probamos con eps=
+    1.00e-4, 
+    4.64e-5,
+    1.00e-5,
+    4.64e-6.
+    (11:20,21/jun: falta 2.15e-4, ...)
+  Los paefiles k(t), todos se parecen entre si, y casi 
+  todos conservan energia Ek hasta una factor 1e-2.
+  ==> Decido correr en ~PLAS con eps=1e-4, 
+      con (Nms,Nm2d)=(128,256).
+  - Los hex son:
+    fig_416e644a376e646a.pdf
+    fig_49686c526461666b.pdf
+    fig_72746f6b5a5a642f.pdf
+    fig_44646d44567a3662.pdf
+
+- CASO r=0.5:
+
+#EOF

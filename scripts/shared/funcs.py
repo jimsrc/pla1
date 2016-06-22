@@ -547,7 +547,7 @@ def unify_all(fname_out, psim, wsize):
     """ function to unify all the
         output .h5 of all processors.
 	NOTE: this is for working in
-	HYDRA cluster only.
+	HYDRA cluster only (it has no -fPIC MPI-configured).
     """
     fout = h5(fname_out, 'w')
     for r in range(wsize):
@@ -557,7 +557,7 @@ def unify_all(fname_out, psim, wsize):
         for c in cont:           # iterate over each group
             finp.copy(c, fout)
         finp.close()
-	print " --> removing partial files..."
+	print " ----> removing partial files..."
         os.system('rm {fname}'.format(fname=fnm_inp))
 
     for pnm in psim.keys():
@@ -804,6 +804,19 @@ def SaveToFile(m, dpath='', f=None, nbin=None):
     f[dpath+'HistStep/bins_StepPart'] = bins_StepPart
     f[dpath+'HistStep/nbin'] = nbin
 
+    #--- histos for tau-collision
+    tauLg   = np.log(m.Tau[:,0]) # log([1/omega?])
+    h       = np.histogram(tauLg, bins=nbin, normed=False)
+    hc      = h[0]
+    hbin    = 0.5*(h[1][:-1] + h[1][1:])    # log([1/omega?])
+    f[dpath+'HistTau_log'] = np.array([hc, hbin])
+
+    #--- histos theta (angle between x-y plane and z-axis, @collision)
+    theta   = m.Tau[:,3] # [deg]
+    h       = np.histogram(theta, bins=nbin, normed=False)
+    hc      = h[0]
+    hbin    = 0.5*(h[1][:-1] + h[1][1:])    # [deg]
+    f[dpath+'HistThetaColl'] = np.array([hc, hbin])
 
 
 def save_to_h5(m, fname=None, dpath='', file=None, close=True):
