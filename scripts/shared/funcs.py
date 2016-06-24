@@ -142,9 +142,11 @@ class GenAnalysis(object):
         close(fig)
 
         #--- 3rd page
-        fig, ax = gp.plot_kdiff(OneFigFile=False)
-        pdf_pages.savefig(fig)
-        close(fig)
+        Ks     = ('kxx', 'kyy', 'kzz')
+        for kk in Ks: #--- plot kxx, kyy, kzz
+            fig, ax = gp.plot_kdiff(kk, OneFigFile=False)
+            pdf_pages.savefig(fig)
+            close(fig)
 
         #--- Write the PDF document to the disk
         pdf_pages.close()
@@ -493,9 +495,9 @@ class GralPlot(object):
             return fig, ax, ax2
 
 
-    def plot_kdiff(self, OneFigFile=False, **kargs):
+    def plot_kdiff(self, kk, OneFigFile=False, **kargs):
         ps     = self.ps
-        Ks     = ('kxx', 'kyy', 'kzz')
+        #Ks     = ('kxx', 'kyy', 'kzz')
         o      = {}
         sym    = self.sym
         #--- extra args
@@ -504,53 +506,51 @@ class GralPlot(object):
         xscale = kargs.get('xscale', 'log')
         yscale = kargs.get('yscale', 'log')
         #--- plot kxx, kyy, kzz
-        for kk in Ks:
-            print " ---> plotting " + kk + ':'
-            #--- figura
-            fig = figure(1, figsize=(6,4))
-            ax  = fig.add_subplot(111)
+        print " ---> plotting " + kk + ':'
+        #--- figura
+        fig = figure(1, figsize=(6,4))
+        ax  = fig.add_subplot(111)
+        # iterate over all input-files
+        id_indexes = range(len(ps['id'])) # indexes
+        for fid, i in zip(ps['id'], id_indexes):
+            fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
+            #f = h5(fname_inp, 'r')
+            o[kk] = get_sqrs(fname_inp)
+            tadim = o[kk]['tadim']      # [1]
+            kprof = o[kk][kk]           # [cm2/s]
+            isym  = np.mod(i,len(sym))
+            print " i, len(sym), isym: ", i, len(sym), isym;# raw_input()
+            opt = {
+            'ms'        : 2,
+            'lw'        : 0.5,
+            'marker'    : sym[isym-1],
+            #'label'     : ps['label'][i],
+            'label'     : self.MyLabels[fid],
+            'alpha'     : 0.6,
+            'mec'       : 'none',
+            }
+            ax.plot(tadim, kprof, '-o', **opt)
 
-            # iterate over all input-files
-            id_indexes = range(len(ps['id'])) # indexes
-            for fid, i in zip(ps['id'], id_indexes):
-                fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
-                #f = h5(fname_inp, 'r')
-                o[kk] = get_sqrs(fname_inp)
-                tadim = o[kk]['tadim']      # [1]
-                kprof = o[kk][kk]           # [cm2/s]
-                isym  = np.mod(i,len(sym))
-                print " i, len(sym), isym: ", i, len(sym), isym;# raw_input()
-                opt = {
-                'ms'        : 2,
-                'lw'        : 0.5,
-                'marker'    : sym[isym-1],
-                #'label'     : ps['label'][i],
-                'label'     : self.MyLabels[fid],
-                'alpha'     : 0.6,
-                'mec'       : 'none',
-                }
-                ax.plot(tadim, kprof, '-o', **opt)
+        ax.set_yscale(yscale)
+        ax.set_xscale(xscale)
+        ax.set_xlabel('$\Omega t$ [1]')
+        ax.set_ylabel('%s [cm2/s]' % kk)
+        if xlim is not None:
+            ax.set_xlim(xlim)
+        if ylim is not None:
+            ax.set_ylim(ylim)
+        ax.legend(loc='best', fontsize=6)
+        ax.grid()
 
-            ax.set_yscale(yscale)
-            ax.set_xscale(xscale)
-            ax.set_xlabel('$\Omega t$ [1]')
-            ax.set_ylabel('%s [cm2/s]' % kk)
-            if xlim is not None:
-                ax.set_xlim(xlim)
-            if ylim is not None:
-                ax.set_ylim(ylim)
-            ax.legend(loc='best', fontsize=6)
-            ax.grid()
+        if OneFigFile:
+            #--- figname
+            FigCode = ''
+            for myid in ps['id']: FigCode += '%04d'%myid
+            fname_fig = ps['dir_dst'] + '/%s_'%kk + FigCode + '.png'
+            fig.savefig(fname_fig, dpi=300, bbox_inches='tight')
+            close(fig)
 
-            if OneFigFile:
-                #--- figname
-                FigCode = ''
-                for myid in ps['id']: FigCode += '%04d'%myid
-                fname_fig = ps['dir_dst'] + '/%s_'%kk + FigCode + '.png'
-                fig.savefig(fname_fig, dpi=300, bbox_inches='tight')
-                close(fig)
-            else:
-                return fig, ax
+        return fig, ax # dicts for (kxx,kyy,kzz)
 
 
 def Lc_memilia(r=1.0):
@@ -618,6 +618,7 @@ class Hmgr:
 
     def get_hstep_extremes(self):
         """ Obtain the max && min of all the histogram domains """
+        print " ---> getting hstep-extremes... "
         PNAMES  = self.f.keys()
         self.Np = len(PNAMES)
         self.bmin = 1.0e31
@@ -625,7 +626,7 @@ class Hmgr:
         for pnm in PNAMES:
             if not pnm.startswith('pla'):
                 continue
-            print '--->', pnm
+            #print '--->', pnm
             hx = self.f[pnm+'/HistStep/bins_StepPart'].value
             self.bmin = min(self.bmin, hx[0])
             self.bmax = max(self.bmax, hx[-1])
@@ -659,7 +660,7 @@ def load_traj(fname):
         if not pname.startswith('pla'):
             continue
 
-        print " --> pname: ", pname
+        #print " --> pname: ", pname
         x[i,:], y[i,:], z[i,:] = f[pname+'/xyz'].value.T # [1]
 
     wc   = f[PNAMES[0]+'/scl_wc'].value  # [s-1]
