@@ -148,6 +148,11 @@ class GenAnalysis(object):
             pdf_pages.savefig(fig)
             close(fig)
 
+        #--- 4th page
+        fig, ax = gp.plot_HistThetaColl()
+        pdf_pages.savefig(fig)
+        close(fig)
+
         #--- Write the PDF document to the disk
         pdf_pages.close()
         print " ---> we generated the temp-file: " + fname_out_tmp
@@ -446,7 +451,6 @@ class GralPlot(object):
         for fid, i in zip(ps['id'], id_indexes):
             fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
             f = h5(fname_inp, 'r')
-
             wc = f['pla000/scl_wc'].value       # [s-1]
             vp = f['pla000/scl_vel'].value      # [cm/s]
             rl = f['pla000/scl_rl'].value       # [cm]
@@ -497,7 +501,6 @@ class GralPlot(object):
 
     def plot_kdiff(self, kk, OneFigFile=False, **kargs):
         ps     = self.ps
-        #Ks     = ('kxx', 'kyy', 'kzz')
         o      = {}
         sym    = self.sym
         #--- extra args
@@ -514,7 +517,6 @@ class GralPlot(object):
         id_indexes = range(len(ps['id'])) # indexes
         for fid, i in zip(ps['id'], id_indexes):
             fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
-            #f = h5(fname_inp, 'r')
             o[kk] = get_sqrs(fname_inp)
             tadim = o[kk]['tadim']      # [1]
             kprof = o[kk][kk]           # [cm2/s]
@@ -524,7 +526,6 @@ class GralPlot(object):
             'ms'        : 2,
             'lw'        : 0.5,
             'marker'    : sym[isym-1],
-            #'label'     : ps['label'][i],
             'label'     : self.MyLabels[fid],
             'alpha'     : 0.6,
             'mec'       : 'none',
@@ -551,6 +552,105 @@ class GralPlot(object):
             close(fig)
 
         return fig, ax # dicts for (kxx,kyy,kzz)
+
+
+    def plot_HistThetaColl(self, **kargs):
+        ps     = self.ps
+        o      = {}
+        sym = self.sym
+        #--- extra args
+        xlim   = kargs.get('xlim', None)
+        ylim   = kargs.get('ylim', None)
+        xscale = kargs.get('xscale', 'log')
+        yscale = kargs.get('yscale', 'log')
+        #--- figura
+        fig = figure(1, figsize=(6,4))
+        ax  = fig.add_subplot(111)
+        # iterate over all input-files
+        id_indexes = range(len(ps['id'])) # indexes
+        for fid, i in zip(ps['id'], id_indexes):
+            fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
+            ht = HThetaColl(fname_inp)
+            h = ht.SumHsts_over_plas() # my histograms!!
+            if h is 0:
+                ax.text('sorry, no histogram for step-sizes.')
+                return 0 # finish!
+            else:
+                hx, hc = h['hbins'], h['hcnts']
+            isym = np.mod(i,len(self.sym))
+            opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1],'ls':''}
+            label = self.MyLabels[fid]  #ps['label'][i]
+            ax.plot(hx, hc, label=label, **opt)
+        ax.legend(loc='best', fontsize=7)
+        ax.set_yscale('linear')
+        ax.grid(True)
+        ax.set_ylabel('#')
+        ax.set_xlabel('$\\theta_{coll}$ [deg]')
+        return fig, ax
+    
+
+class HThetaColl(object):
+    def __init__(self, fname_inp, nbin=1000, **kargs):
+        self.fname_inp = fname_inp
+        """ hacer algo q me diga en que
+        intervalos de tiempo deberia armar
+        los histogramas
+        self.every = ..."""
+        # hallar los minimos de los dominios
+        # de todos los histogramas
+        hmin, hmax = self.get_hist_extremes()
+        self.dbin = dbin = (hmax-hmin)/nbin
+        self.hbin = np.arange(hmin+0.5*dbin, hmax, dbin)
+        self.nbin = nbin
+        # build histogram bounds
+        self.bd = bd = np.zeros(self.nbin+1)
+        bd[:-1] = self.hbin - 0.5*self.dbin
+        bd[-1] = self.hbin[-1] + 0.5*self.dbin
+
+    def get_hist_extremes(self):
+        """ Obtain the max && min of all the 
+        histogram domains """
+        print " ---> getting hist-theta-extremes..."
+        f = h5(self.fname_inp, 'r')
+        PNAMES  = f.keys()
+        self.Np = len(PNAMES)
+        self.bmin = 1.0e31
+        self.bmax = 0.0
+        nameHsts = 'HistThetaColl' # key-name of data
+        for pnm in PNAMES:
+            if not pnm.startswith('pla'):
+                continue
+            hc_, hx = f[pnm+'/'+nameHsts].value
+            self.bmin = min(self.bmin, hx[0])
+            self.bmax = max(self.bmax, hx[-1])
+        return self.bmin, self.bmax
+
+    def SumHsts_over_plas(self):
+        """ unifica/suma los histogramas de todas
+        las particulas, para una B-realization"""
+        f = h5(self.fname_inp, 'r')
+        nameHsts = 'HistThetaColl' # key-name of data
+        if nameHsts not in f['pla000'].keys():
+            return 0 # finish!
+
+        # initialize histogram in zero counts
+        hcnts = np.zeros(self.nbin, dtype=np.float32)
+        bd    = self.bd
+        for dpath in f.keys():
+            if not dpath.startswith('pla'):
+                continue
+
+            hc, hx = f[dpath+'/'+nameHsts].value
+            for i in range(hx.size):
+                cc = (hx[i]>bd[:-1]) & (hx[i]<bd[1:])
+                ix = find(cc)
+                hcnts[ix] += hc[i]
+
+        self.hist_stepsize = {
+        'hbins' : self.hbin,
+        'hcnts' : hcnts,
+        }
+        return self.hist_stepsize
 
 
 def Lc_memilia(r=1.0):
@@ -672,6 +772,9 @@ def load_traj(fname):
     'wc': wc, 'rl': rl, 'beta': beta,
     'nplas': n, 'ntime': nt,
     }
+    # TODO: 'n' is not the true number of plas!! (we
+    # need to filter-in only those f.keys() that
+    # start with 'plas' ONLY!
     return o
 
 
