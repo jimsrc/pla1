@@ -579,7 +579,7 @@ class GralPlot(object):
             h = ht.SumHsts_over_plas() # my histograms!!
             if h is 0:
                 ax.text(.5, .5, 'sorry, no histograms for step-sizes.', transform=ax.transAxes)
-                return 0 # finish!
+                continue # next 'fid'
             else:
                 hx, hc = h['hbins'], h['hcnts']
             isym = np.mod(i,len(self.sym))
@@ -612,7 +612,7 @@ class GralPlot(object):
             ht = HTauColl(fname_inp, nbin=1000)
             if ht is 0:
                 ax.text(.5, .5, 'sorry, no histograms for collision-tau.', transform=ax.transAxes)
-                return 0 # finish!
+                continue # next 'fid'
 
             h = ht.SumHsts_over_plas()
             hx, hc = h['hbins'], h['hcnts']

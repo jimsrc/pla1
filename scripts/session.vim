@@ -317,7 +317,7 @@ badd +41 params.py
 badd +29 err_study.py
 badd +1 err_study_mpi.py
 badd +1 _ErrAtolFuncs.py
-badd +408 shared/funcs.py
+badd +247 shared/funcs.py
 badd +1 kperp_from_1Bsim.py
 badd +1 err_dy.py
 badd +18 rr_hydra.py
@@ -596,9 +596,9 @@ wincmd w
 wincmd t
 set winheight=1 winwidth=1
 exe 'vert 1resize ' . ((&columns * 80 + 83) / 167)
-exe '2resize ' . ((&lines * 26 + 28) / 57)
+exe '2resize ' . ((&lines * 26 + 28) / 56)
 exe 'vert 2resize ' . ((&columns * 101 + 83) / 167)
-exe '3resize ' . ((&lines * 27 + 28) / 57)
+exe '3resize ' . ((&lines * 27 + 28) / 56)
 exe 'vert 3resize ' . ((&columns * 101 + 83) / 167)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
@@ -966,9 +966,9 @@ normal! zt
 normal! 0
 wincmd w
 exe 'vert 1resize ' . ((&columns * 80 + 83) / 167)
-exe '2resize ' . ((&lines * 26 + 28) / 57)
+exe '2resize ' . ((&lines * 26 + 28) / 56)
 exe 'vert 2resize ' . ((&columns * 101 + 83) / 167)
-exe '3resize ' . ((&lines * 27 + 28) / 57)
+exe '3resize ' . ((&lines * 27 + 28) / 56)
 exe 'vert 3resize ' . ((&columns * 101 + 83) / 167)
 tabedit shared/funcs.py
 set splitbelow splitright
@@ -1491,8 +1491,8 @@ wincmd w
 wincmd w
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 67 + 83) / 167)
-exe 'vert 2resize ' . ((&columns * 58 + 83) / 167)
+exe 'vert 1resize ' . ((&columns * 63 + 83) / 167)
+exe 'vert 2resize ' . ((&columns * 62 + 83) / 167)
 exe 'vert 3resize ' . ((&columns * 40 + 83) / 167)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
@@ -1608,12 +1608,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 154 - ((36 * winheight(0) + 27) / 54)
+let s:l = 216 - ((14 * winheight(0) + 26) / 53)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-154
-normal! 017l
+216
+normal! 044l
 wincmd w
 argglobal
 edit shared/funcs.py
@@ -1730,12 +1730,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 620 - ((24 * winheight(0) + 27) / 54)
+let s:l = 611 - ((24 * winheight(0) + 26) / 53)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-620
-normal! 012l
+611
+normal! 020l
 wincmd w
 argglobal
 enew
@@ -1853,8 +1853,8 @@ setlocal nowrap
 setlocal wrapmargin=0
 wincmd w
 2wincmd w
-exe 'vert 1resize ' . ((&columns * 67 + 83) / 167)
-exe 'vert 2resize ' . ((&columns * 58 + 83) / 167)
+exe 'vert 1resize ' . ((&columns * 63 + 83) / 167)
+exe 'vert 2resize ' . ((&columns * 62 + 83) / 167)
 exe 'vert 3resize ' . ((&columns * 40 + 83) / 167)
 tabedit shared/funcs.py
 set splitbelow splitright
@@ -2381,9 +2381,9 @@ wincmd w
 wincmd t
 set winheight=1 winwidth=1
 exe 'vert 1resize ' . ((&columns * 93 + 83) / 167)
-exe '2resize ' . ((&lines * 25 + 28) / 57)
+exe '2resize ' . ((&lines * 25 + 28) / 56)
 exe 'vert 2resize ' . ((&columns * 63 + 83) / 167)
-exe '3resize ' . ((&lines * 28 + 28) / 57)
+exe '3resize ' . ((&lines * 28 + 28) / 56)
 exe 'vert 3resize ' . ((&columns * 63 + 83) / 167)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
@@ -2752,9 +2752,9 @@ normal! 0
 wincmd w
 2wincmd w
 exe 'vert 1resize ' . ((&columns * 93 + 83) / 167)
-exe '2resize ' . ((&lines * 25 + 28) / 57)
+exe '2resize ' . ((&lines * 25 + 28) / 56)
 exe 'vert 2resize ' . ((&columns * 63 + 83) / 167)
-exe '3resize ' . ((&lines * 28 + 28) / 57)
+exe '3resize ' . ((&lines * 28 + 28) / 56)
 exe 'vert 3resize ' . ((&columns * 63 + 83) / 167)
 tabedit err_dy.py
 set splitbelow splitright
@@ -2764,9 +2764,7 @@ vsplit
 wincmd w
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 92 + 83) / 167)
-exe '2resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 2resize ' . ((&columns * 64 + 83) / 167)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
@@ -3012,9 +3010,7 @@ normal! zt
 normal! 0
 wincmd w
 2wincmd w
-exe '1resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 92 + 83) / 167)
-exe '2resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 2resize ' . ((&columns * 64 + 83) / 167)
 tabedit err_Ek.py
 set splitbelow splitright
@@ -3024,9 +3020,7 @@ vsplit
 wincmd w
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 58 + 83) / 167)
-exe '2resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 2resize ' . ((&columns * 98 + 83) / 167)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
@@ -3272,9 +3266,7 @@ normal! zt
 normal! 0
 wincmd w
 2wincmd w
-exe '1resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 58 + 83) / 167)
-exe '2resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 2resize ' . ((&columns * 98 + 83) / 167)
 tabedit _ErrAtolFuncs.py
 set splitbelow splitright
@@ -3284,9 +3276,7 @@ vsplit
 wincmd w
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 117 + 83) / 167)
-exe '2resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 2resize ' . ((&columns * 39 + 83) / 167)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
@@ -3532,9 +3522,7 @@ normal! zt
 normal! 04l
 wincmd w
 2wincmd w
-exe '1resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 117 + 83) / 167)
-exe '2resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 2resize ' . ((&columns * 39 + 83) / 167)
 tabedit gg.py
 set splitbelow splitright
@@ -3544,9 +3532,7 @@ vsplit
 wincmd w
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 121 + 83) / 167)
-exe '2resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 2resize ' . ((&columns * 35 + 83) / 167)
 argglobal
 vnoremap <buffer> 	 :py isort_visual()
@@ -3792,9 +3778,7 @@ normal! zt
 normal! 0
 wincmd w
 2wincmd w
-exe '1resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 1resize ' . ((&columns * 121 + 83) / 167)
-exe '2resize ' . ((&lines * 53 + 28) / 57)
 exe 'vert 2resize ' . ((&columns * 35 + 83) / 167)
 tabnext 5
 if exists('s:wipebuf')
