@@ -224,7 +224,7 @@ class GenAnalysis(object):
         with open(os.environ['HOME']+'/utils/tex_begin.txt', 'r') as f:
             tex_begin_lines = f.readlines()
 
-        self.fname_tab_base = fname_tab_base = '_tmp.table_'
+        self.fname_tab_base = fname_tab_base = '_tmp.table_' + fname_base
         f = open(fname_tab_base+'.tex', 'w')
         for line in tex_begin_lines:
             f.write(line)
@@ -578,7 +578,7 @@ class GralPlot(object):
             ht = HThetaColl(fname_inp)
             h = ht.SumHsts_over_plas() # my histograms!!
             if h is 0:
-                ax.text('sorry, no histogram for step-sizes.')
+                ax.text(.5, .5, 'sorry, no histograms for step-sizes.', transform=ax.transAxes)
                 return 0 # finish!
             else:
                 hx, hc = h['hbins'], h['hcnts']
@@ -611,7 +611,7 @@ class GralPlot(object):
             f = h5(fname_inp, 'r')
             ht = HTauColl(fname_inp, nbin=1000)
             if ht is 0:
-                ax.text('sorry, no histograms for collision-tau.')
+                ax.text(.5, .5, 'sorry, no histograms for collision-tau.', transform=ax.transAxes)
                 return 0 # finish!
 
             h = ht.SumHsts_over_plas()
