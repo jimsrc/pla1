@@ -149,6 +149,11 @@ class GenAnalysis(object):
             close(fig)
 
         #--- 4th page
+        fig, ax = gp.plot_TauColl()
+        pdf_pages.savefig(fig)
+        close(fig)
+
+        #--- 5th page
         fig, ax = gp.plot_HistThetaColl()
         pdf_pages.savefig(fig)
         close(fig)
@@ -587,7 +592,104 @@ class GralPlot(object):
         ax.set_ylabel('#')
         ax.set_xlabel('$\\theta_{coll}$ [deg]')
         return fig, ax
-    
+
+
+    def plot_TauColl(self, OneFigFile=False, xlim=None, ylim=None, **kargs):
+        """ plot histogram of collision-times.
+        """
+        ps  = self.ps
+        sym = self.sym
+        yscale = kargs.get('yscale', 'log')
+        ##--- figure
+        fig = figure(1, figsize=(6,4))
+        ax  = fig.add_subplot(111)
+        # iterate over all input-files
+        id_indexes = range(len(ps['id'])) # indexes
+        err_min, err_max = 1e31, -1e31 # para ajustar el set_ylim()
+        for fid, i in zip(ps['id'], id_indexes):
+            fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
+            f = h5(fname_inp, 'r')
+            ht = HTauColl(fname_inp, nbin=1000)
+            if ht is 0:
+                ax.text('sorry, no histograms for collision-tau.')
+                return 0 # finish!
+
+            h = ht.SumHsts_over_plas()
+            hx, hc = h['hbins'], h['hcnts']
+            # now lets plot :)
+            isym = np.mod(i,len(self.sym))
+            opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1],'ls':''}
+            label = self.MyLabels[fid]
+            ax.plot(hx, hc, label=label, **opt)
+        ax.legend(loc='best', fontsize=7)
+        ax.set_yscale(yscale)
+        ax.grid(True)
+        ax.set_ylabel('#')
+        ax.set_xlabel('$\\tau_{coll}$ [log(1/\Omega)]')
+        return fig, ax
+
+
+class HTauColl(object):
+    def __init__(self, fname_inp, nbin=1000, **kargs):
+        self.fname_inp = fname_inp
+        self.nbin = nbin
+        # main check
+        nameHsts = 'HistTau_log' # key-name of data
+        with h5(fname_inp, 'r') as f:
+            if nameHsts not in f['pla000'].keys():
+                return 0 # finish!
+        # hallar los minimos de los dominios
+        # de todos los histogramas
+        hmin, hmax = self.get_hist_extremes()
+        self.dbin = dbin = (hmax-hmin)/nbin
+        self.hbin = np.arange(hmin+0.5*dbin, hmax, dbin)
+        self.nbin = nbin
+        # build histogram bounds
+        self.bd = bd = np.zeros(self.nbin+1)
+        bd[:-1] = self.hbin - 0.5*self.dbin
+        bd[-1] = self.hbin[-1] + 0.5*self.dbin
+
+    def get_hist_extremes(self):
+        """ Obtain the max && min of all the 
+        histogram domains """
+        print " ---> getting hist-log(tau)-extremes..."
+        f = h5(self.fname_inp, 'r')
+        PNAMES  = f.keys()
+        self.Np = len(PNAMES)
+        self.bmin = 1.0e31
+        self.bmax = 0.0
+        nameHsts = 'HistTau_log' # key-name of data
+        for pnm in PNAMES:
+            if not pnm.startswith('pla'):
+                continue
+            hc_, hx = f[pnm+'/'+nameHsts].value
+            self.bmin = min(self.bmin, hx[0])
+            self.bmax = max(self.bmax, hx[-1])
+        return self.bmin, self.bmax
+
+    def SumHsts_over_plas(self):
+        """ unifica/suma los histogramas de todas
+        las particulas, para una B-realization"""
+        f = h5(self.fname_inp, 'r')
+        nameHsts = 'HistTau_log' # key-name of data
+        # initialize histogram in zero counts
+        hcnts = np.zeros(self.nbin, dtype=np.float32)
+        bd    = self.bd
+        for dpath in f.keys():
+            if not dpath.startswith('pla'):
+                continue
+            hc, hx = f[dpath+'/'+nameHsts].value
+            for i in range(hx.size):
+                cc = (hx[i]>bd[:-1]) & (hx[i]<bd[1:])
+                ix = find(cc)
+                hcnts[ix] += hc[i]
+        self.myhist = {
+        'hbins' : self.hbin,
+        'hcnts' : hcnts,
+        }
+        return self.myhist
+
+
 
 class HThetaColl(object):
     def __init__(self, fname_inp, nbin=1000, **kargs):
@@ -596,6 +698,11 @@ class HThetaColl(object):
         intervalos de tiempo deberia armar
         los histogramas
         self.every = ..."""
+        # main check
+        nameHsts = 'HistThetaColl' # key-name of data
+        with h5(fname_inp, 'r') as f:
+            if nameHsts not in f['pla000'].keys():
+                return 0 # finish!
         # hallar los minimos de los dominios
         # de todos los histogramas
         hmin, hmax = self.get_hist_extremes()
@@ -630,9 +737,6 @@ class HThetaColl(object):
         las particulas, para una B-realization"""
         f = h5(self.fname_inp, 'r')
         nameHsts = 'HistThetaColl' # key-name of data
-        if nameHsts not in f['pla000'].keys():
-            return 0 # finish!
-
         # initialize histogram in zero counts
         hcnts = np.zeros(self.nbin, dtype=np.float32)
         bd    = self.bd
