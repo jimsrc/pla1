@@ -479,7 +479,7 @@ cdef class mgr:
             #free(self.ptr)
             return ndarray
 
-    property gc:
+    property gc_r:
         def __get__(self):
             cdef Doub *ptr
             cdef np.ndarray ndarray
@@ -497,27 +497,24 @@ cdef class mgr:
             Py_INCREF(arrw)
             #free(self.ptr)
             return ndarray
-            """#--- ahora el tiempo
-            cdef double *ptr2
-            cdef np.ndarray ndarray2
+
+    property gc_t:
+        def __get__(self):
+            #--- ahora el tiempo
+            cdef double *ptr
+            cdef np.ndarray ndarray
             #n = self.outbs.gc.n
             nx = self.outbs.gc.r_gc.nrows()
-            ptr2 = &(self.outbs.gc.t[0])
+            ptr  = &(self.outbs.gc.t[0])
             arrw = ArrayWrapper()
-            arrw.set_data(nx, <void*> ptr2, survive=True)
-            ndarray2 = np.array(arrw, copy=False)
+            arrw.set_data(nx, <void*> ptr, survive=True)
+            ndarray  = np.array(arrw, copy=False)
             #--- lo reducimos al trozo no-trivial
-            ndarray2 = ndarray2[:self.outbs.gc.n]
+            ndarray  = ndarray[:self.outbs.gc.n]
             #------------------------------------
-            ndarray2.base = <PyObject*> arrw
+            ndarray.base = <PyObject*> arrw
             Py_INCREF(arrw)
-            #return ndarray
-            #--- botamos todo
-            v = {
-            'r_gc'  : ndarray,
-            't'     : ndarray2,
-            }
-            return v"""
+            return ndarray
 
 
 def nans(sh):
