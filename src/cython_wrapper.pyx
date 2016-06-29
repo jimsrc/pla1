@@ -479,6 +479,45 @@ cdef class mgr:
             #free(self.ptr)
             return ndarray
 
+    property gc:
+        def __get__(self):
+            cdef Doub *ptr
+            cdef np.ndarray ndarray
+            cdef int nx, ny
+            nx = self.outbs.gc.r_gc.nrows()
+            ny = self.outbs.gc.r_gc.ncols()
+            arrw = ArrayWrapper_2d()
+            ptr = &(self.outbs.gc.r_gc[0][0])
+            arrw.set_data(nx, ny, <void*> ptr, survive=True)
+            ndarray = np.array(arrw, copy=False)
+            #--- lo reducimos al trozo no-trivial
+            ndarray = ndarray[:self.outbs.gc.n,:]
+            #------------------------------------
+            ndarray.base = <PyObject*> arrw
+            Py_INCREF(arrw)
+            #free(self.ptr)
+            return ndarray
+            """#--- ahora el tiempo
+            cdef double *ptr2
+            cdef np.ndarray ndarray2
+            #n = self.outbs.gc.n
+            nx = self.outbs.gc.r_gc.nrows()
+            ptr2 = &(self.outbs.gc.t[0])
+            arrw = ArrayWrapper()
+            arrw.set_data(nx, <void*> ptr2, survive=True)
+            ndarray2 = np.array(arrw, copy=False)
+            #--- lo reducimos al trozo no-trivial
+            ndarray2 = ndarray2[:self.outbs.gc.n]
+            #------------------------------------
+            ndarray2.base = <PyObject*> arrw
+            Py_INCREF(arrw)
+            #return ndarray
+            #--- botamos todo
+            v = {
+            'r_gc'  : ndarray,
+            't'     : ndarray2,
+            }
+            return v"""
 
 
 def nans(sh):

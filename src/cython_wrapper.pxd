@@ -102,6 +102,12 @@ cdef extern from "funcs.h":
 
     double calc_gamma(double v);
 
+    cdef cppclass GuidingCenter:
+        GuidingCenter(Int len);
+        void calc_gc(Doub* dydx, Doub* y, Doub x);
+        MatDoub r_gc
+        Doub* t
+        Int n
 
     cdef cppclass Output[T]:
         Output()
@@ -125,7 +131,7 @@ cdef extern from "funcs.h":
         int nreb # nro de rebotes/scatterings en pitch
         MatDoub Tau # tiempo de camino libre medio paralelo, y su posic x
         #MatDoub r_gc
-        #GuidingCenter gc
+        GuidingCenter *gc
         VecDoub mu
         VecDoub xsave # time
         MatDoub ysave # posic && veloc
