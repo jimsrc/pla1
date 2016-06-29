@@ -102,6 +102,7 @@ cdef extern from "funcs.h":
 
     double calc_gamma(double v);
 
+
     cdef cppclass Output[T]:
         Output()
         void build(
@@ -123,6 +124,8 @@ cdef extern from "funcs.h":
         void tic(), toc() #cronometro para c/pla
         int nreb # nro de rebotes/scatterings en pitch
         MatDoub Tau # tiempo de camino libre medio paralelo, y su posic x
+        #MatDoub r_gc
+        #GuidingCenter gc
         VecDoub mu
         VecDoub xsave # time
         MatDoub ysave # posic && veloc

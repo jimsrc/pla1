@@ -20,6 +20,11 @@ Odeint<Stepper>::Odeint(VecDoub_IO &ystartt, const Doub xx1, const Doub xx2,
     #ifdef MONIT_STEP
     out.step_save = MatDoub(2,MAXSTP,0.0);
     #endif //MONIT_STEP
+    #ifdef MONIT_SCATTERING
+    //gc = new GuidingCenter(MAXSTP);
+    //out.r_gc = MatDoub(MAXSTP,3,0.0); //posicion del cto de giro (historia completa)
+    out.gc = new GuidingCenter(MAXSTP);
+    #endif
 }
 
 /*
@@ -60,6 +65,7 @@ void Odeint<Stepper>::integrate() {
 		i++;
 		cout << " i " << i << endl;}
 	dtau = 0.0;
+    out.gc->n = 0; // total number of steps, recorded in 'out.gc'
 	for (nstp=0;nstp<MAXSTP;nstp++) {
 		save_history();					//--- scattering stuff
 		if ((x+h*1.0001-x2)*(x2-x1) > 0.0)
@@ -109,16 +115,19 @@ void Odeint<Stepper>::check_scattering(){
 	//-------------------------
 	dtau += s.hdid;			// controlo cuanto pasa hasta el prox rebote
 	//-------------------------
+    out.gc->calc_gc(&dydx[0], &y[0], x); // calculo cto de giro
 	if(mu_old*mu_new<0.0){
 		out.nreb++;
-		//printf(" [rank:%d] --> nreb: %d\n", wrank, out.nreb); //getchar();
 		if(out.nreb>=out.nfilTau) 
             out.resizeTau();
+
 		// guardo cosas de la "colisiones" con las irregularidades:
-		out.Tau[out.nreb-1][0] = dtau;	// [1] tiempo-de-colision instantaneo
-		out.Tau[out.nreb-1][1] = sqrt(y[0]*y[0]+y[2]*y[2]);	// [1] psic "perpend" en q ocurre dicha "colision"
-		out.Tau[out.nreb-1][2] = y[4];	// [1] posic "parall"  en q ocurre dicha "colision"
-        out.Tau[out.nreb-1][3] = asin(y[5]/vmod)*180./M_PI;  // [deg] angulo entre plano x-y y z.
+		out.Tau[out.nreb-1][0] = x; //[1] time @ collision
+		out.Tau[out.nreb-1][1] = dtau; //[1] tiempo-de-colision instantaneo
+		out.Tau[out.nreb-1][2] = sqrt(y[0]*y[0]+y[2]*y[2]);	// [1] psic "perpend" en q ocurre dicha "colision"
+		out.Tau[out.nreb-1][3] = y[4]; //[1] posic "parall" en q ocurre dicha "colision"
+        //out.Tau[out.nreb-1][3] = asin(y[5]/vmod)*180./M_PI;  // [deg] angulo entre plano x-y y z.
+        out.Tau[out.nreb-1][4] = acos(par.B[2]/Bmod)*180./M_PI; // [deg] angulo entre plano x-y y z. Siendo 0.0 para B-vector paralelo a versor positivo ^z+.
 		dtau = 0.0;
 	}
 }

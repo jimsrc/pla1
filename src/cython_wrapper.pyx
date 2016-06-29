@@ -480,6 +480,7 @@ cdef class mgr:
             return ndarray
 
 
+
 def nans(sh):
     return np.nan*np.ones(sh)
 

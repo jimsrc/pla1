@@ -141,7 +141,7 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
 	//-------- cosas de scatterings:
 	nfilTau = 500;
 	nreb	= 0;  // nro inic de rebotes
-	ncolTau	= 4;  // 4 columnas: 1 para el tau de scattering, 2 para las posic parall/perp, y 1 para el angulo entre el plano x-y y z.
+	ncolTau	= 5;  // 4 columnas: 1 para el tau de scattering, 2 para las posic parall/perp, y 1 para el angulo entre el plano x-y y z.
 	Tau 	= MatDoub(nfilTau, ncolTau, 0.0); // (*) para grabbar tiempos de scattering, y la posic x
 	// (*): inicializo en ceros
 
@@ -151,14 +151,13 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
 	dimHistTau	= 2;
 	HistTau		= MatDoub(nHistTau, dimHistTau, 0.0);	// histog 1-D
 	nsteps		= 0;
-
     //-------- histograma del 'ThetaColl'
     if(fmod(nThColl_, 2.0)!=0.0) {
         printf("\n ---> ERROR: 'nThColl' has to be even!!\n");
         exit(1);
     }
     nThColl     = nThColl_;
-    HistThColl  = MatDoub(nThColl, 2, 0.0); // histog 1-D
+    HistThColl  = MatDoub(nThColl, 2, 0.0); //histog 1-D
     #endif //MONIT_SCATTERING
 
     #ifdef MONIT_STEP
@@ -192,6 +191,30 @@ Output<Stepper>::Output(string str_tscalee, const Int nsavee, char* fname){
 	//dense = nsave > 0 ? true : false;
 }
 */
+
+#ifdef MONIT_SCATTERING
+GuidingCenter::GuidingCenter(Int len): 
+    r_gc(MatDoub(len,3,0.0)),
+    t(new Doub[len]) {
+    n = 0; // total number of steps
+}
+
+
+void GuidingCenter::calc_gc(Doub* dydx, Doub* y, Doub x){
+    /* calculamos cto de giro */
+    Doub normVB, rl[3];
+    normVB = NORM(dydx[1], dydx[3], dydx[5]);
+    rl[0] = -dydx[1]/normVB;
+    rl[1] = -dydx[3]/normVB;
+    rl[2] = -dydx[5]/normVB;
+    for(int i_=0; i_<3; ++i_){
+        r_gc[n][i_] = y[i_] - rl[i_];
+    }
+    t[n] = x;
+    n++;
+}
+#endif //MONIT_SCATTERING
+
 
 template <class Stepper>
 void Output<Stepper>::set_savetimes(Doub xhi){
@@ -547,17 +570,16 @@ void PARAMS::calc_Bfield(VecDoub_I &y){
 void rhs::operator() (PARAMS par, const Doub x, VecDoub_I &y, VecDoub_O &dydx ){
     //double bx, by, bz; 
     par.calc_Bfield(y);
-
     bx = par.B[0] / scl.Bo;
     by = par.B[1] / scl.Bo;
     bz = par.B[2] / scl.Bo;
     // rewrite x^2y"(x)+xy'(x)+x^2y=0 as coupled FOODEa
     dydx[0] = y[1];
-    dydx[1] = y[3] * bz - y[5] * by; 
+    dydx[1] = y[3] * bz - y[5] * by;// (vxB)_x
     dydx[2] = y[3];
-    dydx[3] =-y[1] * bz + y[5] * bx; 
+    dydx[3] =-y[1] * bz + y[5] * bx;// (vxB)_y 
     dydx[4] = y[5];
-    dydx[5] =-y[3] * bx + y[1] * by; 
+    dydx[5] =-y[3] * bx + y[1] * by;// (vxB)_z
 }
 
 
