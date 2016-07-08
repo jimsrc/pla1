@@ -132,30 +132,30 @@ class GenAnalysis(object):
         #--- 1st page
         fig, ax = gp.plot_errEk(OneFigFile=False)
         ax.set_ymargin(1.)
-        pdf_pages.savefig(fig)
+        pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
         #--- 2nd page
         fig, ax, ax2 = gp.plot_errdy(OneFigFile=False)
         #ax.set_ymargin(1.)
-        pdf_pages.savefig(fig)
+        pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
         #--- 3rd page
         Ks     = ('kxx', 'kyy', 'kzz')
         for kk in Ks: #--- plot kxx, kyy, kzz
             fig, ax = gp.plot_kdiff(kk, OneFigFile=False)
-            pdf_pages.savefig(fig)
+            pdf_pages.savefig(fig, bbox_inches='tight')
             close(fig)
 
         #--- 4th page
         fig, ax = gp.plot_TauColl()
-        pdf_pages.savefig(fig)
+        pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
         #--- 5th page
         fig, ax = gp.plot_HistThetaColl()
-        pdf_pages.savefig(fig)
+        pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
         #--- Write the PDF document to the disk
@@ -625,7 +625,7 @@ class GralPlot(object):
         ax.set_yscale(yscale)
         ax.grid(True)
         ax.set_ylabel('#')
-        ax.set_xlabel('$\\tau_{coll}$ [log(1/\Omega)]')
+        ax.set_xlabel('$log_{10}(\Omega \\tau_{coll})$')
         return fig, ax
 
 
@@ -684,7 +684,7 @@ class HTauColl(object):
                 ix = find(cc)
                 hcnts[ix] += hc[i]
         self.myhist = {
-        'hbins' : self.hbin,
+        'hbins' : self.hbin*np.log10(np.e) - np.log10(2.*np.pi),
         'hcnts' : hcnts,
         }
         return self.myhist
@@ -1043,10 +1043,10 @@ def SaveToFile(m, dpath='', f=None, nbin=None):
     f[dpath+'HistStep/nbin'] = nbin
 
     #--- histos for tau-collision
-    tauLg   = np.log(m.Tau[:,0]) # log([1/omega?])
+    tauLg   = np.log10(m.Tau[:,0]) # log([1/omega?])
     h       = np.histogram(tauLg, bins=nbin, normed=False)
     hc      = h[0]
-    hbin    = 0.5*(h[1][:-1] + h[1][1:])    # log([1/omega?])
+    hbin    = 0.5*(h[1][:-1] + h[1][1:]) # log([1/omega?])
     f[dpath+'HistTau_log'] = np.array([hc, hbin])
 
     #--- histos theta (angle between x-y plane and z-axis, @collision)
