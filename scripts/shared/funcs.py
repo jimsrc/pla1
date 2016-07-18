@@ -21,6 +21,9 @@ from tabulate import tabulate
 # para mergear .pdf files
 from PyPDF2 import PdfFileMerger, PdfFileReader
 
+#--- global constants
+M_PI = np.pi
+M_E  = np.e
 
 
 def DecodeHex_and_GetIDs(fname_key=None):
@@ -384,10 +387,13 @@ class GralPlot(object):
         # iterate over all input-files
         id_indexes = range(len(ps['id'])) # indexes
         err_min, err_max = 1e31, -1e31 # para ajustar el set_ylim()
+        Be = 5e-5 # B-field at Earth (ESCALAS::Bo in funcs.cc)
         for fid, i in zip(ps['id'], id_indexes):
             fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
             f = h5(fname_inp, 'r')
-            tadim = f['pla000/tadim']
+            Bo = f['psim/Bo'].value # "true" mean field of simulation
+            ta_ = f['pla000/tadim'].value
+            tadim = ta_*Bo/(2.*M_PI*Be)         # [1] correct adimensionalization
             wc = f['pla000/scl_wc'].value             # [s-1]
             vp = f['pla000/scl_vel'].value            # [cm/s]
             rl = f['pla000/scl_rl'].value             # [cm]
@@ -418,6 +424,7 @@ class GralPlot(object):
         ax.set_yscale('log')
         ax.set_xscale('log')
         ax.grid(True)
+        ax.set_xlabel('$\Omega t/2\pi$ [1]')
         ax.set_ylabel('energy error  [1]')
         if ylim is not None:
             ax.set_ylim(ylim)
@@ -522,9 +529,11 @@ class GralPlot(object):
         id_indexes = range(len(ps['id'])) # indexes
         for fid, i in zip(ps['id'], id_indexes):
             fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
-            o[kk] = get_sqrs(fname_inp)
-            tadim = o[kk]['tadim']      # [1]
-            kprof = o[kk][kk]           # [cm2/s]
+            o[kk] = get_sqrs(fname_inp) # w/ corrected physical dimensions
+            with h5(fname_inp, 'r') as f:
+                Bo = f['psim/Bo'].value # "true" mean field of simulation
+            tadim = o[kk]['tadim']      # [1]      (correct dimensions)
+            kprof = o[kk][kk]           # [cm2/s]  (")
             isym  = np.mod(i,len(sym))
             print " i, len(sym), isym: ", i, len(sym), isym;# raw_input()
             opt = {
@@ -539,7 +548,7 @@ class GralPlot(object):
 
         ax.set_yscale(yscale)
         ax.set_xscale(xscale)
-        ax.set_xlabel('$\Omega t$ [1]')
+        ax.set_xlabel('$\Omega t/2\pi$ [1]')
         ax.set_ylabel('%s [cm2/s]' % kk)
         if xlim is not None:
             ax.set_xlim(xlim)
@@ -683,8 +692,11 @@ class HTauColl(object):
                 cc = (hx[i]>bd[:-1]) & (hx[i]<bd[1:])
                 ix = find(cc)
                 hcnts[ix] += hc[i]
+        Be = 5e-5 # B-field at Earth (ESCALAS::Bo in funcs.cc)
+        Bo = f['psim/Bo'].value # "true" mean field of simulation
+        hbin = self.hbin*np.log10(M_E) - np.log10(2.*M_PI*Be/Bo) # applying eq [*] in paper-notes.
         self.myhist = {
-        'hbins' : self.hbin*np.log10(np.e) - np.log10(2.*np.pi),
+        'hbins' : hbin, #self.hbin*np.log10(np.e) - np.log10(2.*np.pi),
         'hcnts' : hcnts,
         }
         return self.myhist
@@ -855,7 +867,10 @@ def load_traj(fname):
     PNAMES = f.keys()    # particle names
     n      = len(PNAMES) # nmbr of plas in this file
     # take a sample to find out the times
-    tadim  = f[PNAMES[0]+'/tadim'].value
+    ta_    = f[PNAMES[0]+'/tadim'].value
+    Bo     = f['psim/Bo'].value # "true" mean field of simulation
+    Be     = 5e-5 # B-field at Earth (ESCALAS::Bo in funcs.cc)
+    tadim  = ta_*Bo/(2.*M_PI*Be)         # [1] correct adimensionalization
     nt     = tadim.size 
     x = np.zeros((n,nt))
     y = np.zeros((n,nt))
@@ -871,8 +886,8 @@ def load_traj(fname):
     rl   = f[PNAMES[0]+'/scl_rl'].value  # [cm]
     beta = f[PNAMES[0]+'/scl_beta'].value  # [1]
     o = {
-    'x': x*rl, 'y':y*rl, 'z': z*rl,  # [cm] (n, nt)
-    'tadim': tadim,
+    'x': x*rl, 'y':y*rl, 'z': z*rl, # [cm] (n, nt) #(correct dimensionalization)
+    'tadim': tadim,  # correct adimensionalization!
     'wc': wc, 'rl': rl, 'beta': beta,
     'nplas': n, 'ntime': nt,
     }
@@ -886,19 +901,22 @@ def get_sqrs(fname_inp):
     o     = load_traj(fname_inp)
     nt    = o['ntime']
     nplas = o['nplas']
-    x, y, z = o['x'], o['y'], o['z']  # [cm] (nplas, nt)
+    x, y, z = o['x'], o['y'], o['z']  # [cm] (nplas, nt) # (correct dimensions)
     rl    = o['rl']                   # [cm]
     wc    = o['wc']                   # [s-1]
-    tadim = o['tadim']                # [1]
-    tdim  = tadim/wc                  # [s]
+    tadim = o['tadim']                # [1]  (correct dimensions)
+    Be    = 5e-5 # B-field at Earth (ESCALAS::Bo in funcs.cc)
+    with h5(fname_inp,'r') as f:
+        Bo = f['psim/Bo'].value # "true" mean field of simulation
+    tdim   = tadim*(Be/Bo)/wc         # [s]  (correct dimensions)
     AUincm = 1.5e13                   # [cm]
     # promediamos sobre particulas
-    x2 = (x*x).mean(axis=0)           # [cm^2] 
-    y2 = (y*y).mean(axis=0)           # [cm^2] 
-    z2 = (z*z).mean(axis=0)           # [cm^2] 
-    kxx = x2/tdim                     # [cm2/s]
-    kyy = y2/tdim                     # [cm2/s]
-    kzz = z2/tdim                     # [cm2/s]
+    x2 = (x*x).mean(axis=0)           # [cm^2]  (correct dimensions)
+    y2 = (y*y).mean(axis=0)           # [cm^2]  (")
+    z2 = (z*z).mean(axis=0)           # [cm^2]  (")
+    kxx = x2/tdim                     # [cm2/s] (")
+    kyy = y2/tdim                     # [cm2/s] (")
+    kzz = z2/tdim                     # [cm2/s] (")
     out = {
     'kxx': kxx, 'kyy': kyy, 'kzz': kzz,
     'tdim': tdim, 'tadim':tadim, 
