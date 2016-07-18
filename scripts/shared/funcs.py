@@ -618,14 +618,14 @@ class GralPlot(object):
             hx, hc = h['hbins'], h['hcnts']
             # now lets plot :)
             isym = np.mod(i,len(self.sym))
-            opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1],'ls':''}
+            opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1],'ls':'','alpha':0.5}
             label = self.MyLabels[fid]
             ax.plot(hx, hc, label=label, **opt)
         ax.legend(loc='best', fontsize=7)
         ax.set_yscale(yscale)
         ax.grid(True)
         ax.set_ylabel('#')
-        ax.set_xlabel('$log_{10}(\Omega \\tau_{coll})$')
+        ax.set_xlabel('$log_{10}(\Omega \\tau_{coll}/(2\pi))$')
         return fig, ax
 
 
