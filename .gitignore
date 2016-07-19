@@ -4,6 +4,7 @@
 *.so
 *a.out
 *.swp
+.session*.vim
 
 *.png
 *.dat
