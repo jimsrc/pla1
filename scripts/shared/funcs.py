@@ -139,24 +139,28 @@ class GenAnalysis(object):
         close(fig)
 
         #--- 2nd page
-        fig, ax, ax2 = gp.plot_errdy(OneFigFile=False)
-        #ax.set_ymargin(1.)
+        fig, ax = gp.plot_errdy(xaxis='dt',OneFigFile=False)
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
         #--- 3rd page
+        fig, ax = gp.plot_errdy(xaxis='dr',OneFigFile=False)
+        pdf_pages.savefig(fig, bbox_inches='tight')
+        close(fig)
+
+        #--- 4th page
         Ks     = ('kxx', 'kyy', 'kzz')
         for kk in Ks: #--- plot kxx, kyy, kzz
             fig, ax = gp.plot_kdiff(kk, OneFigFile=False)
             pdf_pages.savefig(fig, bbox_inches='tight')
             close(fig)
 
-        #--- 4th page
+        #--- 5th page
         fig, ax = gp.plot_TauColl()
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
-        #--- 5th page
+        #--- 6th page
         fig, ax = gp.plot_HistThetaColl()
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
@@ -438,11 +442,14 @@ class GralPlot(object):
             return fig, ax
 
 
-    def plot_errdy(self, OneFigFile=False, nbin=1000, **kargs):
+    def plot_errdy(self, xaxis='dt', OneFigFile=False, nbin=1000, **kargs):
         """
         input:
+        - xaxis: 'dt' or 'dr'
         - nbin: number of bins for step-size histogram
         """
+        assert xaxis in ('dt','dr'),\
+            ' ---> ERROR: wrong axis=%s @GralPlot::plot_errdy()'%xaxis
         AUincm = 1.5e13             # [cm]
         ps  = self.ps
         sym = self.sym
@@ -451,15 +458,9 @@ class GralPlot(object):
         #--- figure
         fig = figure(1, figsize=(6,4))
         ax  = fig.add_subplot(111)
-        ax2 = ax.twiny()
-
-        #--- figname
-        FigCode = ''
-        for myid in ps['id']: FigCode += '%04d'%myid
-        fname_fig = ps['dir_dst'] + '/errdy_' + FigCode + '.png'
-
         # iterate over all input-files
         id_indexes = range(len(ps['id'])) # indexes
+        xmin,  xmax  = 1.0e31, 0.0
         for fid, i in zip(ps['id'], id_indexes):
             fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
             f = h5(fname_inp, 'r')
@@ -470,45 +471,42 @@ class GralPlot(object):
             Np     = len(PNAMES)
 
             hmg = Hmgr(f, nbin=nbin)
-            hmg.get_hstep_extremes()
-
             for pnm in PNAMES:
                 if not pnm.startswith('pla'):
                     continue
-
                 h  = f[pnm+'/HistStep/HStep'].value
                 hx = f[pnm+'/HistStep/bins_StepPart'].value
                 hmg.pile_to_hist(hx, h)
 
             isym = np.mod(i,len(sym))
-            #msym = sym[isym-1]
-            opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1], 'ls':''}
+            opt = {'ms':3, 'mec':'none', 'marker':sym[isym-1], 'ls':''}
             label = self.MyLabels[fid] #ps['label'][i]
             lmin = f['psim/lmin'].value # [AU]
-            dRbin = (hmg.hbin/wc)*vp/(lmin*AUincm)
-            ax2.plot(dRbin, hmg.h, label=label, **opt)
-            ax2.set_xlim(dRbin[0], dRbin[-1])
-            ax2.set_xlabel('$\Delta r/\lambda_{min}$')
-            ax2.set_xscale('log')
-            ax.plot(hmg.hbin, hmg.h, label=label, **opt)
-            ax.legend(loc='best', fontsize=7)
-            ax.set_xscale('log')
-            ax.set_yscale('log')
-            ax.set_xlabel('$\Omega dt$')
-            ax.set_ylabel('#')
-            ax.set_xlim(hmg.hbin[0], hmg.hbin[-1])
-            if ylim is not None:
-                ax.set_ylim(ylim)
-
-            #print " ---> generating: " + fname_fig
+            if xaxis=='dt':
+                _hx_ = hmg.hbin
+            elif xaxis=='dr':
+                Be, Bo = 5e-5, f['psim/Bo'].value
+                dRbin = (hmg.hbin*(Be/Bo)/wc)*vp/(lmin*AUincm)
+                _hx_ = dRbin
+            #ax2.plot(dRbin, hmg.h, label=label, **opt)
+            #ax.plot(hmg.hbin, hmg.h, label=label, **opt)
+            ax.plot(_hx_, hmg.h, label=label, **opt)
+            xmin,xmax = min(xmin,_hx_[0]), max(xmax,_hx_[-1])
             f.close()
 
+        ax.legend(loc='best', fontsize=7)
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+        if xaxis=='dt':
+            ax.set_xlabel('$\Omega dt$')
+        elif xaxis=='dr':
+            ax.set_xlabel('$\Delta r/\lambda_{min}$')
+        ax.set_ylabel('#')
+        ax.set_xlim(xmin,xmax)
+        if ylim is not None:
+            ax.set_ylim(ylim)
         ax.grid(True)
-        if OneFigFile:
-            fig.savefig(fname_fig, dpi=200, bbox_inches='tight')
-            close(fig)
-        else:
-            return fig, ax, ax2
+        return fig, ax
 
 
     def plot_kdiff(self, kk, OneFigFile=False, **kargs):
@@ -636,6 +634,38 @@ class GralPlot(object):
         ax.set_ylabel('#')
         ax.set_xlabel('$log_{10}(\Omega \\tau_{coll}/(2\pi))$')
         return fig, ax
+
+
+def Dbg_errdy(fname_inp, fname_fig=None):
+    f = h5(fname_inp,'r')
+    #--- get min/max
+    hmin, hmax = [], []
+    for pnm in f.keys():
+        if not pnm.startswith('pla'):
+            continue
+        hx = f[pnm+'/HistStep/bins_StepPart'].value
+        hmin += [ hx[0] ]
+        hmax += [ hx[-1] ]
+    plas = np.arange(len(hmin))
+    hmin = np.array(hmin)
+    hmax = np.array(hmax)
+    #--- figure
+    fig = figure(1, figsize=(6,4))
+    ax  = fig.add_subplot(111)
+    opt = {'ms':3, 'mec':'none', 'marker':'s', 'ls':''}
+    ax.plot(plas, hmin, label='min', **opt)
+    ax.plot(plas, hmax, label='max', **opt)
+    ax.grid(True)
+    ax.set_xlabel('pla id')
+    ax.set_ylabel('err(gamma)')
+    ax.set_yscale('log')
+    if fname_fig is not None:
+        fig.savefig(fname_fig, dpi=135, bbox_inches='tight')
+        print " --> we generated: "+fname_fig 
+        close(fig)
+    else:
+        return fig, ax
+
 
 
 class HTauColl(object):
@@ -842,10 +872,10 @@ class Hmgr:
         for pnm in PNAMES:
             if not pnm.startswith('pla'):
                 continue
-            #print '--->', pnm
             hx = self.f[pnm+'/HistStep/bins_StepPart'].value
             self.bmin = min(self.bmin, hx[0])
             self.bmax = max(self.bmax, hx[-1])
+        print '---> min/max:',self.bmin, self.bmax
         return self.bmin, self.bmax
 
     def pile_to_hist(self, hx, hin):
