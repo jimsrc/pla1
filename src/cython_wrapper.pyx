@@ -37,58 +37,10 @@ cdef class mgr:
         if self.outbs is NULL:
             raise MemoryError()
 
-
-    def runsim(self, **kargs):
-        """
-        **kargs:
-            rigidity:
-            tmax
-            h1 
-            hmin
-            mu
-            ph
-        """
-        cdef Doub atol, rtol
-        # estos parametros deben ir inmediatamente a la 
-        # documentacion
-        rigidity    = kargs['rigidity']
-        tmax        = kargs['tmax']
-        h1          = kargs['FracGyroperiod']
-        hmin        = kargs['hmin']
-        mu          = kargs['mu']
-        ph          = kargs['ph']
-        rtol        = kargs['rtol']
-        atol        = kargs['atol']
-        #--- cond inic.
-        cdef VecDoub *yini
-        # posiciones a cero
-        yini = new VecDoub(6, 0.0)
-        # veloc inicial
-        yini[0][1] = sqrt(1.-mu*mu)*cos(ph) # [1] vx
-        yini[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
-        yini[0][5] = mu                     # [1] vz
-        #atol = rtol = 1e-5
-
-        cdef rhs *d
-        d = new rhs()
-
-        #cdef Odeint[StepperBS[rhs]] *bsode
-        cdef Doub x1, x2
-        x1, x2 = 0.0, tmax #1e4
-        self.bsode = new Odeint[StepperBS[rhs]](
-                yini[0],x1,x2,atol,rtol,h1,hmin, 
-                self.outbs[0],d[0],self.par[0], 0
-                )
-        scl.build(rigidity) #(1e7)
-
-        #--- integramos una pla
-        self.outbs.tic()
-        self.bsode.integrate()
-        self.outbs.toc()
-
-        print " ==> nrows ", self.outbs.ysave.nrows()
-        print " ==> ncols ", self.outbs.ysave.ncols()
-    
+        #self.par = <PARAMS*> PyMem_Malloc(sizeof(PARAMS))
+        self.par = new PARAMS()
+        if self.par is NULL:
+            raise MemoryError()
 
     def SetSim(self, **kargs):
         """
@@ -132,7 +84,6 @@ cdef class mgr:
         )
         scl.build(rigidity) #(1e7)
 
-
     def RunSim(self):
         #nelf.outbs.build_HistSeq(self.bsode.s)
         #--- integramos una pla
@@ -142,80 +93,6 @@ cdef class mgr:
         #print " ==> nrows ", self.outbs.ysave.nrows()
         #print " ==> ncols ", self.outbs.ysave.ncols()
 
-
-    def set_sim(self, **kargs):
-        """
-        **kargs:
-            rigidity:
-            tmax
-            h1 
-            hmin
-            mu
-            ph
-        """
-        cdef Doub atol, rtol
-        # estos parametros deben ir inmediatamente a la 
-        # documentacion
-        rigidity    = kargs['rigidity']
-        tmax        = kargs['tmax']
-        h1          = kargs['FracGyroperiod']
-        hmin        = kargs['hmin']
-        mu          = kargs['mu']
-        ph          = kargs['ph']
-        rtol        = kargs['rtol']
-        atol        = kargs['atol']
-        #--- cond inic.
-        cdef VecDoub *yini
-        # posiciones a cero
-        yini = new VecDoub(6, 0.0)
-        # veloc inicial
-        yini[0][1] = sqrt(1.-mu*mu)*cos(ph) # [1] vx
-        yini[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
-        yini[0][5] = mu                     # [1] vz
-        #atol = rtol = 1e-5
-
-        cdef rhs *d
-        d = new rhs()
-
-        #cdef Odeint[StepperBS[rhs]] *bsode
-        cdef Doub x1, x2
-        x1, x2 = 0.0, tmax #1e4
-        self.tmax = x2
-
-        self.bsode = new Odeint[StepperBS[rhs]](
-                yini[0],x1,x2,atol,rtol,h1,hmin, 
-                self.outbs[0],d[0],self.par[0], 0
-                )
-        scl.build(rigidity) #(1e7)
-        """
-        #--- integramos una pla
-        self.outbs.tic()
-        self.bsode.integrate()
-        self.outbs.toc()"""
-
-
-    def runsim_partial(self, x2=None):
-        print " joe lets do this..."
-        #wrong = (x2 is None) or (x2>self.tmax)
-        wrong = (x2 > self.tmax)
-        print " ok Boris? "
-        if wrong: # chekear q x2 sea tipo 'Doub'
-            print " x2 must have a value!"
-            raise SystemExit
-
-        print " ok Doris! "
-        self.bsode.x2 = <Doub>x2  # <double> solo modificamos el 'x2' del 'Odeint()'
-        print " ok Doris!?? "
-        #--- integramos una pla
-        self.outbs.tic()
-        # chekear q el ystart sea el ultimo de la ultima "corrida"
-        print "integrate()..."
-        print " bsode.x2: ", self.bsode.x2
-        self.bsode.integrate()
-        print "end."
-        self.outbs.toc()
-
-
     def set_Bmodel(self, pdict, nB=0):
         """ inputs:
         - pdict   : diccionario de parametros de turbulencia
@@ -223,15 +100,12 @@ cdef class mgr:
         """
         for nm in pdict.keys():
             self.pdict[nm] = pdict[nm]
-        #self.pdict = pdict # no esta permitido cambiar el puntero!
         self.build_pturb() # objeto PARAMS_TURB
         self.build_par(nB=nB) # objeto PARAMS
         self.outbs.set_Bmodel(self.par)
 
-
     def build(self, str_timescale, nsave, tmaxHistTau, nHist, nThColl, i, j, dir_out):
         self.outbs.build(str_timescale, nsave, tmaxHistTau, nHist, nThColl, i, j, dir_out)
-
 
     def build_par(s, nB=0):
         """ objeto PARAMS (todo):
@@ -240,25 +114,19 @@ cdef class mgr:
         - build dB specta
         - fix B realization
         """
-        #s.par = <PARAMS*> PyMem_Malloc(sizeof(PARAMS))
-        s.par = new PARAMS()
-        if s.par is NULL:
-            raise MemoryError()
-
         ndim = 3
         #s.par.B       = PyMem_New(double, 3)
         # use 'PyMem_Malloc' instead of 'malloc'
         # src: https://docs.python.org/2/c-api/memory.html
-        s.par.B       = <double*> calloc(ndim, sizeof(double))
-        s.par.dB      = <double*> calloc(ndim, sizeof(double))
-        s.par.dB_SLAB = <double*> calloc(ndim, sizeof(double))
-        s.par.dB_2D   = <double*> calloc(ndim, sizeof(double))
+        s.par.B       = <Doub*> calloc(ndim, sizeof(Doub))
+        s.par.dB      = <Doub*> calloc(ndim, sizeof(Doub))
+        s.par.dB_SLAB = <Doub*> calloc(ndim, sizeof(Doub))
+        s.par.dB_2D   = <Doub*> calloc(ndim, sizeof(Doub))
 
         #NOTE: al 's.pt' lo construi en 'self.build_pturb()'
         s.par.p_turb  = s.pt[0] #le paso todos los parametros! (MAGIA!!??!?)
         s.par.p_turb.build_spectra()
         s.par.fix_B_realization(nB=nB)
-
 
     def build_pturb(s):
         """ build PARAMS_TURB object 'self.pt' from
@@ -288,23 +156,10 @@ cdef class mgr:
         s.pt.sem.two[0]  = pd['sem_two0']
         s.pt.sem.two[1]  = pd['sem_two1']
 
-
-    """ for some reason, this compiles, but doesn't 
-        run properly :(
-    def set_all(self, pdict, nB, pother):
-        if None in (pdict, nB, pother):
-            print ' ---> argumento None en set_all(..)!!'
-            raise SystemExit
-
-        self.set_Bmodel(pdict=pdict, nB=nB)
-        self.build(**pother)
-    """
-
-
     def __dealloc__(self):
-        #NOTE: cython will ignore
-        #      a 'del self.pdict' because
-        #      will consider it a read-only
+        """NOTE: cython will ignore
+              a 'del self.pdict' because
+              will consider it a read-only"""
         if self.outbs is not NULL:
             del self.outbs
         if self.pt is not NULL:
@@ -315,13 +170,11 @@ cdef class mgr:
             free(self.par.dB_SLAB)
             free(self.par.dB_2D)
             del self.par
-            #PyMem_Free(self.par)
-
+            """PyMem_Free(self.par)"""
 
     def save2file(self):
         self.outbs.save2file()
     
-
     def Bxyz(self, xyz):
         cdef double pos[3]
         pos[0] = xyz[0]
@@ -334,12 +187,10 @@ cdef class mgr:
         B[2] = self.par.B[2]
         return B
 
-
     def sems(self):
         cdef long s0   = self.pt.sem.slab[0]
         cdef long two0 = self.pt.sem.two[0]
         return s0, two0
-
 
     property tsave:
         def __get__(self):
@@ -354,7 +205,6 @@ cdef class mgr:
             ndarray.base = <PyObject*> arrw
             Py_INCREF(arrw)
             return ndarray
-
 
     property ysave:
         def __get__(self):

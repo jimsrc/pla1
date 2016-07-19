@@ -71,11 +71,9 @@ void FASES::construir_fases_random(PARAMS_SEM sem){
     }
 
     for(int i=0; i<Nm_2d; i++){
-        //cout << " ----> semtwo1: "<< sem.two[1] << endl;
         // fases para 2D
         phi_2d[i]   = 2.*M_PI* rann0(sem.two[0]);
         b_2d[i]     = 2.*M_PI* rann0(sem.two[1]);
-        //printf(" b2d(%d): %f\n", i, b_2d[i]);
     }
 }
 
@@ -232,7 +230,7 @@ void PARAMS_TURB::build_Bk_SLAB(){
     }
     for(i=0; i<Nm_slab; i++){
         FACTOR = dk_s[i] / (1. + pow(k_s[i]*Lc_slab, gS)) / DENOMINADOR;
-        Bk_SLAB[i] = sigma_S * pow(FACTOR, 0.5);            // [G]
+        Bk_SLAB[i] = sigma_S*sqrt(FACTOR);            // [G]
     }
 }
 
@@ -247,7 +245,7 @@ void PARAMS_TURB::build_Bk_2D(){
     for(i=0; i<Nm_2d; i++){
         dV = 2.*M_PI*k_2d[i]*dk_2d[i];
         FACTOR = dV / (1. + pow(k_2d[i]*Lc_2d, g2D)) / DENOMINADOR;
-        Bk_2D[i] = sigma_2D * pow(FACTOR, 0.5);             // [G]
+        Bk_2D[i] = sigma_2D*sqrt(FACTOR);             // [G]
     }
 }
 

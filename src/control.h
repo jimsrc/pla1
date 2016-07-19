@@ -13,7 +13,7 @@
 #define AU_in_cm        (1.5e13)                // [cm]
 #define nT_in_G         (1.0*1e-5)              // [1G=1e5nT]
 
-//------ some member better be public, when cython is ON
+//--- some members better be public, when cython is ON
 #ifdef CYTHON
     #define PRIVATE_OR_PUBLIC public
 #else

@@ -144,7 +144,6 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
 	ncolTau	= 5;  // 4 columnas: 1 para el tau de scattering, 2 para las posic parall/perp, y 1 para el angulo entre el plano x-y y z.
 	Tau 	= MatDoub(nfilTau, ncolTau, 0.0); // (*) para grabbar tiempos de scattering, y la posic x
 	// (*): inicializo en ceros
-
 	//-------- histograma del 'Tau'
 	nHistTau 	= nHist;				// nro de bines
 	dTau 		= tmaxHistTau / nHistTau;		// ancho del bin
@@ -164,16 +163,12 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
     HistStep    = MatDoub(NStep, 4);
     dstep       = MaxStep/(1.0*NStep);
     dstep_part  = dstep/8.;
-    //MinStep     = 1e3;
     for(int i=0; i<NStep; i++){
         HistStep[i][0] = (i+.5)*dstep;
         HistStep[i][1] = 0.0;               // counts
         HistStep[i][2] = (i+.5)*(dstep_part);
         HistStep[i][3] = 0.0;               // counts
     }
-    //printf(" NStep: %d\n", NStep);
-    //printf(" MaxStep: %g\n", MaxStep);
-    //printf(" HistStep: %g\n", HistStep[0][1]);
     //NOTE: 'step_save' es inicializado en Odeint::Odeint(..)
     #endif //MONIT_STEP
 }
@@ -183,7 +178,7 @@ template <class Stepper>
 Output<Stepper>::Output() : kmax(-1),dense(false),count(0) {}
 
 /*
-// TODO: arreglar esta implementacion si la vas a usar
+// TODO: arreglar esta implementacion si la vas a usar.
 template <class Stepper>
 Output<Stepper>::Output(string str_tscalee, const Int nsavee, char* fname){
 	build(str_tscalee, nsavee, fname);
@@ -274,10 +269,12 @@ void Output<Stepper>::init(const Int neqn, const Doub xlo, const Doub xhi) {
 }
 
 template <class Stepper>
-void Output<Stepper>::resize(){	// redimensiona el vector 'xsave' hacia el doble de su longitud, y 
-				// redimensiona el array 'ysave' hacia las dimensiones (nvar,kmax).
-				// Como no preserva los valores, los guarda temporalmente antes de 
-				// redimensionar.Despues de redimensionar,recupera la data temporal.
+void Output<Stepper>::resize(){	
+    /* redimensiona el vector 'xsave' hacia el doble de su longitud, y 
+    *  redimensiona el array 'ysave' hacia las dimensiones (nvar,kmax).
+    *  Como no preserva los valores, los guarda temporalmente antes de 
+    *  redimensionar.Despues de redimensionar,recupera la data temporal.
+    */
 	Int kold=kmax;
 	kmax *= 2;
 	VecDoub tempvec(xsave);	// backup de 'xsave'
@@ -292,9 +289,11 @@ void Output<Stepper>::resize(){	// redimensiona el vector 'xsave' hacia el doble
 }
 
 template <class Stepper>
-void Output<Stepper>::resizeTau(){	// redimensiona el vector 'xsave' hacia el doble de su longitud.
-				// Como no preserva los valores, los guarda temporalmente antes de 
-				// redimensionar.Despues de redimensionar,recupera la data temporal.
+void Output<Stepper>::resizeTau(){	
+    /* redimensiona el vector 'xsave' hacia el doble de su longitud.
+	*  Como no preserva los valores, los guarda temporalmente antes de 
+	*  redimensionar.Despues de redimensionar,recupera la data temporal.
+    */
 	Int nold=nfilTau;
 	nfilTau *= 2;
 	MatDoub tempmat(Tau);	// backup de 'Tau'
@@ -380,7 +379,6 @@ void Output<Stepper>::save(const Doub x, VecDoub_I &y) {
 
 template <class Stepper>
 void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,const Doub h) {
-	//if(count>=200) {printf(" COUNT=%d AQUI!\n", count); getchar();}
 	if (!dense)
 		throw("dense output not set in Output!");
 	if (nstp == -1) {
