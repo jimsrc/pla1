@@ -24,6 +24,7 @@ from PyPDF2 import PdfFileMerger, PdfFileReader
 #--- global constants
 M_PI = np.pi
 M_E  = np.e
+AUincm = 1.5e13                   # [cm]
 
 
 def DecodeHex_and_GetIDs(fname_key=None):
@@ -149,9 +150,9 @@ class GenAnalysis(object):
         close(fig)
 
         #--- 4th page
-        Ks     = ('kxx', 'kyy', 'kzz')
-        for kk in Ks: #--- plot kxx, kyy, kzz
-            fig, ax = gp.plot_kdiff(kk, OneFigFile=False)
+        Ks     = ('xx','yy','zz')
+        for nm in Ks: #--- plot kxx, kyy, kzz
+            fig,ax = gp.plot_kdiff(xaxis='mfp', nm=nm, OneFigFile=False)
             pdf_pages.savefig(fig, bbox_inches='tight')
             close(fig)
 
@@ -509,7 +510,10 @@ class GralPlot(object):
         return fig, ax
 
 
-    def plot_kdiff(self, kk, OneFigFile=False, **kargs):
+    def plot_kdiff(self, xaxis='kdiff', nm=None, OneFigFile=False, **kargs):
+        assert xaxis in ('kdiff','mfp'),\
+            ' ---> ERROR: wrong xaxis:%s @plot_kdiff()'%xaxis
+        kk     = 'k'+nm # kxx,kyy,or kzz
         ps     = self.ps
         o      = {}
         sym    = self.sym
@@ -529,7 +533,9 @@ class GralPlot(object):
             fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
             o[kk] = get_sqrs(fname_inp) # w/ corrected physical dimensions
             with h5(fname_inp, 'r') as f:
-                Bo = f['psim/Bo'].value # "true" mean field of simulation
+                Bo   = f['psim/Bo'].value # "true" mean field of simulation
+                vp   = f['pla000/scl_vel'].value      # [cm/s]
+                Lc_s = f['psim/Lc_slab'].value*AUincm # [cm]
             tadim = o[kk]['tadim']      # [1]      (correct dimensions)
             kprof = o[kk][kk]           # [cm2/s]  (")
             isym  = np.mod(i,len(sym))
@@ -542,12 +548,19 @@ class GralPlot(object):
             'alpha'     : 0.6,
             'mec'       : 'none',
             }
-            ax.plot(tadim, kprof, '-o', **opt)
+            if xaxis=='kdiff':
+                ax.plot(tadim, kprof, '-o', **opt)
+            else:
+                mfp = (kprof/vp)/Lc_s # [1] normalized w/ Lc_slab
+                ax.plot(tadim,mfp, '-o', **opt)
 
         ax.set_yscale(yscale)
         ax.set_xscale(xscale)
         ax.set_xlabel('$\Omega t/2\pi$ [1]')
-        ax.set_ylabel('%s [cm2/s]' % kk)
+        if xaxis=='kdiff':
+            ax.set_ylabel('%s [cm2/s]' % kk)
+        else:
+            ax.set_ylabel('$\lambda_{%s}/L_c^{slab}$ [1]'%nm)
         if xlim is not None:
             ax.set_xlim(xlim)
         if ylim is not None:
@@ -875,7 +888,6 @@ class Hmgr:
             hx = self.f[pnm+'/HistStep/bins_StepPart'].value
             self.bmin = min(self.bmin, hx[0])
             self.bmax = max(self.bmax, hx[-1])
-        print '---> min/max:',self.bmin, self.bmax
         return self.bmin, self.bmax
 
     def pile_to_hist(self, hx, hin):
@@ -939,7 +951,6 @@ def get_sqrs(fname_inp):
     with h5(fname_inp,'r') as f:
         Bo = f['psim/Bo'].value # "true" mean field of simulation
     tdim   = tadim*(Be/Bo)/wc         # [s]  (correct dimensions)
-    AUincm = 1.5e13                   # [cm]
     # promediamos sobre particulas
     x2 = (x*x).mean(axis=0)           # [cm^2]  (correct dimensions)
     y2 = (y*y).mean(axis=0)           # [cm^2]  (")
