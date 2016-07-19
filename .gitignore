@@ -5,6 +5,9 @@
 *a.out
 *.swp
 
+# hidden vim-session files
+.*.vim
+
 *.png
 *.dat
 *.h5*
