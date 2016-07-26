@@ -6,7 +6,7 @@
 #include "general.h"
 //using namespace std;
 
-
+/*
 void ESCALAS::build(const double RIGIDITY){
 	// valores por defecto
 	mo	= (1.6726*1e-24);	// [gr] masa PROTON
@@ -24,5 +24,5 @@ void ESCALAS::build(const double RIGIDITY){
 }
 
 ESCALAS scl;    // global instance
-
+*/
 #endif //GENERAL_CC

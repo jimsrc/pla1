@@ -74,7 +74,6 @@ cdef class mgr:
             yini[0],x1,x2,atol,rtol,h1,hmin, 
             self.outbs[0],self.d[0],self.par[0], 0
         )
-        #scl.build(rigidity) #(1e7)
 
     def RunSim(self):
         """ integramos una pla """
@@ -166,14 +165,10 @@ cdef class mgr:
     
     def Bxyz(self, xyz):
         cdef double pos[3]
-        pos[0] = xyz[0]
-        pos[1] = xyz[1]
-        pos[2] = xyz[2]
+        pos[0]=xyz[0]; pos[1]=xyz[1]; pos[2]=xyz[2]
         self.par.calc_B(&(pos[0]))
         B = np.zeros(3)
-        B[0] = self.par.B[0]
-        B[1] = self.par.B[1]
-        B[2] = self.par.B[2]
+        B[0]=self.par.B[0]; B[1]=self.par.B[1]; B[2]=self.par.B[2]
         return B
 
     def sems(self):
@@ -269,18 +264,6 @@ cdef class mgr:
             ndarray.base = <PyObject*> arrw
             Py_INCREF(arrw)
             return ndarray
-
-    property scl:
-        def __get__(self):
-            v = {
-                'wc'    : scl.wc,
-                'vel'   : scl.vel,
-                'rl'    : scl.rl,
-                'Bo'    : scl.Bo,
-                'beta'  : scl.beta,
-                'gamma' : scl.gamma,
-            }
-            return v
 
     property step_save:
         def __get__(self):

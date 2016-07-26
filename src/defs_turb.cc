@@ -8,12 +8,6 @@
 #include "funcs.h"
 
 
-// declaration of definition in general.cc
-//extern ESCALAS scl;
-
-
-//=========================================================================
-
 /*---------------------DEFs para "rann0" ---------------*/
 #define IA 16807
 #define IM 2147483647

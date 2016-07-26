@@ -37,21 +37,6 @@ ctypedef const NRvector[Doub] VecDoub_I
 ctypedef NRmatrix[Doub] MatDoub
 
 
-cdef extern from "general.h":
-    cdef cppclass ESCALAS:
-        ESCALAS()
-        void build(const Doub RIGIDITY)
-        Doub Bo;        # [] campo B *constante*
-        Doub rl;        # [cm] radio larmor
-        Doub wc;        # [s^-1] freq ciclotron
-        Doub vel;       # [cm/s] velocidad
-        Doub beta;
-        Doub gamma;
-
-    ESCALAS scl # DEFINI UN GLOBAL!!!!!!!!!! :D :D :D
-#extern ESCALAS scl
-
-
 #--- clases PARAMS_... y MODEL_TURB
 cdef extern from "defs_turb.h":
     cpdef cppclass PARAMS_SEM:
@@ -100,8 +85,6 @@ cdef extern from "funcs.h":
         void calc_B(const double *)
         void fix_B_realization(const int nB) # fija la realizacion en funcion del argumento
 
-    double calc_gamma(double v);
-
     cdef cppclass GuidingCenter:
         GuidingCenter(Int len);
         void calc_gc(Doub* dydx, Doub* y, Doub x);
@@ -141,8 +124,6 @@ cdef extern from "funcs.h":
         #Int NStep
         #void build_HistSeq(const T s);
         MatDoub step_save
-        #--------------
-
 
     cdef cppclass rhs: # (*1)
         void operator() (PARAMS par, const Doub x, VecDoub_I &y, VecDoub_O &dydx);
