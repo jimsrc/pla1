@@ -42,13 +42,11 @@ void FASES::build(Int nm_slab, Int nm_2d, PARAMS_SEM *sem){ // constructor
     cout << " ...construyendo FASES." << endl;
     Nm_slab = nm_slab;
     Nm_2d   = nm_2d;
-    //n_modos = n;
     phi_s   = new double[Nm_slab];
     a_s     = new double[Nm_slab];
     b_s     = new double[Nm_slab];
     phi_2d  = new double[Nm_2d];
     b_2d    = new double[Nm_2d];
-
     construir_fases_random(*sem); // le mando *sem para q no me cambie los valores originales
 }
 
@@ -62,21 +60,18 @@ void FASES::construir_fases_random(PARAMS_SEM sem){
     for(int i=0;i<3;i++) rann0(sem.slab[i]);
     for(int i=0;i<2;i++) rann0(sem.two[i]);
     //------------------------------
-    
+    // fases para SLAB
     for(int i=0; i<Nm_slab; i++){
-        // fases para SLAB
         phi_s[i]    = 2.*M_PI* rann0(sem.slab[0]);
         a_s[i]      = 2.*M_PI* rann0(sem.slab[1]);
         b_s[i]      = 2.*M_PI* rann0(sem.slab[2]);
     }
-
+    // fases para 2D
     for(int i=0; i<Nm_2d; i++){
-        // fases para 2D
         phi_2d[i]   = 2.*M_PI* rann0(sem.two[0]);
         b_2d[i]     = 2.*M_PI* rann0(sem.two[1]);
     }
 }
-
 
 
 
@@ -97,22 +92,22 @@ PARAMS_TURB::PARAMS_TURB(string fname_input){
 
 
 void PARAMS_TURB::report(void){
-    cerr << " REPORTE DE OBJETO PARAMS_TURB:-----------------------------" << endl;
+    cerr << " REPORTE DE OBJETO PARAMS_TURB:-----------------------" << endl;
     cerr << " Nm_slab:      " << Nm_slab        << endl;
     cerr << " Nm_2d:      " << Nm_2d          << endl;
-    cerr << " lmin_s [AU]:  " << lmin_s / AU_in_cm  << endl;
-    cerr << " lmax_s [AU]:  " << lmax_s / AU_in_cm  << endl;
-    cerr << " lmin_2d [AU]:  " << lmin_2d / AU_in_cm  << endl;
-    cerr << " lmax_2d [AU]:  " << lmax_2d / AU_in_cm  << endl;
-    cerr << " Lc_slab [AU]:     " << Lc_slab / AU_in_cm         << endl;
-    cerr << " Lc_2d   [AU]:     " << Lc_2d / AU_in_cm       << endl;
-    cerr << " Bo [nT]:      " << Bo / nT_in_G       << endl;
-    cerr << " sigma_Bo_ratio [1]:   " << sigma_Bo_ratio         << endl;
-    cerr << " percent_slab [%]: " << 100.*percent_slab      << endl;
-    cerr << " percent_2d [%]:   " << 100.*percent_2d        << endl;
+    cerr << " lmin_s:    " << lmin_s  << endl;
+    cerr << " lmax_s:    " << lmax_s << endl;
+    cerr << " lmin_2d:   " << lmin_2d << endl;
+    cerr << " lmax_2d:   " << lmax_2d << endl;
+    cerr << " Lc_slab:   " << Lc_slab << endl;
+    cerr << " Lc_2d:     " << Lc_2d << endl;
+    //cerr << " Bo [nT]:      " << Bo  << endl;
+    cerr << " sigma_Bo_ratio [1]: " << sigma_Bo_ratio << endl;
+    cerr << " percent_slab [%]: " << 100.*percent_slab  << endl;
+    cerr << " percent_2d [%]:   " << 100.*percent_2d    << endl;
     cerr << " gS [1]: " << gS << endl;
     cerr << " g2D [1]: " << g2D << endl;
-    cerr << " -----------------------------------------------------------" << endl;
+    cerr << " -----------------------------------------------------" << endl;
 }
 
 
@@ -127,7 +122,6 @@ void PARAMS_TURB::build(string fname_input){
  * Nm_slab          [1]
  * Nm_2d            [1]
  * sigma_Bo_ratio   [1]
- * Bo               [G]
  * percent_slab     [1] fraction
  * percent_2d       [1] fraction
  * lmin_s,  lmax_s  [cm] escalas de turb slab
@@ -146,7 +140,7 @@ void PARAMS_TURB::build_spectra(){
     Bk_2D   = new Doub[Nm_2d];
 
     fases.build(Nm_slab, Nm_2d, &sem);
-    build_sigmas();
+    //build_sigmas();
     build_k_and_dk();
     build_Bk_SLAB();
     build_Bk_2D();
@@ -171,7 +165,7 @@ void PARAMS_TURB::read_params(string fname_input){
     filein >> lmax_2d >> dummy; // [AU] escala max 2D
     filein >> Lc_slab     >> dummy; // [AU] longitud de correlacion Lc, SLAB 
     filein >> Lc_2d       >> dummy; // [AU] longitud de correlacion Lc, 2D
-    filein >> Bo          >> dummy; // [G] campo medio Bo
+    //filein >> Bo          >> dummy; // [G] campo medio Bo
     filein >> sigma_Bo_ratio >> dummy; // [1] sigma^2 = (sigma_Bo_ratio) * Bo^2 
     filein >> percent_slab   >> dummy; // [fraccion] sigma_SLAB^2 = percent_slab * sigma^2
     filein >> percent_2d     >> dummy; // [fraccion] sigma_2D^2 = percent_2D * sigma^2a
@@ -189,46 +183,35 @@ void PARAMS_TURB::read_params(string fname_input){
     lmin_s      *= AU_in_cm;        // [cm]
     lmax_2d     *= AU_in_cm;        // [cm]
     lmin_2d     *= AU_in_cm;        // [cm]
-
-}
-
-
-void PARAMS_TURB::build_sigmas(){
-    Doub sigma;
-    sigma    = sqrt(sigma_Bo_ratio) * Bo;  // [G]
-    sigma_S  = sqrt(percent_slab) * sigma; // [G]
-    sigma_2D = sqrt(percent_2d) * sigma;   // [G]
 }
 
 
 void PARAMS_TURB::build_k_and_dk(){
     Doub kmin, kmax;
-
     //--- wavevectors slab
-    kmin = (2. * M_PI) / lmax_s;     // [cm^-1]
-    kmax = (2. * M_PI) / lmin_s;     // [cm^-1]
+    kmin = (2.*M_PI)/lmax_s;     // [cm^-1]
+    kmax = (2.*M_PI)/lmin_s;     // [cm^-1]
     for(int i=0; i<Nm_slab; i++){
         k_s[i]  = kmin * pow(kmax/kmin, 1.*i/(Nm_slab-1.));       // [cm^-1]
         dk_s[i] = k_s[i] * (pow(kmax/kmin, 1./(Nm_slab-1)) - 1.); // [cm^-1]
     }
-
     //--- wavevectors 2d
-    kmin = (2. * M_PI) / lmax_2d;     // [cm^-1]
-    kmax = (2. * M_PI) / lmin_2d;     // [cm^-1]
+    kmin = (2.*M_PI)/lmax_2d;     // [cm^-1]
+    kmax = (2.*M_PI)/lmin_2d;     // [cm^-1]
     for(int i=0; i<Nm_2d; i++){
         k_2d[i]  = kmin * pow(kmax/kmin, 1.*i/(Nm_2d-1.));       // [cm^-1]
-        dk_2d[i] = k_2d[i] * (pow(kmax/kmin, 1./(Nm_2d-1)) - 1.);   // [cm^-1]
+        dk_2d[i] = k_2d[i] * (pow(kmax/kmin, 1./(Nm_2d-1)) - 1.); // [cm^-1]
     }
 }
 
 
 void PARAMS_TURB::build_Bk_SLAB(){
-    Int i;
     Doub DENOMINADOR=0.0, FACTOR;
-    for(i=0; i<Nm_slab; i++){
+    for(int i=0; i<Nm_slab; i++){
         DENOMINADOR += dk_s[i] / (1. + pow(k_s[i]*Lc_slab, gS));
     }
-    for(i=0; i<Nm_slab; i++){
+    sigma_S  = sqrt(percent_slab*sigma_Bo_ratio); // [1]
+    for(int i=0; i<Nm_slab; i++){
         FACTOR = dk_s[i] / (1. + pow(k_s[i]*Lc_slab, gS)) / DENOMINADOR;
         Bk_SLAB[i] = sigma_S*sqrt(FACTOR);            // [G]
     }
@@ -236,13 +219,13 @@ void PARAMS_TURB::build_Bk_SLAB(){
 
 
 void PARAMS_TURB::build_Bk_2D(){
-    Int i;
     Doub DENOMINADOR=0.0, FACTOR, dV;
-    for(i=0; i<Nm_2d; i++){
+    for(int i=0; i<Nm_2d; i++){
         dV = 2.*M_PI*k_2d[i]*dk_2d[i];
         DENOMINADOR += dV / (1. + pow(k_2d[i]*Lc_2d, g2D));
     }
-    for(i=0; i<Nm_2d; i++){
+    sigma_2D = sqrt(percent_2d*sigma_Bo_ratio);   // [1]
+    for(int i=0; i<Nm_2d; i++){
         dV = 2.*M_PI*k_2d[i]*dk_2d[i];
         FACTOR = dV / (1. + pow(k_2d[i]*Lc_2d, g2D)) / DENOMINADOR;
         Bk_2D[i] = sigma_2D*sqrt(FACTOR);             // [G]
@@ -292,7 +275,7 @@ void MODEL_TURB::build(string fname_input){ // construyo leyendo los params desd
 
 
 void MODEL_TURB::fix_B_realization(const int nBrz){
-    long seed = 100*nBrz;   // semilla queda en funcion del nro de realizacion
+    long seed = 100*nBrz;  // semilla queda en funcion del nro de realizacion
     rann0(seed);rann0(seed);//para "aleatorizar" a 'seed'
     rann0(seed); p_turb.sem.slab[0] = seed;
     rann0(seed); p_turb.sem.slab[1] = seed;
@@ -357,33 +340,32 @@ void MODEL_TURB::calc_dB_2D(const Doub *pos){
 }
 
 
-// TODO: estos if(..>0.0) se pueden evitar con una variable const, asi:
-//       --------------
-//       const void calc_dB_some;
-//       const bool a = check_pure_model(p_turb, calc_dB_some)
-//       if (a){  // if True, calc_dB_some will point to the pure model
-//          calc_dB_some(pos);
-//       }
-//       else{
-//          calc_dB_SLAB(pos);
-//          calc_dB_2D(pos);
-//       }
-//       --------------
-//       De esta forma, no tenemos q chequear en c/iteracion!!
-//       Tmb probar "const Doub const *pos".
-// NOTA: 'pos' es el vector posicion (x,y,z) en [cm]
-//
-// TODO: Sino sacar los if( ... > 0.0 ) xq nunca los uso!
 void MODEL_TURB::calc_dB(const Doub *pos){
+    /* TODO: estos if(..>0.0) se pueden evitar con una variable const, asi:
+    --------------
+    const void calc_dB_some;
+    const bool a = check_pure_model(p_turb, calc_dB_some)
+    if (a){  // if True, calc_dB_some will point to the pure model
+      calc_dB_some(pos);
+    }
+    else{
+      calc_dB_SLAB(pos);
+      calc_dB_2D(pos);
+    }
+    --------------
+    De esta forma, no tenemos q chequear en c/iteracion!!
+    Tmb probar "const Doub const *pos".
+    NOTA: 'pos' es el vector posicion (x,y,z) en [cm]
+    
+    TODO: Sino sacar los if( ... > 0.0 ) xq nunca los uso!
+    */
     if(p_turb.percent_slab > 0.0) // solo calculo si vale la pena
         calc_dB_SLAB(pos);
     if(p_turb.percent_2d > 0.0)   // solo calculo si vale la pena
         calc_dB_2D(pos);
 
-    for(int i=0; i<2; i++){       // solo las componentes "x, y" son turbulentas
-        dB[i]   = dB_SLAB[i] + dB_2D[i];    // [G]
-        //printf(" dB_2D[%d]:   %g\n", i, dB_2D[i]);
-        //printf(" dB_SLAB[%d]: %g\n", i, dB_SLAB[i]); getchar();
+    for(int i=0; i<2; i++){ // solo las componentes "x,y" son turbulentas
+        dB[i]   = dB_SLAB[i] + dB_2D[i]; // [1]
     }
 }
 
@@ -391,10 +373,10 @@ void MODEL_TURB::calc_dB(const Doub *pos){
 // TODO: probar "const Doub const *pos".
 void MODEL_TURB::calc_B(const Doub *pos){
     calc_dB(pos);
-    B[0] = dB[0];               // [G] Bx
-    B[1] = dB[1];               // [G] By
-    B[2] = dB[2] + p_turb.Bo;   // [G] Bz
+    B[0] = dB[0];                   // Bx
+    B[1] = dB[1];                   // By
+    B[2] = dB[2] + 1.0;//p_turb.Bo; // Bz
 }
 
 #endif // DEFS_TURB_CC
-/*------------------------------------------------------*/
+//EOF

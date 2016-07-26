@@ -16,7 +16,7 @@ using namespace std;
 
 // recibe una velocidad adimensionalizada
 // TODO: convertir esto en inline o macro!
-double calc_gamma(double v){
+/*double calc_gamma(double v){
 	double beta, gamma;
 	beta = v*scl.vel / clight;
     #ifdef BETA_CHECK
@@ -25,7 +25,7 @@ double calc_gamma(double v){
     #endif
 	gamma = pow(1. - beta*beta, -.5);
 	return gamma;
-}
+}*/
 
 
 /* lee parametros input en main() */
@@ -121,7 +121,6 @@ Doub **read_orientations(string fname, int &n){
 
 
 //----------------------- class Ouput
-//void Output<Stepper>::build(string str_tscalee, Int nsavee, Doub tmaxHistTau, Int nHist, char* fname_out){ 
 template <class Stepper>
 void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistTau, Int nHist, Int nThColl_, int i, int j, char *dir_out){
 	kmax	= 500;
@@ -303,7 +302,6 @@ void Output<Stepper>::resizeTau(){
 			Tau[i][j] = tempmat[i][j];
 }
 
-
 #ifdef MONIT_STEP
 template <class Stepper>
 void Output<Stepper>::build_HistSeq(const Stepper s){
@@ -314,12 +312,9 @@ void Output<Stepper>::build_HistSeq(const Stepper s){
     }
 }
 
-
 template <class Stepper>
 //void Output<Stepper>::monit_step(const Doub hdid){
 void Output<Stepper>::monit_step(const Stepper s){
-    /*if(hdid!=0.05)
-        MinStep = MIN(MinStep, hdid);*/
     int ns;
     if(s.hdid<=MaxStep){
         // h total
@@ -342,18 +337,14 @@ void Output<Stepper>::monit_step(const Stepper s){
 
 template <class Stepper>
 void Output<Stepper>::save_pitch(){
-	for(int i=0;i<3;i++)
-		pos[i] = (ysave[(2*i)][count]) *scl.rl;	// [cm]
-    //printf(" >>> save_pitch...\n");
-	pm->calc_B(pos);
+    Doub xyz[3] = {ysave[0][count],ysave[2][count],ysave[4][count]};
+	pm->calc_B(xyz);
 
-	bx=pm->B[0];		by=pm->B[1];		bz=pm->B[2];		// [G]
+	bx=pm->B[0];		by=pm->B[1];		bz=pm->B[2];		// [1]
 	vx=ysave[1][count];	vy=ysave[3][count];	vz=ysave[5][count];	// [1]
-
-	bmod = pow(bx*bx + by*by + bz*bz, .5);
-	vmod = pow(vx*vx + vy*vy + vz*vz, .5);
-	mu[count] = vx*bx + vy*by + vz*bz;
-	mu[count] /= vmod*bmod;
+	bmod = NORM(bx,by,bz);//should always be >=1.
+	vmod = NORM(vx,vy,vz);//should always be 1.
+	mu[count] = (vx*bx + vy*by + vz*bz)/(vmod*bmod);
 }
 
 template <class Stepper>
@@ -471,31 +462,22 @@ void Output<Stepper>::build_ThetaColl(){
 
 template <class Stepper>
 void Output<Stepper>::save2file(){
-	double t, x, y, z, v;
-	double vx, vy, vz;
-    double err, gamma;
+	Doub t, x, y, z, v, vx, vy, vz, err;
 	//-------------------- guardo la trayectoria
-	//printf(" COUNT @ save2file: %d\n", count); getchar();
 	ofile_trj.open(fname_trj);
 	for(int i=0; i<count; i++){
-		t 	= xsave[i] / scl.wc;			// [seg]
-		x 	= ysave[0][i] * scl.rl/AU_in_cm; 	// [AU]
-		y 	= ysave[2][i] * scl.rl/AU_in_cm; 	// [AU]
-		z 	= ysave[4][i] * scl.rl/AU_in_cm; 	// [AU]
-		vx 	= ysave[1][i];  			// [1] 
-		vy 	= ysave[3][i];  			// [1]
-		vz 	= ysave[5][i];  			// [1]
-		v 	= pow(vx*vx + vy*vy + vz*vz, .5); 	// [1] TODO: CAMBIARLO A 'sqrt'
-		gamma	= calc_gamma(v);
-		err	= gamma/scl.gamma - 1.;			// error relativ del gamma relativista
-
+		t 	= xsave[i];	    // [1]
+		x  = ysave[0][i]; y  = ysave[2][i]; z  = ysave[4][i]; // [1]
+		vx = ysave[1][i]; vy = ysave[3][i]; vz = ysave[5][i]; // [1]
+		v 	= NORM(vx,vy,vz); // [1]
+        err = v-1.0; // velocity-relative-error (v_initial=1.0)
 		ofile_trj << setiosflags(ios :: showpoint | ios :: uppercase);
 		ofile_trj << setw(5) << setprecision(8) << t << " ";
 		ofile_trj << setw(5) << setprecision(8) << x << " ";    
 		ofile_trj << setw(5) << setprecision(8) << y << " ";   
 		ofile_trj << setw(5) << setprecision(8) << z << " ";
 		ofile_trj << setw(5) << setprecision(8) << mu[i] << " ";
-		ofile_trj << setw(5) << setprecision(8) << err << endl;
+		ofile_trj << setw(5) << setprecision(8) << err <<endl; 
 	}
 	// cerramos archivo de trayectoria
 	ofile_trj.close();
@@ -554,23 +536,23 @@ PARAMS::PARAMS(string fname_turb):
 }
 
 
-void PARAMS::calc_Bfield(VecDoub_I &y){
+/*void PARAMS::calc_Bfield(VecDoub_I &y){
     //printf(" >>> calc_Bfield...\n");
 	pos[0] = y[0] *scl.rl;		// [cm] x
 	pos[1] = y[2] *scl.rl;		// [cm] y
 	pos[2] = y[4] *scl.rl;		// [cm] z
 	calc_B(pos);
 }
-
+*/
 
 
 //-------------------------------------------
 void rhs::operator() (PARAMS par, const Doub x, VecDoub_I &y, VecDoub_O &dydx ){
     //double bx, by, bz; 
-    par.calc_Bfield(y);
-    bx = par.B[0] / scl.Bo;
-    by = par.B[1] / scl.Bo;
-    bz = par.B[2] / scl.Bo;
+    Doub xyz[3] = {y[0],y[2],y[4]};
+    //par.calc_Bfield(y);
+    par.calc_B(xyz);
+    bx = par.B[0];  by = par.B[1];  bz = par.B[2];
     // rewrite x^2y"(x)+xy'(x)+x^2y=0 as coupled FOODEa
     dydx[0] = y[1];
     dydx[1] = y[3] * bz - y[5] * by;// (vxB)_x

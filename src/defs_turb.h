@@ -55,7 +55,7 @@ class PARAMS_TURB{
 		Doub percent_slab;
 		Doub percent_2d;
 
-		Doub Bo;
+		//Doub Bo;
 		Doub sigma_S;
 		Doub sigma_2D;
 		Doub *dk_s, *dk_2d;

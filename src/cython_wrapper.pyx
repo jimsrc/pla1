@@ -44,18 +44,12 @@ cdef class mgr:
 
     def SetSim(self, **kargs):
         """
-        **kargs:
-            rigidity:
-            tmax
-            h1 
-            hmin
-            mu
-            ph
+        **kargs: tmax, h1, hmin, mu, ph.
         """
         cdef Doub atol, rtol
         # estos parametros deben ir inmediatamente a la 
         # documentacion
-        rigidity    = kargs['rigidity']
+        #rigidity    = kargs['rigidity']
         tmax        = kargs['tmax']
         h1          = kargs['FracGyroperiod']
         hmin        = kargs['hmin']
@@ -72,8 +66,6 @@ cdef class mgr:
         yini[0][3] = sqrt(1.-mu*mu)*sin(ph) # [1] vy
         yini[0][5] = mu                     # [1] vz
 
-        """cdef rhs *d
-        d = new rhs()"""
         self.d = new rhs()
 
         cdef Doub x1, x2
@@ -82,16 +74,13 @@ cdef class mgr:
             yini[0],x1,x2,atol,rtol,h1,hmin, 
             self.outbs[0],self.d[0],self.par[0], 0
         )
-        scl.build(rigidity) #(1e7)
+        #scl.build(rigidity) #(1e7)
 
     def RunSim(self):
-        #nelf.outbs.build_HistSeq(self.bsode.s)
-        #--- integramos una pla
+        """ integramos una pla """
         self.outbs.tic()
         self.bsode.integrate()
         self.outbs.toc()
-        #print " ==> nrows ", self.outbs.ysave.nrows()
-        #print " ==> ncols ", self.outbs.ysave.ncols()
 
     def set_Bmodel(self, pdict, nB=0):
         """ inputs:
@@ -100,18 +89,18 @@ cdef class mgr:
         """
         for nm in pdict.keys():
             self.pdict[nm] = pdict[nm]
-        self.build_pturb() # objeto PARAMS_TURB
-        self.build_par(nB=nB) # objeto PARAMS
+        self._build_pturb() # objeto PARAMS_TURB
+        self._build_par(nB=nB) # objeto PARAMS
         self.outbs.set_Bmodel(self.par)
 
     def build(self, str_timescale, nsave, tmaxHistTau, nHist, nThColl, i, j, dir_out):
         self.outbs.build(str_timescale, nsave, tmaxHistTau, nHist, nThColl, i, j, dir_out)
 
-    def build_par(s, nB=0):
+    def _build_par(s, nB=0):
         """ objeto PARAMS (todo):
         - aloco memoria para dB, B, etc..
         - defino modelo B con 'self.pt'
-        - build dB specta
+        - build dB spectra
         - fix B realization
         """
         ndim = 3
@@ -123,12 +112,12 @@ cdef class mgr:
         s.par.dB_SLAB = <Doub*> calloc(ndim, sizeof(Doub))
         s.par.dB_2D   = <Doub*> calloc(ndim, sizeof(Doub))
 
-        #NOTE: al 's.pt' lo construi en 'self.build_pturb()'
+        #NOTE: al 's.pt' lo construi en 'self._build_pturb()'
         s.par.p_turb  = s.pt[0] #le paso todos los parametros! (MAGIA!!??!?)
         s.par.p_turb.build_spectra()
         s.par.fix_B_realization(nB=nB)
 
-    def build_pturb(s):
+    def _build_pturb(s):
         """ build PARAMS_TURB object 'self.pt' from
         dictionary input 'self.pdict' """
         s.pt = new PARAMS_TURB()
@@ -144,11 +133,11 @@ cdef class mgr:
         s.pt.lmin_2d = pd['lmin_2d']
         s.pt.lmax_2d = pd['lmax_2d']
         s.pt.Lc_slab = pd['Lc_slab']
-        s.pt.Lc_2d   = pd['Lc_2d']
+        s.pt.Lc_2d   = pd['xi']*pd['Lc_slab']
         s.pt.sigma_Bo_ratio = pd['sigma_Bo_ratio']
-        s.pt.percent_slab = pd['percent_slab']
-        s.pt.percent_2d   = pd['percent_2d']
-        s.pt.Bo = pd['Bo']
+        s.pt.percent_slab = pd['ratio_slab']
+        s.pt.percent_2d   = 1.0-pd['ratio_slab'] #pd['percent_2d']
+        #s.pt.Bo      = pd['Bo']
         # semillas
         s.pt.sem.slab[0] = pd['sem_slab0']
         s.pt.sem.slab[1] = pd['sem_slab1']
@@ -261,8 +250,9 @@ cdef class mgr:
                 vy  = self.outbs.ysave[3][i]    # [1]
                 vz  = self.outbs.ysave[5][i]    # [1]
                 v   = sqrt(vx*vx + vy*vy + vz*vz)
-                gamma   = calc_gamma(v);
-                err[i]  = gamma/scl.gamma - 1.0
+                err[i] = v-1.0 # veloc-relative-error
+                #gamma   = calc_gamma(v);
+                #err[i]  = gamma/scl.gamma - 1.0
 
             return err
 
@@ -372,8 +362,8 @@ def nans(sh):
 
 
 
-def c_gamma(double v):
-    return calc_gamma(v)
+#def c_gamma(double v):
+#    return calc_gamma(v)
 
 
 #cdef void calc_Rlarmor(Doub Ek, Doub Bo, Doub *Rl):

@@ -1,1 +1,1 @@
-.session.master.vim
+.session.normalized.vim

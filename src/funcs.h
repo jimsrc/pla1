@@ -12,10 +12,10 @@ class PARAMS : public MODEL_TURB{
         PARAMS(){};// good to have for cython handling
         #endif //CYTHON
 		PARAMS(string);
-		void calc_Bfield(VecDoub_I &);
+		//void calc_Bfield(VecDoub_I &);
 		//PARAMS & operator=(const PARAMS &rhs);
-	private:
-		double pos[3];
+	/*private:
+		double pos[3];*/
 };
 
 
@@ -25,7 +25,6 @@ struct rhs{
     //functor for ode; copied from Numerical Recipes
     //      Doub eps;
     //      rhs(Doub epss) : eps(epss){}
-    //void operator() (PARAMS par, const VecDoub x, VecDoub_I &y, VecDoub_O &dydx ){ 
     Doub bx, by, bz;
     void operator() (PARAMS par, const Doub x, VecDoub_I &y, VecDoub_O &dydx);
 };
@@ -102,7 +101,7 @@ class Output {
         
 	private:
 		PARAMS *pm;
-		Doub pos[3], vmod, bmod;
+		Doub vmod, bmod;
 		void save_pitch(void);
 		Doub bx, by, bz, vx, vy, vz;
 		VecDoub XSaveGen;	// tiempos de la salida

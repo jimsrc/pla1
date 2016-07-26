@@ -2,9 +2,6 @@
 #define ODEINT_H
 #include "nr3.h"
 #include "funcs.h"
-//#include "stepperbs.h"
-//extern class PARAMS;
-
 
 //---
 template<class Stepper>
