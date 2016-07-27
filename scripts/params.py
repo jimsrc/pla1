@@ -22,11 +22,11 @@ pd = {
     'lmin_2d'       : ((5e-5)*AU_in_cm),
     'lmax_2d'       : 1.0*AU_in_cm,
     'Lc_slab'       : 0.01*AU_in_cm,
-    'Lc_2d'         : 0.01*AU_in_cm,
+    #'Lc_2d'         : 0.01*AU_in_cm,
     'sigma_Bo_ratio': 1.0,
-    'percent_slab'  : 0.2,
-    'percent_2d'    : 0.8,
-    'Bo'            : 5e-5,   # [Gauss]
+    #'percent_slab'  : 0.2,
+    #'percent_2d'    : 0.8,
+    #'Bo'            : 5e-5,   # [Gauss]
     # semillas
     'sem_slab0'     : 17,
     'sem_slab1'     : 101,
@@ -48,12 +48,12 @@ Ek/eV   Rigidity/V   Rl/AU          beta
 1e10    1.0898E+10   4.853544E-02   9.963142E-01
 """
 psim = {
-    'rigidity'      : 4.44583E+08,  # [V]
+    #'rigidity'      : 4.44583E+08,  # [V]
     'tmax'          : 4e4,
     'FracGyroperiod': 5e-2,
     'hmin'          : 0.0,
     'mu'            : mu[npla],
-    'ph'            : ph[npla],
+    #'ph'            : ph[npla],
     'rtol'          : 1e-5,
     'atol'          : 1e-5,
 }

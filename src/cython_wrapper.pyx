@@ -49,7 +49,6 @@ cdef class mgr:
         cdef Doub atol, rtol
         # estos parametros deben ir inmediatamente a la 
         # documentacion
-        #rigidity    = kargs['rigidity']
         tmax        = kargs['tmax']
         h1          = kargs['FracGyroperiod']
         hmin        = kargs['hmin']
@@ -80,6 +79,10 @@ cdef class mgr:
         self.outbs.tic()
         self.bsode.integrate()
         self.outbs.toc()
+        
+    def clean(self):
+        """ clean stuff we'll use again """
+        del self.outbs.gc
 
     def set_Bmodel(self, pdict, nB=0):
         """ inputs:

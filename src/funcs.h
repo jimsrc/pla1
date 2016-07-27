@@ -75,7 +75,7 @@ class Output {
 		MatDoub Tau; // tiempo de camino libre medio paralelo, y su posic x
 		VecDoub mu;
         //MatDoub r_gc;
-        GuidingCenter *gc;
+        GuidingCenter* gc;
         #endif //MONIT_SCATTERING
 		void set_Bmodel(PARAMS*);	// para apuntar al modelo q uso en main()
 		void tic(void), toc(void);	// cronometro para c/pla

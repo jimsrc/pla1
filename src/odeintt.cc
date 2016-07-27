@@ -17,12 +17,12 @@ Odeint<Stepper>::Odeint(VecDoub_IO &ystartt, const Doub xx1, const Doub xx2,
 	h=SIGN(h1,x2-x1);
 	for (Int i=0;i<nvar;i++) y[i]=ystart[i];
 	out.init(s.neqn, x1, x2);
+
     #ifdef MONIT_STEP
     out.step_save = MatDoub(2,MAXSTP,0.0);
     #endif //MONIT_STEP
+
     #ifdef MONIT_SCATTERING
-    //gc = new GuidingCenter(MAXSTP);
-    //out.r_gc = MatDoub(MAXSTP,3,0.0); //posicion del cto de giro (historia completa)
     out.gc = new GuidingCenter(MAXSTP);
     #endif
 }

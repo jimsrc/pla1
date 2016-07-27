@@ -1009,20 +1009,19 @@ def SaveToFile(m, dpath='', f=None, nbin=None):
     - nbin  : number of bins for step-size histos
     """
     vsave = {
-        'tadim'     : m.tsave,      # [omega^-1]
-        'ysave'     : m.ysave,      # [1]
-        'xyz'       : m.xyz,        # [1]
-        'err'       : m.err,        # [1] no porcentaje
-        'mu'        : m.mu,         # [1]
-        'vel'       : m.vel,        # [scl_vel] normalizadas
-        'scl_wc'    : m.scl['wc'],  # [s^-1]
-        'scl_vel'   : m.scl['vel'], # [cm/s]
-        'scl_beta'  : m.scl['beta'], # [1]
-        'scl_gamma' : m.scl['gamma'], # [1]
-        'scl_rl'    : m.scl['rl'],  # [cm]
+    'tadim'     : m.tsave,      # [omega^-1]
+    #'ysave'     : m.ysave,      # [1]
+    'xyz'       : m.xyz,        # [1]
+    'err'       : m.err,        # [1] no porcentaje
+    'mu'        : m.mu,         # [1]
+    'vel'       : m.vel,        # [scl_vel] normalizadas
+    #'scl_wc'    : m.scl['wc'],  # [s^-1]
+    #'scl_vel'   : m.scl['vel'], # [cm/s]
+    #'scl_beta'  : m.scl['beta'], # [1]
+    #'scl_gamma' : m.scl['gamma'], # [1]
+    #'scl_rl'    : m.scl['rl'],  # [cm]
     }
 
-    #print " ---> saving: " + f.filename
     #--- variables
     for name in vsave.keys():
         dname = dpath + name   # anteponemos algo
@@ -1041,14 +1040,12 @@ def SaveToFile(m, dpath='', f=None, nbin=None):
     f[dpath+'HistStep/HStep'] = HStp.sum(axis=0)
     f[dpath+'HistStep/bins_StepPart'] = bins_StepPart
     f[dpath+'HistStep/nbin'] = nbin
-
     #--- histos for tau-collision
-    tauLg   = np.log(m.Tau[:,0]) # log([1/omega?])
+    tauLg   = np.log10(m.Tau[:,0]) # log([1/omega?])
     h       = np.histogram(tauLg, bins=nbin, normed=False)
     hc      = h[0]
     hbin    = 0.5*(h[1][:-1] + h[1][1:])    # log([1/omega?])
     f[dpath+'HistTau_log'] = np.array([hc, hbin])
-
     #--- histos theta (angle between x-y plane and z-axis, @collision)
     theta   = m.Tau[:,3] # [deg]
     h       = np.histogram(theta, bins=nbin, normed=False)

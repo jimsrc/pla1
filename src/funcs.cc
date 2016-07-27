@@ -156,6 +156,7 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
     }
     nThColl     = nThColl_;
     HistThColl  = MatDoub(nThColl, 2, 0.0); //histog 1-D
+    //gc          = NULL; // we are a new simulation
     #endif //MONIT_SCATTERING
 
     #ifdef MONIT_STEP
@@ -535,15 +536,6 @@ PARAMS::PARAMS(string fname_turb):
 	MODEL_TURB(fname_turb) {
 }
 
-
-/*void PARAMS::calc_Bfield(VecDoub_I &y){
-    //printf(" >>> calc_Bfield...\n");
-	pos[0] = y[0] *scl.rl;		// [cm] x
-	pos[1] = y[2] *scl.rl;		// [cm] y
-	pos[2] = y[4] *scl.rl;		// [cm] z
-	calc_B(pos);
-}
-*/
 
 
 //-------------------------------------------
