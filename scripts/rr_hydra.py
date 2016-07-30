@@ -13,7 +13,9 @@ from h5py import File as h5
 from os.path import isfile, isdir
 import os, sys
 from glob import glob
-#from Bparker.Bparker import return_B as Bparker
+
+#--- globals
+AUincm = 1.5e13             # [cm]
 
 """
 (Bo = 5nT; omega=omega_{rel})
@@ -36,28 +38,30 @@ r[AU]    B[nT]       Rl[AU]         Lc[AU]      Rl/Lc   Rl/(5e-5AU)
 2.0      1.99653571  1.891657E-02   0.0119904   1.58    378.33
 """
 ro = 0.5
-Lc = ff.Lc_memilia(r=ro)   # [AU]
-Bo = ff.Bo_parker(r=ro)    # [Gauss]
+Lc_slab = ff.Lc_memilia(r=ro)   # [AU]
+#psim['rigidity'] = 1.69604E+08
+Rl = cw.calc_Rlarmor(
+    rigidity=1.69604E+09,    # [V]
+    Bo=ff.Bo_parker(r=ro)    # [Gauss]
+    )/AUincm                 # [AU] Larmor radii
 #--- set B-turbulence model
 pd.update({
-    'Nm_slab'       : 128,
-    'Nm_2d'         : 128,
-    'lmin_s'        : (5e-5)*AU_in_cm,
-    'lmax_s'        : (1.0) *AU_in_cm,
-    'lmin_2d'       : (5e-5)*AU_in_cm,
-    'lmax_2d'       : (1.0) *AU_in_cm,
-    'Lc_slab'       : Lc*AU_in_cm,
-    'Lc_2d'         : Lc*AU_in_cm,
-    'sigma_Bo_ratio': 0.3,
-    'Bo'            : Bo,   # [Gauss]
+'Nm_slab'       : 64,
+'Nm_2d'         : 64,
+'lmin_s'        : 5e-5/Rl, #[lmin_s/Rl] 
+'lmax_s'        : 1.0/Rl,  #[lmax_s/Rl] 
+'lmin_2d'       : 5e-5/Rl, #[lmin_2d/Rl] 
+'lmax_2d'       : 1.0/Rl,  #[lmax_2d/Rl] 
+'Lc_slab'       : Lc_slab/Rl,  # in units of Larmor-radii
+'xi'            : 1.0, # [1] xi=Lc_2d/Lc_slab 
+'sigma_Bo_ratio': 0.3, # [1] fluctuation energy
+'ratio_slab'    : 0.2, # [1] (energy_slab)/(energy_total)
 })
 #--- corregimos input
-psim['rigidity'] = 1.69604E+09
-psim['tmax']     = 1e4 #4e4
-rl = cw.calc_Rlarmor(psim['rigidity'],pd['Bo']) #[cm]
-eps_o            = 1e-5 #4.64e-5 #3.33e-6 ## ratio: (error-step)/(lambda_min)
+psim['tmax']     = 1e4 #0.3e4 #4e4
+eps_o = 4.64e-04 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
-psim['atol']     = lmin*eps_o/rl  # [1]
+psim['atol']     = lmin*eps_o  # [1]
 psim['rtol']     = 0.0 #1e-6
 
 #--- output
@@ -69,14 +73,11 @@ po.update({
     'r'     : ro,            # [AU] heliodistance
     'eps_o' : eps_o,         # [1]  precision
     'lmin'  : lmin/AU_in_cm, # [AU] minimum turb scale
+    'RloLc' : Rl/Lc_slab,   # [1] (r_larmor)/(Lc_slab)
 })
-# convert system's lenghts to [AU]
-for pnm in pd.keys():
-    if pnm.startswith(('lmin_','Lc_')):
-        po[pnm] = pd[pnm]/AU_in_cm # [AU]
 
 dir_out = '../out'
-fname_out = dir_out+'/r.{r:1.2f}_R.{rigidity:1.2e}_eps.{eps_o:1.2e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}_lmin.{lmin:1.1e}.h5'.format(**po)
+fname_out = dir_out+'/r.{r:1.2f}_RloLc.{RloLc:1.2e}_eps.{eps_o:1.2e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}.h5'.format(**po)
 
 #--- call simulator
 m = cw.mgr()
@@ -105,7 +106,7 @@ for npla in plas: #[25:]:
     #--- set particle id && direction
     pother['i']  = npla
     psim['mu']   = mu[npla]
-    psim['phi']  = ph[npla]
+    psim['ph']   = ph[npla]
 
     m.build(**pother)
 
@@ -114,10 +115,11 @@ for npla in plas: #[25:]:
 
     print " [r:%d] simulation (pla:%d) finished!" % (rank, npla)
     dpath = 'pla%03d/' % npla
-    print " [r:%d] now i'll write" % rank
+    print " [r:%d] writing: %s" % (rank, fo.filename)
     ff.SaveToFile(m, dpath, fo, nbin)
-    print " [r:{rank}] closing: {fname}".format(rank=rank,fname=fo.filename)
+    m.clean()
 
+print " [r:%d] closing: %s" % (rank, fo.filename)
 fo.close()
 pause(1)
 os.system('touch %s_finished'%fname_out_tmp)

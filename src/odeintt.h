@@ -2,13 +2,11 @@
 #define ODEINT_H
 #include "nr3.h"
 #include "funcs.h"
-//#include "stepperbs.h"
-//extern class PARAMS;
 
 //---
 template<class Stepper>
 struct Odeint {
-	static const Int MAXSTP=(150*50000); //MAXSTP=27*50000;
+	static const Int MAXSTP=SIM_MAXSTP; //MAXSTP=27*50000;
 	Doub EPS;
 	Int nok;
 	Int nbad;
@@ -30,9 +28,11 @@ struct Odeint {
 	void integrate();
 	PARAMS par;
 	//------------------- scattering stuff
-	void save_history(void);
     #ifdef MONIT_SCATTERING
+	void save_history(void);
 	void check_scattering(void);
+    //GuidingCenter *gc;
+    //inline void calc_gc(Doub*);
     #endif //MONIT_SCATTERING 
 	double mu_old, mu_new, Bmod, vmod, dtau;
 	// ------------------ otros
@@ -45,6 +45,7 @@ struct Odeint {
 // (*): en el constructor, paso las direcciones de memoria de al Stepper 's' para
 // les haga las modificaciones q quiera.
 };
+
 
 #endif // ODEINT_H
 //EOF

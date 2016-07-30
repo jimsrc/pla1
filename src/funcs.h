@@ -12,10 +12,10 @@ class PARAMS : public MODEL_TURB{
         PARAMS(){};// good to have for cython handling
         #endif //CYTHON
 		PARAMS(string);
-		void calc_Bfield(VecDoub_I &);
+		//void calc_Bfield(VecDoub_I &);
 		//PARAMS & operator=(const PARAMS &rhs);
-	private:
-		double pos[3];
+	/*private:
+		double pos[3];*/
 };
 
 
@@ -25,11 +25,21 @@ struct rhs{
     //functor for ode; copied from Numerical Recipes
     //      Doub eps;
     //      rhs(Doub epss) : eps(epss){}
-    //void operator() (PARAMS par, const VecDoub x, VecDoub_I &y, VecDoub_O &dydx ){ 
     Doub bx, by, bz;
     void operator() (PARAMS par, const Doub x, VecDoub_I &y, VecDoub_O &dydx);
 };
 
+
+#ifdef MONIT_SCATTERING
+class GuidingCenter{
+    public:
+        GuidingCenter(Int len);
+        void calc_gc(Doub* dydx, Doub* y, Doub x);
+        MatDoub r_gc; // guiding center pos
+        Doub* t; // time [1]
+        Int n; // total number of steps
+};
+#endif // MONIT_SCATTERING
 
 
 //---------------------------------------------------
@@ -57,12 +67,16 @@ class Output {
         void claim_own(void);
 		bool file_exist(void);
 		void resizeTau(void);
-		//esto lo agrego para guardar cosas de la historia de 
+        #ifdef MONIT_SCATTERING
+		//esto lo agrego para guardar cosas de la historia de
 		//las trayectorias:
-		int nfilTau, ncolTau;		// tamanio para 'Tau'
-		int nreb;			// nro de rebotes/scatterings en pitch
-		MatDoub Tau;			// tiempo de camino libre medio paralelo, y su posic x
+		int nfilTau, ncolTau;	// tamanio para 'Tau'
+		int nreb;	 // nro de rebotes/scatterings en pitch
+		MatDoub Tau; // tiempo de camino libre medio paralelo, y su posic x
 		VecDoub mu;
+        //MatDoub r_gc;
+        GuidingCenter* gc;
+        #endif //MONIT_SCATTERING
 		void set_Bmodel(PARAMS*);	// para apuntar al modelo q uso en main()
 		void tic(void), toc(void);	// cronometro para c/pla
 		Doub trun;			// tiempo de simulacion de c/pla
@@ -84,10 +98,10 @@ class Output {
         void build_HistSeq(const Stepper s);
         MatDoub step_save;
         #endif //MONIT_STEP
-
+        
 	private:
 		PARAMS *pm;
-		Doub pos[3], vmod, bmod;
+		Doub vmod, bmod;
 		void save_pitch(void);
 		Doub bx, by, bz, vx, vy, vz;
 		VecDoub XSaveGen;	// tiempos de la salida

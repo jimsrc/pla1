@@ -17,18 +17,15 @@ Odeint<Stepper>::Odeint(VecDoub_IO &ystartt, const Doub xx1, const Doub xx2,
 	h=SIGN(h1,x2-x1);
 	for (Int i=0;i<nvar;i++) y[i]=ystart[i];
 	out.init(s.neqn, x1, x2);
+
     #ifdef MONIT_STEP
     out.step_save = MatDoub(2,MAXSTP,0.0);
     #endif //MONIT_STEP
-}
 
-/*
-template<class Stepper>
-void Odeint<Stepper>::integrate(Doub xx2) {
-    x2 = xx2;
-    integrate();
+    #ifdef MONIT_SCATTERING
+    out.gc = new GuidingCenter(MAXSTP);
+    #endif
 }
-*/
 
 
 #ifdef KILL_HANDLER
@@ -60,6 +57,7 @@ void Odeint<Stepper>::integrate() {
 		i++;
 		cout << " i " << i << endl;}
 	dtau = 0.0;
+    out.gc->n = 0; // total number of steps, recorded in 'out.gc'
 	for (nstp=0;nstp<MAXSTP;nstp++) {
 		save_history();					//--- scattering stuff
 		if ((x+h*1.0001-x2)*(x2-x1) > 0.0)
@@ -101,24 +99,26 @@ void Odeint<Stepper>::integrate() {
 #ifdef MONIT_SCATTERING
 template<class Stepper>
 void Odeint<Stepper>::check_scattering(){
-	par.calc_Bfield(y);
-	Bmod = pow(par.B[0]*par.B[0] + par.B[1]*par.B[1] + par.B[2]*par.B[2], .5);
-	vmod = pow(y[1]*y[1] + y[3]*y[3] + y[5]*y[5], .5); 
-	mu_new = y[1]*par.B[0] + y[3]*par.B[1] + y[5]*par.B[2];
-	mu_new /= vmod*Bmod;
+    Doub xyz[3] = {y[0],y[2],y[4]};
+	par.calc_B(xyz);
+	Bmod = NORM(par.B[0],par.B[1],par.B[2]);
+	vmod = NORM(y[1],y[3],y[5]); 
+	mu_new = (y[1]*par.B[0] + y[3]*par.B[1] + y[5]*par.B[2])/(vmod*Bmod);
 	//-------------------------
-	dtau += s.hdid;			// controlo cuanto pasa hasta el prox rebote
+	dtau += s.hdid;		// controlo cuanto pasa hasta el prox rebote
 	//-------------------------
-	if(mu_old*mu_new<0.0){
+    out.gc->calc_gc(&dydx[0], &y[0], x); // calculo cto de giro
+	if((mu_old*mu_new)<0.0){
 		out.nreb++;
-		//printf(" [rank:%d] --> nreb: %d\n", wrank, out.nreb); //getchar();
 		if(out.nreb>=out.nfilTau) 
             out.resizeTau();
+
 		// guardo cosas de la "colisiones" con las irregularidades:
-		out.Tau[out.nreb-1][0] = dtau;	// [1] tiempo-de-colision instantaneo
-		out.Tau[out.nreb-1][1] = sqrt(y[0]*y[0]+y[2]*y[2]);	// [1] psic "perpend" en q ocurre dicha "colision"
-		out.Tau[out.nreb-1][2] = y[4];	// [1] posic "parall"  en q ocurre dicha "colision"
-        out.Tau[out.nreb-1][3] = asin(y[5]/vmod)*180./M_PI;  // [deg] angulo entre plano x-y y z.
+		out.Tau[out.nreb-1][0] = x; //[1] time @ collision
+		out.Tau[out.nreb-1][1] = dtau; //[1] tiempo-de-colision instantaneo
+		out.Tau[out.nreb-1][2] = NORM(y[0],y[2],0.0); //[1] posic "perpend" en q ocurre dicha "colision"
+		out.Tau[out.nreb-1][3] = y[4]; //[1] posic "parall" en q ocurre dicha "colision"
+        out.Tau[out.nreb-1][4] = acos(par.B[2]/Bmod)*180./M_PI; // [deg] angulo entre plano x-y y z. Siendo 0.0 para B-vector paralelo a versor positivo ^z+.
 		dtau = 0.0;
 	}
 }
@@ -127,14 +127,11 @@ void Odeint<Stepper>::check_scattering(){
 
 template<class Stepper>
 void Odeint<Stepper>::save_history(){
-	/*for(int i=0; i<nvar; i++)
-		yold[i] = y[i];		// guardo valores antes de integrar la ODE*/
-	par.calc_Bfield(y);
-	Bmod = pow(par.B[0]*par.B[0] + par.B[1]*par.B[1] + par.B[2]*par.B[2], .5);	// [G]
-	vmod = pow(y[1]*y[1] + y[3]*y[3] + y[5]*y[5], .5);
-	mu_old = y[1]*par.B[0] + y[3]*par.B[1] + y[5]*par.B[2];
-	mu_old /= vmod*Bmod;
-	//-------------------------
+    Doub xyz[3] = {y[0],y[2],y[4]};
+	par.calc_B(xyz);
+	Bmod = NORM(par.B[0],par.B[1],par.B[2]);	// [1]
+	vmod = NORM(y[1],y[3],y[5]); // [1]
+	mu_old = (y[1]*par.B[0] + y[3]*par.B[1] + y[5]*par.B[2])/(vmod*Bmod);
 }
 
 

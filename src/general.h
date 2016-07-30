@@ -23,7 +23,7 @@
 #include_next "signal.h"
 #endif //KILL_HANDLER
 
-
+/*
 // TODO: make ALL members static!! (const parece no funcionar)
 class ESCALAS{
     public:
@@ -50,4 +50,5 @@ class ESCALAS{
 
 
 extern ESCALAS scl;    // global instance
+*/
 #endif //GENERAL_H

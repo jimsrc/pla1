@@ -16,7 +16,7 @@ using namespace std;
 
 // recibe una velocidad adimensionalizada
 // TODO: convertir esto en inline o macro!
-double calc_gamma(double v){
+/*double calc_gamma(double v){
 	double beta, gamma;
 	beta = v*scl.vel / clight;
     #ifdef BETA_CHECK
@@ -25,7 +25,7 @@ double calc_gamma(double v){
     #endif
 	gamma = pow(1. - beta*beta, -.5);
 	return gamma;
-}
+}*/
 
 
 /* lee parametros input en main() */
@@ -121,7 +121,6 @@ Doub **read_orientations(string fname, int &n){
 
 
 //----------------------- class Ouput
-//void Output<Stepper>::build(string str_tscalee, Int nsavee, Doub tmaxHistTau, Int nHist, char* fname_out){ 
 template <class Stepper>
 void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistTau, Int nHist, Int nThColl_, int i, int j, char *dir_out){
 	kmax	= 500;
@@ -141,40 +140,35 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
 	//-------- cosas de scatterings:
 	nfilTau = 500;
 	nreb	= 0;  // nro inic de rebotes
-	ncolTau	= 4;  // 4 columnas: 1 para el tau de scattering, 2 para las posic parall/perp, y 1 para el angulo entre el plano x-y y z.
+	ncolTau	= 5;  // 4 columnas: 1 para el tau de scattering, 2 para las posic parall/perp, y 1 para el angulo entre el plano x-y y z.
 	Tau 	= MatDoub(nfilTau, ncolTau, 0.0); // (*) para grabbar tiempos de scattering, y la posic x
 	// (*): inicializo en ceros
-
 	//-------- histograma del 'Tau'
 	nHistTau 	= nHist;				// nro de bines
 	dTau 		= tmaxHistTau / nHistTau;		// ancho del bin
 	dimHistTau	= 2;
 	HistTau		= MatDoub(nHistTau, dimHistTau, 0.0);	// histog 1-D
 	nsteps		= 0;
-
     //-------- histograma del 'ThetaColl'
     if(fmod(nThColl_, 2.0)!=0.0) {
         printf("\n ---> ERROR: 'nThColl' has to be even!!\n");
         exit(1);
     }
     nThColl     = nThColl_;
-    HistThColl  = MatDoub(nThColl, 2, 0.0); // histog 1-D
+    HistThColl  = MatDoub(nThColl, 2, 0.0); //histog 1-D
+    //gc          = NULL; // we are a new simulation
     #endif //MONIT_SCATTERING
 
     #ifdef MONIT_STEP
     HistStep    = MatDoub(NStep, 4);
     dstep       = MaxStep/(1.0*NStep);
     dstep_part  = dstep/8.;
-    //MinStep     = 1e3;
     for(int i=0; i<NStep; i++){
         HistStep[i][0] = (i+.5)*dstep;
         HistStep[i][1] = 0.0;               // counts
         HistStep[i][2] = (i+.5)*(dstep_part);
         HistStep[i][3] = 0.0;               // counts
     }
-    //printf(" NStep: %d\n", NStep);
-    //printf(" MaxStep: %g\n", MaxStep);
-    //printf(" HistStep: %g\n", HistStep[0][1]);
     //NOTE: 'step_save' es inicializado en Odeint::Odeint(..)
     #endif //MONIT_STEP
 }
@@ -184,7 +178,7 @@ template <class Stepper>
 Output<Stepper>::Output() : kmax(-1),dense(false),count(0) {}
 
 /*
-// TODO: arreglar esta implementacion si la vas a usar
+// TODO: arreglar esta implementacion si la vas a usar.
 template <class Stepper>
 Output<Stepper>::Output(string str_tscalee, const Int nsavee, char* fname){
 	build(str_tscalee, nsavee, fname);
@@ -192,6 +186,30 @@ Output<Stepper>::Output(string str_tscalee, const Int nsavee, char* fname){
 	//dense = nsave > 0 ? true : false;
 }
 */
+
+#ifdef MONIT_SCATTERING
+GuidingCenter::GuidingCenter(Int len): 
+    r_gc(MatDoub(len,3,0.0)),
+    t(new Doub[len]) {
+    n = 0; // total number of steps
+}
+
+
+void GuidingCenter::calc_gc(Doub* dydx, Doub* y, Doub x){
+    /* calculamos cto de giro */
+    Doub normVB, rl[3];
+    normVB = NORM(dydx[1], dydx[3], dydx[5]);
+    rl[0] = -dydx[1]/normVB;
+    rl[1] = -dydx[3]/normVB;
+    rl[2] = -dydx[5]/normVB;
+    for(int i_=0; i_<3; ++i_){
+        r_gc[n][i_] = y[i_] - rl[i_];
+    }
+    t[n] = x;
+    n++;
+}
+#endif //MONIT_SCATTERING
+
 
 template <class Stepper>
 void Output<Stepper>::set_savetimes(Doub xhi){
@@ -251,10 +269,12 @@ void Output<Stepper>::init(const Int neqn, const Doub xlo, const Doub xhi) {
 }
 
 template <class Stepper>
-void Output<Stepper>::resize(){	// redimensiona el vector 'xsave' hacia el doble de su longitud, y 
-				// redimensiona el array 'ysave' hacia las dimensiones (nvar,kmax).
-				// Como no preserva los valores, los guarda temporalmente antes de 
-				// redimensionar.Despues de redimensionar,recupera la data temporal.
+void Output<Stepper>::resize(){	
+    /* redimensiona el vector 'xsave' hacia el doble de su longitud, y 
+    *  redimensiona el array 'ysave' hacia las dimensiones (nvar,kmax).
+    *  Como no preserva los valores, los guarda temporalmente antes de 
+    *  redimensionar.Despues de redimensionar,recupera la data temporal.
+    */
 	Int kold=kmax;
 	kmax *= 2;
 	VecDoub tempvec(xsave);	// backup de 'xsave'
@@ -269,9 +289,11 @@ void Output<Stepper>::resize(){	// redimensiona el vector 'xsave' hacia el doble
 }
 
 template <class Stepper>
-void Output<Stepper>::resizeTau(){	// redimensiona el vector 'xsave' hacia el doble de su longitud.
-				// Como no preserva los valores, los guarda temporalmente antes de 
-				// redimensionar.Despues de redimensionar,recupera la data temporal.
+void Output<Stepper>::resizeTau(){	
+    /* redimensiona el vector 'xsave' hacia el doble de su longitud.
+	*  Como no preserva los valores, los guarda temporalmente antes de 
+	*  redimensionar.Despues de redimensionar,recupera la data temporal.
+    */
 	Int nold=nfilTau;
 	nfilTau *= 2;
 	MatDoub tempmat(Tau);	// backup de 'Tau'
@@ -280,7 +302,6 @@ void Output<Stepper>::resizeTau(){	// redimensiona el vector 'xsave' hacia el do
 		for(Int j=0; j<ncolTau; j++)
 			Tau[i][j] = tempmat[i][j];
 }
-
 
 #ifdef MONIT_STEP
 template <class Stepper>
@@ -292,12 +313,9 @@ void Output<Stepper>::build_HistSeq(const Stepper s){
     }
 }
 
-
 template <class Stepper>
 //void Output<Stepper>::monit_step(const Doub hdid){
 void Output<Stepper>::monit_step(const Stepper s){
-    /*if(hdid!=0.05)
-        MinStep = MIN(MinStep, hdid);*/
     int ns;
     if(s.hdid<=MaxStep){
         // h total
@@ -320,18 +338,14 @@ void Output<Stepper>::monit_step(const Stepper s){
 
 template <class Stepper>
 void Output<Stepper>::save_pitch(){
-	for(int i=0;i<3;i++)
-		pos[i] = (ysave[(2*i)][count]) *scl.rl;	// [cm]
-    //printf(" >>> save_pitch...\n");
-	pm->calc_B(pos);
+    Doub xyz[3] = {ysave[0][count],ysave[2][count],ysave[4][count]};
+	pm->calc_B(xyz);
 
-	bx=pm->B[0];		by=pm->B[1];		bz=pm->B[2];		// [G]
+	bx=pm->B[0];		by=pm->B[1];		bz=pm->B[2];		// [1]
 	vx=ysave[1][count];	vy=ysave[3][count];	vz=ysave[5][count];	// [1]
-
-	bmod = pow(bx*bx + by*by + bz*bz, .5);
-	vmod = pow(vx*vx + vy*vy + vz*vz, .5);
-	mu[count] = vx*bx + vy*by + vz*bz;
-	mu[count] /= vmod*bmod;
+	bmod = NORM(bx,by,bz);//should always be >=1.
+	vmod = NORM(vx,vy,vz);//should always be 1.
+	mu[count] = (vx*bx + vy*by + vz*bz)/(vmod*bmod);
 }
 
 template <class Stepper>
@@ -357,7 +371,6 @@ void Output<Stepper>::save(const Doub x, VecDoub_I &y) {
 
 template <class Stepper>
 void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,const Doub h) {
-	//if(count>=200) {printf(" COUNT=%d AQUI!\n", count); getchar();}
 	if (!dense)
 		throw("dense output not set in Output!");
 	if (nstp == -1) {
@@ -450,31 +463,22 @@ void Output<Stepper>::build_ThetaColl(){
 
 template <class Stepper>
 void Output<Stepper>::save2file(){
-	double t, x, y, z, v;
-	double vx, vy, vz;
-    double err, gamma;
+	Doub t, x, y, z, v, vx, vy, vz, err;
 	//-------------------- guardo la trayectoria
-	//printf(" COUNT @ save2file: %d\n", count); getchar();
 	ofile_trj.open(fname_trj);
 	for(int i=0; i<count; i++){
-		t 	= xsave[i] / scl.wc;			// [seg]
-		x 	= ysave[0][i] * scl.rl/AU_in_cm; 	// [AU]
-		y 	= ysave[2][i] * scl.rl/AU_in_cm; 	// [AU]
-		z 	= ysave[4][i] * scl.rl/AU_in_cm; 	// [AU]
-		vx 	= ysave[1][i];  			// [1] 
-		vy 	= ysave[3][i];  			// [1]
-		vz 	= ysave[5][i];  			// [1]
-		v 	= pow(vx*vx + vy*vy + vz*vz, .5); 	// [1] TODO: CAMBIARLO A 'sqrt'
-		gamma	= calc_gamma(v);
-		err	= gamma/scl.gamma - 1.;			// error relativ del gamma relativista
-
+		t 	= xsave[i];	    // [1]
+		x  = ysave[0][i]; y  = ysave[2][i]; z  = ysave[4][i]; // [1]
+		vx = ysave[1][i]; vy = ysave[3][i]; vz = ysave[5][i]; // [1]
+		v 	= NORM(vx,vy,vz); // [1]
+        err = v-1.0; // velocity-relative-error (v_initial=1.0)
 		ofile_trj << setiosflags(ios :: showpoint | ios :: uppercase);
 		ofile_trj << setw(5) << setprecision(8) << t << " ";
 		ofile_trj << setw(5) << setprecision(8) << x << " ";    
 		ofile_trj << setw(5) << setprecision(8) << y << " ";   
 		ofile_trj << setw(5) << setprecision(8) << z << " ";
 		ofile_trj << setw(5) << setprecision(8) << mu[i] << " ";
-		ofile_trj << setw(5) << setprecision(8) << err << endl;
+		ofile_trj << setw(5) << setprecision(8) << err <<endl; 
 	}
 	// cerramos archivo de trayectoria
 	ofile_trj.close();
@@ -533,31 +537,21 @@ PARAMS::PARAMS(string fname_turb):
 }
 
 
-void PARAMS::calc_Bfield(VecDoub_I &y){
-    //printf(" >>> calc_Bfield...\n");
-	pos[0] = y[0] *scl.rl;		// [cm] x
-	pos[1] = y[2] *scl.rl;		// [cm] y
-	pos[2] = y[4] *scl.rl;		// [cm] z
-	calc_B(pos);
-}
-
-
 
 //-------------------------------------------
 void rhs::operator() (PARAMS par, const Doub x, VecDoub_I &y, VecDoub_O &dydx ){
     //double bx, by, bz; 
-    par.calc_Bfield(y);
-
-    bx = par.B[0] / scl.Bo;
-    by = par.B[1] / scl.Bo;
-    bz = par.B[2] / scl.Bo;
+    Doub xyz[3] = {y[0],y[2],y[4]};
+    //par.calc_Bfield(y);
+    par.calc_B(xyz);
+    bx = par.B[0];  by = par.B[1];  bz = par.B[2];
     // rewrite x^2y"(x)+xy'(x)+x^2y=0 as coupled FOODEa
     dydx[0] = y[1];
-    dydx[1] = y[3] * bz - y[5] * by; 
+    dydx[1] = y[3] * bz - y[5] * by;// (vxB)_x
     dydx[2] = y[3];
-    dydx[3] =-y[1] * bz + y[5] * bx; 
+    dydx[3] =-y[1] * bz + y[5] * bx;// (vxB)_y 
     dydx[4] = y[5];
-    dydx[5] =-y[3] * bx + y[1] * by; 
+    dydx[5] =-y[3] * bx + y[1] * by;// (vxB)_z
 }
 
 

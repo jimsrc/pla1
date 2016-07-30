@@ -4,7 +4,7 @@
 deduce the associated .h5 files, and list them.
 """
 
-import shared.funcs as sf
+import shared.funcs_post as sfp
 import os, sys
 
 hexsuffix = sys.argv[1]
@@ -18,7 +18,7 @@ if not os.path.isfile(fname_inp):
 with open(fname_inp, 'r') as f:
     myhash = f.readline()
 
-gh = sf.GenHash()
+gh = sfp.GenHash()
 
 #myhash = hexstr.decode('hex')
 decoded = gh.decode(encoded=myhash)
