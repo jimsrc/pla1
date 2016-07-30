@@ -9,7 +9,7 @@ $ python ./juguete.py --IDs 37,38,39,40,41 --legend Nm_slab,Nm_2d
 """
 import os, sys
 from os.path import isfile, isdir
-import shared.funcs as sf
+import shared.funcs_post as sfp
 import argparse
 
 # retrieve the IDentifiers :-)
@@ -32,7 +32,7 @@ ps = {
 'label'     : mylabels, # list of params for legend
 }
 
-ga = sf.GenAnalysis(ps, prefix='o_')
+ga = sfp.GenAnalysis(ps, prefix='o_')
 ga.gen_hash()  # genera el identificador
 ga.make_pdf()
 
