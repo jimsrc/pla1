@@ -12,5 +12,8 @@
 
 _*
 
+# vim sessions
+.*.vim
+
 # cython-generated code
 src/cython_wrapper.cpp
