@@ -37,11 +37,11 @@ r[AU]    B[nT]       Rl[AU]         Lc[AU]      Rl/Lc   Rl/(5e-5AU)
 1.0      5.0         7.553521E-03   0.0089      0.85    151.07
 2.0      1.99653571  1.891657E-02   0.0119904   1.58    378.33
 """
-ro = 0.2
+ro = 0.5
 Lc_slab = ff.Lc_memilia(r=ro)   # [AU]
-psim['rigidity'] = 1.69604E+08
+#psim['rigidity'] = 1.69604E+08
 Rl = cw.calc_Rlarmor(
-    rigidity=1.69604E+08,    # [V]
+    rigidity=1.69604E+09,    # [V]
     Bo=ff.Bo_parker(r=ro)    # [Gauss]
     )/AUincm                 # [AU] Larmor radii
 #--- set B-turbulence model
@@ -58,8 +58,8 @@ pd.update({
 'ratio_slab'    : 0.2, # [1] (energy_slab)/(energy_total)
 })
 #--- corregimos input
-psim['tmax']     = 1.5e3 #0.3e4 #4e4
-eps_o = 3.33e-5 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
+psim['tmax']     = 1e4 #0.3e4 #4e4
+eps_o = 4.64e-04 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
 psim['atol']     = lmin*eps_o  # [1]
 psim['rtol']     = 0.0 #1e-6
@@ -73,7 +73,7 @@ po.update({
     'r'     : ro,            # [AU] heliodistance
     'eps_o' : eps_o,         # [1]  precision
     'lmin'  : lmin/AU_in_cm, # [AU] minimum turb scale
-    'RloLc' : 1.0/Lc_slab,   # [1] (r_larmor)/(Lc_slab)
+    'RloLc' : Rl/Lc_slab,   # [1] (r_larmor)/(Lc_slab)
 })
 
 dir_out = '../out'
@@ -115,11 +115,11 @@ for npla in plas[:10]:
 
     print " [r:%d] simulation (pla:%d) finished!" % (rank, npla)
     dpath = 'pla%03d/' % npla
-    print " [r:%d] now i'll write" % rank
+    print " [r:%d] writing: %s" % (rank, fo.filename)
     ff.SaveToFile(m, dpath, fo, nbin)
-    print " [r:{rank}] closing: {fname}".format(rank=rank,fname=fo.filename)
     m.clean()
 
+print " [r:%d] closing: %s" % (rank, fo.filename)
 fo.close()
 pause(1)
 os.system('touch %s_finished'%fname_out_tmp)
