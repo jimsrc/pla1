@@ -22,6 +22,10 @@ from tabulate import tabulate
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from funcs import Bo_parker, Lc_memilia
 
+#--- global constants
+M_PI = np.pi
+M_E  = np.e
+AUincm = 1.5e13                   # [cm]
 
 
 def DecodeHex_and_GetIDs(fname_key=None):
@@ -87,7 +91,6 @@ class GenHash(object):
         return decoded
 
 
-
 class GenAnalysis(object):
     def __init__(self, ps, **kargs):
         self.idlist = ps['id']
@@ -95,24 +98,22 @@ class GenAnalysis(object):
         #---- other arguments
         self.fprefix = kargs.get('prefix', 'o_') # input fname prefix
 
-
     def gen_hash(self):
         gh = GenHash()
         # I want hash properties available
         self.myhash = gh.myhash
         # encode a string
-        #MyKey = 'This_passWD :P'
-        MyKey = ''
+        MyKey = '' #'This_passWD :P'
         for myid in self.idlist:
             MyKey += '%04d' % myid
-
         return gh.encode(MyKey)
 
     def make_pdf(self):
-        """ Este metodo llama a los generadores de figuras 'self::plot_...()', y los
+        """ 
+        Llama a los generadores de figuras 'GralPlot::plot_...()', y los
         pone uno en c/pagina de .pdf
-        Antes de esto, genera una pagina q contiene la tabla de simulation-parameters, y 
-        la pone antes de los plots.
+        Antes de esto, genera una pagina q contiene la tabla de 
+        simulation-parameters, y la pone antes de los plots.
         """
         ps = self.ps
         fname_base = self.myhash['encoded'].encode('hex')[:16]
@@ -130,32 +131,30 @@ class GenAnalysis(object):
         gp.build_labels()
 
         #--- 1st page
-        fig, ax = gp.plot_errEk(OneFigFile=False)
-        ax.set_ymargin(1.)
-        pdf_pages.savefig(fig)
+        fig, ax = gp.plot_errVel(OneFigFile=False)
+        pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
         #--- 2nd page
         fig, ax, ax2 = gp.plot_errdy(OneFigFile=False)
-        #ax.set_ymargin(1.)
-        pdf_pages.savefig(fig)
+        pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
         #--- 3rd page
-        Ks     = ('kxx', 'kyy', 'kzz')
+        Ks = ('xx', 'yy', 'zz')
         for kk in Ks: #--- plot kxx, kyy, kzz
-            fig, ax = gp.plot_kdiff(kk, OneFigFile=False)
-            pdf_pages.savefig(fig)
+            fig, ax = gp.plot_kdiff(xaxis='mfp', nm=kk)
+            pdf_pages.savefig(fig, bbox_inches='tight')
             close(fig)
 
         #--- 4th page
         fig, ax = gp.plot_TauColl()
-        pdf_pages.savefig(fig)
+        pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
         #--- 5th page
         fig, ax = gp.plot_HistThetaColl()
-        pdf_pages.savefig(fig)
+        pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
         #--- Write the PDF document to the disk
@@ -181,7 +180,6 @@ class GenAnalysis(object):
         fname_key = self.ps['dir_dst'] + '/' + fname_base + '.key'
         os.system('echo ' + self.myhash['encoded'] + ' > '+fname_key)
         print " ---> saved key into:\n"+fname_key
-
 
     def build_params_pdf(self, fname_base):
         p_comm, p_diff = self.compare_psim() # dictionaries
@@ -245,7 +243,6 @@ class GenAnalysis(object):
         cmd = 'pdflatex --interaction=nonstopmode {fname}'.format(fname=fname_tab_base+'.tex')
         return os.system(cmd), fname_tab_base+'.pdf'
 
-
     def compare_psim(self):
         """ Compare simulation-parameters to identify which
         are the same in each file, and which are different.
@@ -300,10 +297,9 @@ class GralPlot(object):
         # symbols to iterate over
         self.sym = ('o', 's', '^', '*')
 
-
     def build_labels(self):
         """ construye los labels (legenda) de acuerdo a
-        la lista de parametros en 'self.ps.keys()'
+        la lista de parametros en 'self.ps['label'].keys()'
         """
         #--- nombres/labels de los parametros
         names = ''
@@ -328,7 +324,6 @@ class GralPlot(object):
         self.MyLabels = {}
         for fid in self.ps['id']:
             self.MyLabels[fid] = names + values[fid]
-
 
     def do_checks(self):
         """ reviso q ciertos keys existan en el output .h5 """
@@ -366,8 +361,7 @@ class GralPlot(object):
             print "      ALL SIM-PARAMETERS CHECK OK!"
             print " #######################################\n"
 
-
-    def plot_errEk(self, OneFigFile=False, xlim=None, ylim=None):
+    def plot_errVel(self, OneFigFile=False, xlim=None, ylim=None):
         """
         - ylim: tuple for ax.set_ylim()
         """
@@ -388,10 +382,7 @@ class GralPlot(object):
             fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
             f = h5(fname_inp, 'r')
             tadim = f['pla000/tadim']
-            wc = f['pla000/scl_wc'].value             # [s-1]
-            vp = f['pla000/scl_vel'].value            # [cm/s]
-            rl = f['pla000/scl_rl'].value             # [cm]
-            PNAMES = [] #f.keys()
+            PNAMES = [] # particle names
             for nm in f.keys():
                 if nm.startswith('pla'):
                     PNAMES += [ nm ]
@@ -402,8 +393,8 @@ class GralPlot(object):
                 err[ip,:] = np.abs(f[pnm+'/err'].value)
 
             #--- stats over pla realizations
-            err_avr = err.mean(axis=0)
             err_med = np.median(err, axis=0)
+            err_avr = err.mean(axis=0)
             err_std = err.std(axis=0)
             #--- calcula los minimos sin tomar en cuenta el 1er tiempo
             err_min = np.min([err_min, np.min(err_avr[1:])])
@@ -430,7 +421,6 @@ class GralPlot(object):
         else:
             return fig, ax
 
-
     def plot_errdy(self, OneFigFile=False, nbin=1000, **kargs):
         """
         input:
@@ -456,11 +446,7 @@ class GralPlot(object):
         for fid, i in zip(ps['id'], id_indexes):
             fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
             f = h5(fname_inp, 'r')
-            wc = f['pla000/scl_wc'].value       # [s-1]
-            vp = f['pla000/scl_vel'].value      # [cm/s]
-            rl = f['pla000/scl_rl'].value       # [cm]
             PNAMES = f.keys()
-            Np     = len(PNAMES)
 
             hmg = Hmgr(f, nbin=nbin)
             hmg.get_hstep_extremes()
@@ -474,11 +460,10 @@ class GralPlot(object):
                 hmg.pile_to_hist(hx, h)
 
             isym = np.mod(i,len(sym))
-            #msym = sym[isym-1]
             opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1], 'ls':''}
             label = self.MyLabels[fid] #ps['label'][i]
-            lmin = f['psim/lmin'].value # [AU]
-            dRbin = (hmg.hbin/wc)*vp/(lmin*AUincm)
+            lmin = f['psim/lmin'].value # [r_larmor]
+            dRbin = hmg.hbin/lmin # (eq. np-1)
             ax2.plot(dRbin, hmg.h, label=label, **opt)
             ax2.set_xlim(dRbin[0], dRbin[-1])
             ax2.set_xlabel('$\Delta r/\lambda_{min}$')
@@ -493,7 +478,6 @@ class GralPlot(object):
             if ylim is not None:
                 ax.set_ylim(ylim)
 
-            #print " ---> generating: " + fname_fig
             f.close()
 
         ax.grid(True)
@@ -503,8 +487,10 @@ class GralPlot(object):
         else:
             return fig, ax, ax2
 
-
-    def plot_kdiff(self, kk, OneFigFile=False, **kargs):
+    def plot_kdiff(self, xaxis='mfp', nm='xx', **kargs):
+        assert xaxis in ('kdiff','mfp'),\
+            ' ---> ERROR: wrong xaxis:%s @plot_kdiff()'%xaxis
+        kk     = 'k'+nm # kxx,kyy,or kzz
         ps     = self.ps
         o      = {}
         sym    = self.sym
@@ -522,11 +508,13 @@ class GralPlot(object):
         id_indexes = range(len(ps['id'])) # indexes
         for fid, i in zip(ps['id'], id_indexes):
             fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
-            o[kk] = get_sqrs(fname_inp)
-            tadim = o[kk]['tadim']      # [1]
-            kprof = o[kk][kk]           # [cm2/s]
+            o[kk] = get_sqrs(fname_inp) # w/ corrected dimensions
+            with h5(fname_inp, 'r') as f:
+                Lc_s = f['psim/Lc_slab'].value # [1]
+            tadim = o[kk]['tadim']      # [1]  (correct dimensions)
+            kprof = o[kk][kk]           # [1]  (")
             isym  = np.mod(i,len(sym))
-            print " i, len(sym), isym: ", i, len(sym), isym;# raw_input()
+            print " i, len(sym), isym: ", i, len(sym), isym
             opt = {
             'ms'        : 2,
             'lw'        : 0.5,
@@ -535,29 +523,20 @@ class GralPlot(object):
             'alpha'     : 0.6,
             'mec'       : 'none',
             }
-            ax.plot(tadim, kprof, '-o', **opt)
+            mfp = kprof/Lc_s # [1] normalized (correct) units
+            ax.plot(tadim, mfp, '-o', **opt)
 
         ax.set_yscale(yscale)
         ax.set_xscale(xscale)
         ax.set_xlabel('$\Omega t$ [1]')
-        ax.set_ylabel('%s [cm2/s]' % kk)
+        ax.set_ylabel('$\lambda_{%s}/L_c^{slab}$ [1]'%nm)
         if xlim is not None:
             ax.set_xlim(xlim)
         if ylim is not None:
             ax.set_ylim(ylim)
         ax.legend(loc='best', fontsize=6)
         ax.grid()
-
-        if OneFigFile:
-            #--- figname
-            FigCode = ''
-            for myid in ps['id']: FigCode += '%04d'%myid
-            fname_fig = ps['dir_dst'] + '/%s_'%kk + FigCode + '.png'
-            fig.savefig(fname_fig, dpi=300, bbox_inches='tight')
-            close(fig)
-
         return fig, ax # dicts for (kxx,kyy,kzz)
-
 
     def plot_HistThetaColl(self, **kargs):
         ps     = self.ps
@@ -578,7 +557,8 @@ class GralPlot(object):
             ht = HThetaColl(fname_inp)
             h = ht.SumHsts_over_plas() # my histograms!!
             if h is 0:
-                ax.text(.5, .5, 'sorry, no histograms for step-sizes.', transform=ax.transAxes)
+                ax.text(.5, .5, 'sorry, no histograms for step-sizes.',\
+                  transform=ax.transAxes)
                 continue # next 'fid'
             else:
                 hx, hc = h['hbins'], h['hcnts']
@@ -592,7 +572,6 @@ class GralPlot(object):
         ax.set_ylabel('#')
         ax.set_xlabel('$\\theta_{coll}$ [deg]')
         return fig, ax
-
 
     def plot_TauColl(self, OneFigFile=False, xlim=None, ylim=None, **kargs):
         """ plot histogram of collision-times.
@@ -611,7 +590,8 @@ class GralPlot(object):
             f = h5(fname_inp, 'r')
             ht = HTauColl(fname_inp, nbin=1000)
             if ht is 0:
-                ax.text(.5, .5, 'sorry, no histograms for collision-tau.', transform=ax.transAxes)
+                ax.text(.5, .5, 'sorry, no histograms for collision-tau.',\
+                transform=ax.transAxes)
                 continue # next 'fid'
 
             h = ht.SumHsts_over_plas()
@@ -621,11 +601,12 @@ class GralPlot(object):
             opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1],'ls':''}
             label = self.MyLabels[fid]
             ax.plot(hx, hc, label=label, **opt)
+        ax.set_xlim(-1,5)
         ax.legend(loc='best', fontsize=7)
         ax.set_yscale(yscale)
         ax.grid(True)
         ax.set_ylabel('#')
-        ax.set_xlabel('$\\tau_{coll}$ [log(1/\Omega)]')
+        ax.set_xlabel('$log_{10}(\Omega \\tau_{coll})$')
         return fig, ax
 
 
@@ -806,33 +787,26 @@ class Hmgr:
 def load_traj(fname):
     f      = h5(fname, 'r')
     print " ---> reading: " + fname
-    PNAMES = f.keys()    # particle names
+    # count plas
+    PNAMES = []
+    for pnm in f.keys():
+        if pnm.startswith('pla'): PNAMES += [ pnm ]
+    #PNAMES = f.keys()    # particle names
     n      = len(PNAMES) # nmbr of plas in this file
-    # take a sample to find out the times
+    # take a sample to know the times
     tadim  = f[PNAMES[0]+'/tadim'].value
     nt     = tadim.size 
     x = np.zeros((n,nt))
     y = np.zeros((n,nt))
     z = np.zeros((n,nt))
     for pname, i in zip(PNAMES, range(n)):
-        if not pname.startswith('pla'):
-            continue
-
-        #print " --> pname: ", pname
         x[i,:], y[i,:], z[i,:] = f[pname+'/xyz'].value.T # [1]
 
-    wc   = f[PNAMES[0]+'/scl_wc'].value  # [s-1]
-    rl   = f[PNAMES[0]+'/scl_rl'].value  # [cm]
-    beta = f[PNAMES[0]+'/scl_beta'].value  # [1]
     o = {
-    'x': x*rl, 'y':y*rl, 'z': z*rl,  # [cm] (n, nt)
+    'x': x, 'y':y, 'z': z,  # [1] (n, nt)
     'tadim': tadim,
-    'wc': wc, 'rl': rl, 'beta': beta,
     'nplas': n, 'ntime': nt,
     }
-    # TODO: 'n' is not the true number of plas!! (we
-    # need to filter-in only those f.keys() that
-    # start with 'plas' ONLY!
     return o
 
 
@@ -840,23 +814,21 @@ def get_sqrs(fname_inp):
     o     = load_traj(fname_inp)
     nt    = o['ntime']
     nplas = o['nplas']
-    x, y, z = o['x'], o['y'], o['z']  # [cm] (nplas, nt)
-    rl    = o['rl']                   # [cm]
-    wc    = o['wc']                   # [s-1]
+    x, y, z = o['x'], o['y'], o['z']  # [1] (nplas, nt)
     tadim = o['tadim']                # [1]
-    tdim  = tadim/wc                  # [s]
-    AUincm = 1.5e13                   # [cm]
+    #tdim  = tadim/wc                  # [s]
+    #AUincm = 1.5e13                   # [cm]
     # promediamos sobre particulas
-    x2 = (x*x).mean(axis=0)           # [cm^2] 
-    y2 = (y*y).mean(axis=0)           # [cm^2] 
-    z2 = (z*z).mean(axis=0)           # [cm^2] 
-    kxx = x2/tdim                     # [cm2/s]
-    kyy = y2/tdim                     # [cm2/s]
-    kzz = z2/tdim                     # [cm2/s]
+    x2 = (x*x).mean(axis=0)           # [1] 
+    y2 = (y*y).mean(axis=0)           # [1] 
+    z2 = (z*z).mean(axis=0)           # [1] 
+    kxx = x2/tadim                    # [1]
+    kyy = y2/tadim                    # [1]
+    kzz = z2/tadim                    # [1]
     out = {
-    'kxx': kxx, 'kyy': kyy, 'kzz': kzz,
-    'tdim': tdim, 'tadim':tadim, 
-    'wc': wc, 'rl': rl, 
+    'kxx': kxx, 'kyy': kyy, 'kzz': kzz, # [1]
+    'tadim':tadim, 
+    #'wc': wc, 'rl': rl, 
     'nplas': nplas, 'ntime': nt,
     }
     return out

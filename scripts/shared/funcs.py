@@ -190,13 +190,13 @@ def SaveToFile(m, dpath='', f=None, nbin=None):
     f[dpath+'HistStep/bins_StepPart'] = bins_StepPart
     f[dpath+'HistStep/nbin'] = nbin
     #--- histos for tau-collision
-    tauLg   = np.log10(m.Tau[:,0]) # log([1/omega?])
+    tauLg   = np.log10(m.Tau[:,1]) # log([1/omega?])
     h       = np.histogram(tauLg, bins=nbin, normed=False)
     hc      = h[0]
     hbin    = 0.5*(h[1][:-1] + h[1][1:])    # log([1/omega?])
     f[dpath+'HistTau_log'] = np.array([hc, hbin])
     #--- histos theta (angle between x-y plane and z-axis, @collision)
-    theta   = m.Tau[:,3] # [deg]
+    theta   = m.Tau[:,4] # [deg]
     h       = np.histogram(theta, bins=nbin, normed=False)
     hc      = h[0]
     hbin    = 0.5*(h[1][:-1] + h[1][1:])    # [deg]

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env ipython
 # -*- coding: utf-8 -*-
 """
 What we do here:

@@ -113,7 +113,7 @@ for npla in plas: #[25:]:
     m.SetSim(**psim)
     m.RunSim()
 
-    print " [r:%d] simulation (pla:%d) finished!" % (rank, npla)
+    print " [r:%d] (pla:%d of %d) finished!" % (rank, npla, plas[-1])
     dpath = 'pla%03d/' % npla
     print " [r:%d] writing: %s" % (rank, fo.filename)
     ff.SaveToFile(m, dpath, fo, nbin)
