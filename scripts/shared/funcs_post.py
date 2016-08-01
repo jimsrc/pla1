@@ -600,8 +600,8 @@ class GralPlot(object):
             isym = np.mod(i,len(self.sym))
             opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1],'ls':''}
             label = self.MyLabels[fid]
-            ax.plot(hx, hc, label=label, **opt)
-        ax.set_xlim(-1,5)
+            hx_ = hx - np.log10(2.*M_PI) #hx_: log10(omega*tau/2pi)
+            ax.plot(hx_, hc, label=label, **opt)
         ax.legend(loc='best', fontsize=7)
         ax.set_yscale(yscale)
         ax.grid(True)
