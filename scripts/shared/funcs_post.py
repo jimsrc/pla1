@@ -126,7 +126,7 @@ class GenAnalysis(object):
         fname_out = self.ps['dir_dst'] + '/fig_' + fname_base + '.pdf'
         pdf_pages = PdfPages(fname_out_tmp)
 
-        gp = GralPlot(ps, check=None, check_all=None)
+        gp = GralPlot(ps, prefix=self.fprefix, check=None, check_all=None)
         gp.do_checks()
         gp.build_labels()
 
@@ -290,8 +290,9 @@ class GenAnalysis(object):
 
 
 class GralPlot(object):
-    def __init__(self, ps, check=None, check_all=False):
+    def __init__(self, ps, prefix='o_', check=None, check_all=False):
         self.ps = ps
+        self.prefix = prefix
         self.check = check
         self.check_all = check_all
         # symbols to iterate over
@@ -313,7 +314,7 @@ class GralPlot(object):
         #--- valores de los parametros 
         values = {}
         for fid in self.ps['id']:
-            fname_inp = self.ps['dir_src'] + '/o_%04d'%fid + '.h5'
+            fname_inp = self.ps['dir_src']+'/'+self.prefix+'%04d'%fid+'.h5'
             f = h5(fname_inp, 'r')
             values[fid] = ''
             for name in self.ps['label']:
@@ -331,7 +332,7 @@ class GralPlot(object):
         # should we check file keys?
         if self.check is not None:
             for fid in ps['id']:
-                fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
+                fname_inp = ps['dir_src']+'/'+self.prefix+'%04d'%fid+'.h5'
                 f = h5(fname_inp, 'r')
                 for ch in self.check:
                     # check we have that key in file
@@ -341,7 +342,7 @@ class GralPlot(object):
         # should we check *all* 'ps' keys?
         if self.check_all:
             for fid, i in zip(ps['id'], range(len(ps['id']))):
-                fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
+                fname_inp = ps['dir_src']+'/'+self.prefix+'%04d'%fid+'.h5'
                 f = h5(fname_inp, 'r')
                 for ch in ps.keys(): # check all parameters
                     if ch.startswith(('dir_','label','id')): # skip
@@ -379,7 +380,7 @@ class GralPlot(object):
         id_indexes = range(len(ps['id'])) # indexes
         err_min, err_max = 1e31, -1e31 # para ajustar el set_ylim()
         for fid, i in zip(ps['id'], id_indexes):
-            fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
+            fname_inp = ps['dir_src']+'/'+self.prefix+'%04d'%fid+'.h5'
             f = h5(fname_inp, 'r')
             tadim = f['pla000/tadim']
             PNAMES = [] # particle names
@@ -444,7 +445,7 @@ class GralPlot(object):
         # iterate over all input-files
         id_indexes = range(len(ps['id'])) # indexes
         for fid, i in zip(ps['id'], id_indexes):
-            fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
+            fname_inp = ps['dir_src']+'/'+self.prefix+'%04d'%fid+'.h5'
             f = h5(fname_inp, 'r')
             PNAMES = f.keys()
 
@@ -507,7 +508,7 @@ class GralPlot(object):
         # iterate over all input-files
         id_indexes = range(len(ps['id'])) # indexes
         for fid, i in zip(ps['id'], id_indexes):
-            fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
+            fname_inp = ps['dir_src']+'/'+self.prefix+'%04d'%fid+'.h5'
             o[kk] = get_sqrs(fname_inp) # w/ corrected dimensions
             with h5(fname_inp, 'r') as f:
                 Lc_s = f['psim/Lc_slab'].value # [1]
@@ -553,7 +554,7 @@ class GralPlot(object):
         # iterate over all input-files
         id_indexes = range(len(ps['id'])) # indexes
         for fid, i in zip(ps['id'], id_indexes):
-            fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
+            fname_inp = ps['dir_src'] + '/'+self.prefix+'%04d'%fid + '.h5'
             ht = HThetaColl(fname_inp)
             h = ht.SumHsts_over_plas() # my histograms!!
             if h is 0:
@@ -586,7 +587,7 @@ class GralPlot(object):
         id_indexes = range(len(ps['id'])) # indexes
         err_min, err_max = 1e31, -1e31 # para ajustar el set_ylim()
         for fid, i in zip(ps['id'], id_indexes):
-            fname_inp = ps['dir_src'] + '/o_%04d'%fid + '.h5'
+            fname_inp = ps['dir_src'] + '/'+self.prefix+'%04d'%fid + '.h5'
             f = h5(fname_inp, 'r')
             ht = HTauColl(fname_inp, nbin=1000)
             if ht is 0:

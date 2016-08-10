@@ -14,13 +14,15 @@ import argparse
 
 # retrieve the IDentifiers :-)
 parser = argparse.ArgumentParser()
-parser.add_argument('--IDs', type=str)
-parser.add_argument('--legend', type=str)
+parser.add_argument('-i', '--IDs', type=str)
+parser.add_argument('-l', '--legend', type=str)
+parser.add_argument('-p', '--prefix', type=str, default='o_')
 try:
     pa = parser.parse_args()
     ids = pa.IDs
     mylist = map(int, ids.split(','))
     mylabels = pa.legend.split(',')
+    prefix = pa.prefix
     print pa
 except IOError, msg:
     parser.error(str(msg))
@@ -32,7 +34,7 @@ ps = {
 'label'     : mylabels, # list of params for legend
 }
 
-ga = sfp.GenAnalysis(ps, prefix='o_')
+ga = sfp.GenAnalysis(ps, prefix=prefix)
 ga.gen_hash()  # genera el identificador
 ga.make_pdf()
 
