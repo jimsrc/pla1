@@ -25,6 +25,7 @@ decoded = gh.decode(encoded=myhash)
 nID = len(decoded)/4
 ok = True
 for i in range(nID):
+    #TODO: don't always assume 'o_'
     fnm = '{PLA1}/out'.format(**os.environ) + '/o_' + decoded[4*i:4*(i+1)]+'.h5'
     os.system('ls -lhtr '+fnm)
     ok &= os.path.isfile(fnm)

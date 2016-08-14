@@ -73,7 +73,6 @@ class GenHash(object):
 
     def encode(self, mykey):
         """ encode a string """
-        #MyKey = 'This_passWD :P'
         self.myhash['key'] =  mykey
 
         self.myhash['encoded'] = self.EncodeAES(self.myhash['cipher'], mykey)
@@ -105,7 +104,12 @@ class GenAnalysis(object):
         # encode a string
         MyKey = '' #'This_passWD :P'
         for myid in self.idlist:
-            MyKey += '%04d' % myid
+            MyKey += '%04d' % myid # see bug.
+        #TODO: (bug) generate 'MyKey' as '{prefix}_{number}', 
+        #      where, {number} can be the product of all
+        #      ID-numbers; don't use the series itself!
+        #      Save the series of IDs in a .h5 data base, 
+        #      associated to to the generated-hash.
         return gh.encode(MyKey)
 
     def make_pdf(self):
@@ -524,7 +528,7 @@ class GralPlot(object):
             'alpha'     : 0.6,
             'mec'       : 'none',
             }
-            mfp = kprof/Lc_s # [1] normalized (correct) units
+            mfp = 3.*kprof/Lc_s # [1] normalized (correct) units
             ax.plot(tadim, mfp, '-o', **opt)
 
         ax.set_yscale(yscale)
@@ -823,9 +827,9 @@ def get_sqrs(fname_inp):
     x2 = (x*x).mean(axis=0)           # [1] 
     y2 = (y*y).mean(axis=0)           # [1] 
     z2 = (z*z).mean(axis=0)           # [1] 
-    kxx = x2/tadim                    # [1]
-    kyy = y2/tadim                    # [1]
-    kzz = z2/tadim                    # [1]
+    kxx = x2/(2.*tadim)               # [1]
+    kyy = y2/(2.*tadim)               # [1]
+    kzz = z2/(2.*tadim)               # [1]
     out = {
     'kxx': kxx, 'kyy': kyy, 'kzz': kzz, # [1]
     'tadim':tadim, 
