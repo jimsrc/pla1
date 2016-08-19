@@ -97,14 +97,25 @@ class GenAnalysis(object):
         #---- other arguments
         self.fprefix = kargs.get('prefix', 'o_') # input fname prefix
 
-    def gen_hash(self):
-        gh = GenHash()
-        # I want hash properties available
-        self.myhash = gh.myhash
+    def gen_codification(self):
+        """
+        Generates a string code based on our
+        list 'self.idlist' of id-numbers
+        Returns a string.
+        """
         # encode a string
         MyKey = '' #'This_passWD :P'
         for myid in self.idlist:
             MyKey += '%04d' % myid # see bug.
+
+        return MyKey
+
+    def gen_hash(self):
+        gh = GenHash()
+        # I want hash properties available
+        self.myhash = gh.myhash
+        # build string codification
+        MyKey = self.gen_codification() #'This_passWD :P'
         #TODO: (bug) generate 'MyKey' as '{prefix}_{number}', 
         #      where, {number} can be the product of all
         #      ID-numbers; don't use the series itself!
@@ -114,6 +125,10 @@ class GenAnalysis(object):
 
     def make_pdf(self):
         """ 
+        We need:
+        - hash identifier 'self.myhash["encoded"]' (e.g. see 
+        the self.gen_hash() routine).
+        What we do:
         Llama a los generadores de figuras 'GralPlot::plot_...()', y los
         pone uno en c/pagina de .pdf
         Antes de esto, genera una pagina q contiene la tabla de 
