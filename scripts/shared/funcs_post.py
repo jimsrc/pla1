@@ -29,15 +29,36 @@ AUincm = 1.5e13                   # [cm]
 
 
 def DecodeHex_and_GetIDs(fname_key=None):
+    """
+    Get the list of id-file-numbers from a 
+    string stored inside the file 'fname_key'.
+    IMPORTANT: this should be upated with the
+    codification method implemented in
+    the GenAnalysis::gen_codification() routine.
+    """
     f = open(fname_key, 'r')
     key = f.readline()
+    prefix = f.readline()[:-1] # avoiding the '\n'
     gh = GenHash()
     decoded_str = gh.decode(encoded=key)
-    n = len(decoded_str)/4
-    IDs = []
-    for i in range(n):
-        IDs += [ int(decoded_str[4*i:4*(i+1)]) ]
-    return decoded_str, IDs
+    #--- here is the decoding method
+    #n = len(decoded_str)/4
+    #IDs = []
+    #for i in range(n):
+    #    IDs += [ int(decoded_str[4*i:4*(i+1)]) ]
+    M = int(decoded_str)
+    m = 10 # NOTE: this MUST BE the same as 
+           # in GenAnalysis::gen_codification() !!
+    n, IDs, flag = 0, [], True
+    while flag:
+        an = int( M/(2**(n*m)) )%(2**m) 
+        if an==0:
+            flag = False
+        else:
+            IDs += [ an ]
+            n += 1
+    #-------------------------------
+    return decoded_str, IDs, prefix
 
 
 class GenHash(object):
@@ -79,7 +100,6 @@ class GenHash(object):
         print 'Encrypted string:\n', self.myhash['encoded']
         return self.myhash['encoded']
 
-
     def decode(self, **kargs):
         """ decode the encoded string """
         encoded = kargs.get('encoded', self.myhash.get('encoded',None))
@@ -104,10 +124,14 @@ class GenAnalysis(object):
         Returns a string.
         """
         # encode a string
-        MyKey = '' #'This_passWD :P'
-        for myid in self.idlist:
-            MyKey += '%04d' % myid # see bug.
-
+        m  = 10 # (*)
+        nf = len(self.idlist)
+        M  = 0
+        for n in range(nf):
+            M += self.idlist[n]*2**(n*m)
+        MyKey = str(M)
+        # (*) so we can store list of numbers whose 
+        #     values doesn't exceed 2**m, for each of them.
         return MyKey
 
     def gen_hash(self):
@@ -116,11 +140,6 @@ class GenAnalysis(object):
         self.myhash = gh.myhash
         # build string codification
         MyKey = self.gen_codification() #'This_passWD :P'
-        #TODO: (bug) generate 'MyKey' as '{prefix}_{number}', 
-        #      where, {number} can be the product of all
-        #      ID-numbers; don't use the series itself!
-        #      Save the series of IDs in a .h5 data base, 
-        #      associated to to the generated-hash.
         return gh.encode(MyKey)
 
     def make_pdf(self):
@@ -198,7 +217,8 @@ class GenAnalysis(object):
         #--- save code into an ASCII .key file (with my identifier)
         fname_key = self.ps['dir_dst'] + '/' + fname_base + '.key'
         os.system('echo ' + self.myhash['encoded'] + ' > '+fname_key)
-        print " ---> saved key into:\n"+fname_key
+        os.system('echo ' + self.fprefix + ' >> '+fname_key)
+        print " ---> saved key (and prefix) into:\n"+fname_key
 
     def build_params_pdf(self, fname_base):
         p_comm, p_diff = self.compare_psim() # dictionaries
