@@ -5,7 +5,7 @@ What we do here:
 - process .h5 output-files to generate .key (hex of hash generated 
 code) && .pdf (figures).
 - example:
-$ python ./juguete.py --IDs 37,38,39,40,41 --legend Nm_slab,Nm_2d
+$ ./juguete.py -- --IDs 5,6,7,8 --legend Nm_slab,Nm_2d --prefix h_
 """
 import os, sys
 from os.path import isfile, isdir

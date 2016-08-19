@@ -243,13 +243,13 @@ class GenAnalysis(object):
         #--- ahora hacemos la tex-tabla para los parametros diferentes
         header = [u'name \\texttt{\\textbackslash} ID',]
         for myid in self.idlist:
-            header += [ '%04d'%myid ]
+            header += [ '%03d'%myid ]
 
         tbdiff += [ header ]
         for nm in p_diff.keys():
             pars = []
             for myid in self.idlist:
-                fname_inp = self.ps['dir_src'] + '/' + self.fprefix + '%04d.h5' % myid
+                fname_inp = self.ps['dir_src'] + '/' + self.fprefix + '%03d.h5' % myid
                 with h5(fname_inp, 'r') as f:
                     par = f['psim/'+nm].value
                     pars += [ '%2.2e' % par ]
@@ -294,14 +294,14 @@ class GenAnalysis(object):
         p_comm = {} # dict de params iguales
         p_diff = {} # dict de parametros en q difieren
         
-        fname_inp_h5_ = self.ps['dir_src'] + '/' + self.fprefix + '%04d.h5' % self.idlist[0] # pick one
+        fname_inp_h5_ = self.ps['dir_src'] + '/' + self.fprefix + '%03d.h5' % self.idlist[0] # pick one
         f = h5(fname_inp_h5_, 'r')
         p_test = {} # dict de prueba, para comparar si todos son iguales
         for pnm in f['psim'].keys():
             p_test[pnm] = [ f['psim/'+pnm].value ] 
 
         for myid in self.idlist:
-            fname_inp_h5 = self.ps['dir_src'] + '/' + self.fprefix + '%04d.h5' % myid
+            fname_inp_h5 = self.ps['dir_src'] + '/' + self.fprefix + '%03d.h5' % myid
             f = h5(fname_inp_h5, 'r')
             print " ------- " + fname_inp_h5 + " ------- "
             for pnm in f['psim'].keys():
@@ -353,7 +353,7 @@ class GralPlot(object):
         #--- valores de los parametros 
         values = {}
         for fid in self.ps['id']:
-            fname_inp = self.ps['dir_src']+'/'+self.prefix+'%04d'%fid+'.h5'
+            fname_inp = self.ps['dir_src']+'/'+self.prefix+'%03d'%fid+'.h5'
             f = h5(fname_inp, 'r')
             values[fid] = ''
             for name in self.ps['label']:
@@ -371,7 +371,7 @@ class GralPlot(object):
         # should we check file keys?
         if self.check is not None:
             for fid in ps['id']:
-                fname_inp = ps['dir_src']+'/'+self.prefix+'%04d'%fid+'.h5'
+                fname_inp = ps['dir_src']+'/'+self.prefix+'%03d'%fid+'.h5'
                 f = h5(fname_inp, 'r')
                 for ch in self.check:
                     # check we have that key in file
@@ -381,7 +381,7 @@ class GralPlot(object):
         # should we check *all* 'ps' keys?
         if self.check_all:
             for fid, i in zip(ps['id'], range(len(ps['id']))):
-                fname_inp = ps['dir_src']+'/'+self.prefix+'%04d'%fid+'.h5'
+                fname_inp = ps['dir_src']+'/'+self.prefix+'%03d'%fid+'.h5'
                 f = h5(fname_inp, 'r')
                 for ch in ps.keys(): # check all parameters
                     if ch.startswith(('dir_','label','id')): # skip
@@ -419,7 +419,7 @@ class GralPlot(object):
         id_indexes = range(len(ps['id'])) # indexes
         err_min, err_max = 1e31, -1e31 # para ajustar el set_ylim()
         for fid, i in zip(ps['id'], id_indexes):
-            fname_inp = ps['dir_src']+'/'+self.prefix+'%04d'%fid+'.h5'
+            fname_inp = ps['dir_src']+'/'+self.prefix+'%03d'%fid+'.h5'
             f = h5(fname_inp, 'r')
             tadim = f['pla000/tadim']
             PNAMES = [] # particle names
@@ -484,7 +484,7 @@ class GralPlot(object):
         # iterate over all input-files
         id_indexes = range(len(ps['id'])) # indexes
         for fid, i in zip(ps['id'], id_indexes):
-            fname_inp = ps['dir_src']+'/'+self.prefix+'%04d'%fid+'.h5'
+            fname_inp = ps['dir_src']+'/'+self.prefix+'%03d'%fid+'.h5'
             f = h5(fname_inp, 'r')
             PNAMES = f.keys()
 
@@ -547,7 +547,7 @@ class GralPlot(object):
         # iterate over all input-files
         id_indexes = range(len(ps['id'])) # indexes
         for fid, i in zip(ps['id'], id_indexes):
-            fname_inp = ps['dir_src']+'/'+self.prefix+'%04d'%fid+'.h5'
+            fname_inp = ps['dir_src']+'/'+self.prefix+'%03d'%fid+'.h5'
             o[kk] = get_sqrs(fname_inp) # w/ corrected dimensions
             with h5(fname_inp, 'r') as f:
                 Lc_s = f['psim/Lc_slab'].value # [1]
@@ -593,7 +593,7 @@ class GralPlot(object):
         # iterate over all input-files
         id_indexes = range(len(ps['id'])) # indexes
         for fid, i in zip(ps['id'], id_indexes):
-            fname_inp = ps['dir_src'] + '/'+self.prefix+'%04d'%fid + '.h5'
+            fname_inp = ps['dir_src'] + '/'+self.prefix+'%03d'%fid + '.h5'
             ht = HThetaColl(fname_inp)
             h = ht.SumHsts_over_plas() # my histograms!!
             if h is 0:
@@ -626,7 +626,7 @@ class GralPlot(object):
         id_indexes = range(len(ps['id'])) # indexes
         err_min, err_max = 1e31, -1e31 # para ajustar el set_ylim()
         for fid, i in zip(ps['id'], id_indexes):
-            fname_inp = ps['dir_src'] + '/'+self.prefix+'%04d'%fid + '.h5'
+            fname_inp = ps['dir_src'] + '/'+self.prefix+'%03d'%fid + '.h5'
             f = h5(fname_inp, 'r')
             ht = HTauColl(fname_inp, nbin=1000)
             if ht is 0:
