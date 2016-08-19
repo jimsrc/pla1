@@ -15,21 +15,35 @@ if not os.path.isfile(fname_inp):
     " -----> no existe el archivo .key!" 
     exit()
 
-with open(fname_inp, 'r') as f:
-    myhash = f.readline()
+dir_src = '{PLA1}/out'.format(**os.environ)
+decoded_str, IDs, prefix = sfp.DecodeHex_and_GetIDs(fname_inp)
 
-gh = sfp.GenHash()
-
-#myhash = hexstr.decode('hex')
-decoded = gh.decode(encoded=myhash)
-nID = len(decoded)/4
 ok = True
-for i in range(nID):
-    #TODO: don't always assume 'o_'
-    fnm = '{PLA1}/out'.format(**os.environ) + '/o_' + decoded[4*i:4*(i+1)]+'.h5'
+for ID in IDs:
+    # we assume file IDs have 3 digits (see below: %03d)
+    fnm = dir_src + '/' + prefix + '%03d'%ID + '.h5'
     os.system('ls -lhtr '+fnm)
     ok &= os.path.isfile(fnm)
 
 if ok:
     print " ---> all .h5 files exist!"
+else:
+    print " ---> *not* all files exist!"
+
+
+
+
+##--- decodification method
+#nID = len(decoded)/4
+#ok = True
+#for i in range(nID):
+#    #TODO: don't always assume 'o_'
+#    fnm = '{PLA1}/out'.format(**os.environ) + '/o_' + decoded[4*i:4*(i+1)]+'.h5'
+#    os.system('ls -lhtr '+fnm)
+#    ok &= os.path.isfile(fnm)
+#
+#if ok:
+#    print " ---> all .h5 files exist!"
+#else:
+#    print " ---> *not* all files exist!"
 #EOF
