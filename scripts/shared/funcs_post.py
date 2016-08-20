@@ -3,6 +3,9 @@
 from h5py import File as h5
 from os.path import isfile, isdir
 import numpy as np
+from numpy import (
+    log10, array, ones, zeros, nan
+)
 from pylab import (
     pause, find, figure, close
 )
@@ -178,19 +181,27 @@ class GenAnalysis(object):
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
-        #--- 3rd page
+        #--- 3rd,4th,5th page
         Ks = ('xx', 'yy', 'zz')
         for kk in Ks: #--- plot kxx, kyy, kzz
             fig, ax = gp.plot_kdiff(xaxis='mfp', nm=kk)
             pdf_pages.savefig(fig, bbox_inches='tight')
             close(fig)
 
-        #--- 4th page
-        fig, ax = gp.plot_TauColl()
+        #--- 6th page
+        fig, ax = gp.plot_TauColl(scale='omega')
+        pdf_pages.savefig(fig, bbox_inches='tight')
+        close(fig)
+        #--- 6th page
+        fig, ax = gp.plot_TauColl(scale='lmin_s')
+        pdf_pages.savefig(fig, bbox_inches='tight')
+        close(fig)
+        #--- 6th page
+        fig, ax = gp.plot_TauColl(scale='lmax_s')
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
-        #--- 5th page
+        #--- 7th page
         fig, ax = gp.plot_HistThetaColl()
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
@@ -502,19 +513,20 @@ class GralPlot(object):
             isym = np.mod(i,len(sym))
             opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1], 'ls':''}
             label = self.MyLabels[fid] #ps['label'][i]
-            lmin = f['psim/lmin'].value # [r_larmor]
+            lmin  = f['psim/lmin'].value # [r_larmor]
             dRbin = hmg.hbin/lmin # (eq. np-1)
             ax2.plot(dRbin, hmg.h, label=label, **opt)
             ax2.set_xlim(dRbin[0], dRbin[-1])
             ax2.set_xlabel('$\Delta r/\lambda_{min}$')
             ax2.set_xscale('log')
-            ax.plot(hmg.hbin, hmg.h, label=label, **opt)
+            hbin_ = hmg.hbin/(2.*M_PI)
+            ax.plot(hbin_, hmg.h, label=label, **opt)
             ax.legend(loc='best', fontsize=7)
             ax.set_xscale('log')
             ax.set_yscale('log')
-            ax.set_xlabel('$\Omega dt$')
+            ax.set_xlabel('$\Omega dt/2\pi$')
             ax.set_ylabel('#')
-            ax.set_xlim(hmg.hbin[0], hmg.hbin[-1])
+            ax.set_xlim(hbin_[0], hbin_[-1])
             if ylim is not None:
                 ax.set_ylim(ylim)
 
@@ -613,8 +625,9 @@ class GralPlot(object):
         ax.set_xlabel('$\\theta_{coll}$ [deg]')
         return fig, ax
 
-    def plot_TauColl(self, OneFigFile=False, xlim=None, ylim=None, **kargs):
+    def plot_TauColl(self, scale='omega', OneFigFile=False, xlim=None, ylim=None, **kargs):
         """ plot histogram of collision-times.
+        scale: 'omega' or 'lmin_s'
         """
         ps  = self.ps
         sym = self.sym
@@ -624,7 +637,6 @@ class GralPlot(object):
         ax  = fig.add_subplot(111)
         # iterate over all input-files
         id_indexes = range(len(ps['id'])) # indexes
-        err_min, err_max = 1e31, -1e31 # para ajustar el set_ylim()
         for fid, i in zip(ps['id'], id_indexes):
             fname_inp = ps['dir_src'] + '/'+self.prefix+'%03d'%fid + '.h5'
             f = h5(fname_inp, 'r')
@@ -636,17 +648,29 @@ class GralPlot(object):
 
             h = ht.SumHsts_over_plas()
             hx, hc = h['hbins'], h['hcnts']
-            # now lets plot :)
             isym = np.mod(i,len(self.sym))
             opt = {'ms': 3, 'mec':'none', 'marker': sym[isym-1],'ls':''}
             label = self.MyLabels[fid]
-            hx_ = hx - np.log10(2.*M_PI) #hx_: log10(omega*tau/2pi)
-            ax.plot(hx_, hc, label=label, **opt)
+            # now lets plot :)
+            if scale=='omega':
+                hx_ = hx + log10(1/(2.*M_PI)) 
+                #hx_: log10(omega*tau/2pi)
+            elif scale=='lmin_s':
+                hx_ = hx + log10(1/f['psim/lmin_s'].value)
+            elif scale=='lmax_s':
+                hx_ = hx + log10(1/f['psim/lmax_s'].value)
+            ax.plot(10.**hx_, hc, label=label, **opt)
         ax.legend(loc='best', fontsize=7)
+        ax.set_xscale('log')
         ax.set_yscale(yscale)
         ax.grid(True)
         ax.set_ylabel('#')
-        ax.set_xlabel('$log_{10}(\Omega \\tau_{coll})$')
+        if scale=='omega':
+            ax.set_xlabel('$log_{10}(\Omega \\tau_{coll}/2\pi)$')
+        elif scale=='lmin_s':
+            ax.set_xlabel('$log_{10}(v \\tau_{coll}/\lambda_{min})$')
+        elif scale=='lmax_s':
+            ax.set_xlabel('$log_{10}(v \\tau_{coll}/\lambda_{max})$')
         return fig, ax
 
 
