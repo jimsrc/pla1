@@ -159,16 +159,11 @@ def SaveToFile(m, dpath='', f=None, nbin=None):
     """
     vsave = {
     'tadim'     : m.tsave,      # [omega^-1]
-    #'ysave'     : m.ysave,      # [1]
     'xyz'       : m.xyz,        # [1]
     'err'       : m.err,        # [1] no porcentaje
     'mu'        : m.mu,         # [1]
     'vel'       : m.vel,        # [scl_vel] normalizadas
-    #'scl_wc'    : m.scl['wc'],  # [s^-1]
-    #'scl_vel'   : m.scl['vel'], # [cm/s]
-    #'scl_beta'  : m.scl['beta'], # [1]
-    #'scl_gamma' : m.scl['gamma'], # [1]
-    #'scl_rl'    : m.scl['rl'],  # [cm]
+    'trun'      : m.trun,       # [sec] runtime
     }
 
     #--- variables
