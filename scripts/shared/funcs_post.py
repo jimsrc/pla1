@@ -192,16 +192,16 @@ class GenAnalysis(object):
         fig, ax = gp.plot_TauColl(scale='omega')
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
-        #--- 6th page
+        #--- 7th page
         fig, ax = gp.plot_TauColl(scale='lmin_s')
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
-        #--- 6th page
+        #--- 8th page
         fig, ax = gp.plot_TauColl(scale='lmax_s')
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
-        #--- 7th page
+        #--- 9th page
         fig, ax = gp.plot_HistThetaColl()
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
