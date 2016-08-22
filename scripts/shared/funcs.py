@@ -3,6 +3,7 @@
 from h5py import File as h5
 from os.path import isfile, isdir
 import numpy as np
+from numpy import power as pow
 from pylab import (
     pause, find, figure, close
 )
@@ -13,6 +14,32 @@ from Bparker.Bparker import return_B as Bparker_vector
 from numpy.linalg import norm
 
 
+def calc_Rlarmor(rigidity, Bo):
+    """
+    input:
+    Ek      : [eV] kinetic energy
+    rigi..  : [V] rigidity
+    Bo      : [G] magnetic field in Gauss
+    output:
+    Rl  : [cm] larmor radii
+    """
+    q = (4.8032*1e-10) # [statC] carga PROTON
+    mo = 1.6726e-24 # [gr] masa PROTON
+    c = 3e10            # [cm/s] light speed
+    AU_in_cm = 1.5e13     # [cm]
+    E_reposo=938272013.0  # [eV] PROTON
+    #beta, gamma, omg, v
+
+    #rigidity = sqrt(Ek*Ek + 2.*Ek*E_reposo);
+    #------------------------CALCULO DE GAMMA Y BETA
+    gamma = pow(pow(rigidity/E_reposo,2) + 1. , 0.5)
+    beta = pow(1. - 1/(gamma*gamma) , 0.5)
+    #------------------------------CALCULO CICLOTRON
+    omg = q * Bo / (gamma * mo * c)     # [s^-1]
+    #---------------------------CALCULO RADIO LARMOR
+    v   = beta * c              # [cm/s]
+    #Rl[0]  = (v / omg) /AU_in_cm  # [AU]
+    return (v / omg) # [cm]
 
 def Lc_memilia(r=1.0):
     """ 

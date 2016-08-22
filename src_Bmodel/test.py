@@ -4,7 +4,8 @@ import numpy as np
 #from numpy.linalg import norm
 import Bmodel
 #from Bparker.Bparker import return_B as Bparker_vector
-from shared.funcs import calc_Rlarmor, Bo_parker, Lc_memilia
+from shared.funcs import Bo_parker, Lc_memilia
+from src.cython_wrapper import calc_Rlarmor
 #--- parameters
 from params import (
     nB, pd, psim, pother, mu, ph, AU_in_cm
