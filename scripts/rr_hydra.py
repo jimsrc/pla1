@@ -37,28 +37,29 @@ r[AU]    B[nT]       Rl[AU]         Lc[AU]      Rl/Lc   Rl/(5e-5AU)
 1.0      5.0         7.553521E-03   0.0089      0.85    151.07
 2.0      1.99653571  1.891657E-02   0.0119904   1.58    378.33
 """
-ro = 1.0
-Lc_slab = 0.01 #ff.Lc_memilia(r=ro)   # [AU]
+ro = 0.9
+Lc_slab = ff.Lc_memilia(r=ro)   # [AU]
+#psim['rigidity'] = 1.69604E+08
 Rl = cw.calc_Rlarmor(
-    rigidity=4.33306E+07, #1.69604E+09,    # [V]
+    rigidity=1.69604E+09,    # [V]
     Bo=ff.Bo_parker(r=ro)    # [Gauss]
     )/AUincm                 # [AU] Larmor radii
 #--- set B-turbulence model
 pd.update({
-'Nm_slab'       : 128,
-'Nm_2d'         : 128,
+'Nm_slab'       : 256,
+'Nm_2d'         : 256,
 'lmin_s'        : 5e-5/Rl, #[lmin_s/Rl] 
 'lmax_s'        : 1.0/Rl,  #[lmax_s/Rl] 
 'lmin_2d'       : 5e-5/Rl, #[lmin_2d/Rl] 
 'lmax_2d'       : 1.0/Rl,  #[lmax_2d/Rl] 
 'Lc_slab'       : Lc_slab/Rl,  # in units of Larmor-radii
 'xi'            : 1.0, # [1] xi=Lc_2d/Lc_slab 
-'sigma_Bo_ratio': 0.3, # [1] fluctuation energy
+'sigma_Bo_ratio': 1.0, #0.3, # [1] fluctuation energy
 'ratio_slab'    : 0.2, # [1] (energy_slab)/(energy_total)
 })
 #--- corregimos input
-psim['tmax']     = 1e4 #0.3e4 #4e4
-eps_o = 1.0e-05 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
+psim['tmax']     = 4e4 #0.3e4 #4e4
+eps_o = 1e-6 #4.64e-4 #1e-6 (error-step)/(lambda_min)
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
 psim['atol']     = lmin*eps_o  # [1]
 psim['rtol']     = 0.0 #1e-6
@@ -69,14 +70,14 @@ po.update(psim)
 po.update(pd)
 # add some stuff
 po.update({
-'r'     : ro,            # [AU] heliodistance
-'eps_o' : eps_o,         # [1]  precision
-'lmin'  : lmin/AU_in_cm, # [AU] minimum turb scale
-'RloLc' : Rl/Lc_slab,   # [1] (r_larmor)/(Lc_slab)
+    'r'     : ro,           # [AU] heliodistance
+    'eps_o' : eps_o,        # [1]  precision
+    'lmin'  : lmin,         # [AU] minimum turb scale
+    'RloLc' : Rl/Lc_slab,   # [1] (r_larmor)/(Lc_slab)
 })
 
 dir_out = '../out'
-fname_out = dir_out+'/r.{r:1.2f}_RloLc.{RloLc:1.2e}_eps.{eps_o:1.2e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}.h5'.format(**po)
+fname_out = dir_out+'/r.{r:1.2f}_RloLc.{RloLc:1.2e}_eps.{eps_o:1.2e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}_sig.{sigma_Bo_ratio:2.2f}.h5'.format(**po)
 
 #--- call simulator
 m = cw.mgr()
