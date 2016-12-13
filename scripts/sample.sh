@@ -3,7 +3,7 @@
 #PBS -q larga
 #PBS -M jimmy.ilws@gmail.com
 #PBS -m abe 
-#PBS -N run.sh
+#PBS -N lmin=5e-6AU
 #PBS -j oe
 #PBS -k oe
 

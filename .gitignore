@@ -3,7 +3,7 @@
 *.log
 *.so
 *a.out
-*.swp
+*.sw[oplmn]
 
 # hidden vim-session files
 .*.vim
