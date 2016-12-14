@@ -13,10 +13,25 @@ import shared.funcs_post as sfp
 import argparse
 
 # retrieve the IDentifiers :-)
-parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--IDs', type=str)
-parser.add_argument('-l', '--legend', type=str)
-parser.add_argument('-p', '--prefix', type=str, default='o_')
+parser = argparse.ArgumentParser(
+formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
+parser.add_argument(
+'-i', '--IDs', 
+type=str,
+help='list of identifier numbers.',
+)
+parser.add_argument(
+'-l', '--legend', 
+type=str,
+help='list of parameters to show in legend of figures.',
+)
+parser.add_argument(
+'-p', '--prefix', 
+type=str, 
+default='h_',
+help='prefix string of input filenames.',
+)
 try:
     pa = parser.parse_args()
     ids = pa.IDs

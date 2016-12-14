@@ -269,7 +269,8 @@ class GenAnalysis(object):
         TexTab_diff = tabulate(tbdiff, tablefmt='latex', headers='firstrow')
 
         #--- beginin of .tex document
-        with open(os.environ['HOME']+'/utils/tex_begin.txt', 'r') as f:
+        #with open(os.environ['HOME']+'/utils/tex_begin.txt', 'r') as f:
+        with open('./shared/tex_begin.txt', 'r') as f:
             tex_begin_lines = f.readlines()
 
         self.fname_tab_base = fname_tab_base = '_tmp.table_' + fname_base
