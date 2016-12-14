@@ -41,7 +41,7 @@ ro = 1.0 # [AU] heliospheric radius
 Lc_slab = ff.Lc_memilia(r=ro)   # [AU]
 #psim['rigidity'] = 1.69604E+08
 Rl = cw.calc_Rlarmor(
-    rigidity=1.37352E+08,    # [V]
+    rigidity=1.0898E+10,    # [V]
     Bo=1e-4, # 10nT=1e-4G (Bo cerca del shock) ###ff.Bo_parker(r=ro)  # [Gauss]
     )/AUincm                 # [AU] Larmor radii
 #--- set B-turbulence model
@@ -59,7 +59,7 @@ pd.update({
 })
 #--- corregimos input
 psim['tmax']     = 4e4 #0.3e4 #4e4
-eps_o = 1e-6 #4.64e-4 #1e-6 (error-step)/(lambda_min)
+eps_o = 4.64e-6 #4.64e-4 #1e-6 (error-step)/(lambda_min)
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
 psim['atol']     = lmin*eps_o  # [1]
 psim['rtol']     = 0.0 #1e-6
