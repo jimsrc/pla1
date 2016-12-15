@@ -14,7 +14,7 @@ from Bparker.Bparker import return_B as Bparker_vector
 from numpy.linalg import norm
 
 
-def calc_Rlarmor(rigidity, Bo):
+def calc_Rlarmor(rigidity, Bo, full=False):
     """
     input:
     Ek      : [eV] kinetic energy
@@ -39,7 +39,10 @@ def calc_Rlarmor(rigidity, Bo):
     #---------------------------CALCULO RADIO LARMOR
     v   = beta * c              # [cm/s]
     #Rl[0]  = (v / omg) /AU_in_cm  # [AU]
-    return (v / omg) # [cm]
+    if full:
+        return (v/omg), v, omg
+    else:
+        return (v / omg) # [cm]
 
 def Lc_memilia(r=1.0):
     """ 

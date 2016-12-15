@@ -640,7 +640,10 @@ class GralPlot(object):
         ax  = fig.add_subplot(111)
         # iterate over all input-files
         id_indexes = range(len(ps['id'])) # indexes
+        lfit = {}
+        TITLE = ''
         for fid, i in zip(ps['id'], id_indexes):
+            lfit[fid] = {} # new dict for each file-id
             fname_inp = ps['dir_src']+'/'+self.prefix+'%03d'%fid+'.h5'
             o[kk] = get_sqrs(fname_inp) # w/ corrected dimensions
             with h5(fname_inp, 'r') as f:
@@ -660,18 +663,20 @@ class GralPlot(object):
             mfp = 3.*kprof/Lc_s # [1] normalized (correct) units
             # fit asymptotic value && plot
             ss, tdecr = seeds[nm], 5e2
-            lfit = fit_mfp(tadim, mfp, t_decr=tdecr, **(seeds[nm]))
-            print " --> lfit: ", lfit
+            lfit[fid]['mfp'] = fit_mfp(tadim, mfp, t_decr=tdecr, **(seeds[nm]))
+            #print " --> lfit: ", lfit
             #import pdb; pdb.set_trace()
             ax.plot(tadim, mfp, '-o', **opt)
             # plot fit
             cc = tadim>tdecr
-            ax.plot(tadim[cc], fun_hyperbola(seeds[nm]['seed_b'], seeds[nm]['seed_m'], xo=0., x=tadim[cc]), '--')
+            #ax.plot(tadim[cc], fun_hyperbola(seeds[nm]['seed_b'], seeds[nm]['seed_m'], xo=0., x=tadim[cc]), '--')
+            TITLE += '$fit(id=%s): %2.2g$\n' % (fid, lfit[fid]['mfp'])
 
         ax.set_yscale(yscale)
         ax.set_xscale(xscale)
         ax.set_xlabel('$\Omega t$ [1]')
         ax.set_ylabel('$\lambda_{%s}/L_c^{slab}$ [1]'%nm)
+        ax.set_title(TITLE)
         if xlim is not None:
             ax.set_xlim(xlim)
         if ylim is not None:
