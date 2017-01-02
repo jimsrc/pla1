@@ -37,12 +37,12 @@ r[AU]    B[nT]       Rl[AU]         Lc[AU]      Rl/Lc   Rl/(5e-5AU)
 1.0      5.0         7.553521E-03   0.0089      0.85    151.07
 2.0      1.99653571  1.891657E-02   0.0119904   1.58    378.33
 """
-ro = 1.0 # [AU] heliospheric radius
+ro = 2.0
 Lc_slab = ff.Lc_memilia(r=ro)   # [AU]
 #psim['rigidity'] = 1.69604E+08
 Rl = cw.calc_Rlarmor(
-    rigidity=1.0898E+10,    # [V]
-    Bo=1e-4, # 10nT=1e-4G (Bo cerca del shock) ###ff.Bo_parker(r=ro)  # [Gauss]
+    rigidity=1.69604E+09,    # [V]
+    Bo=ff.Bo_parker(r=ro), ## [Gauss]
     )/AUincm                 # [AU] Larmor radii
 #--- set B-turbulence model
 pd.update({
@@ -54,15 +54,15 @@ pd.update({
 'lmax_2d'       : 1.0/Rl,  #[lmax_2d/Rl] 
 'Lc_slab'       : Lc_slab/Rl,  # in units of Larmor-radii
 'xi'            : 1.0, # [1] xi=Lc_2d/Lc_slab 
-'sigma_Bo_ratio': 1.0, #0.3, # [1] fluctuation energy
+'sigma_Bo_ratio': 0.3, #0.3, # [1] fluctuation energy
 'ratio_slab'    : 0.2, # [1] (energy_slab)/(energy_total)
 })
 #--- corregimos input
-psim['tmax']     = 4e4 #0.3e4 #4e4
-eps_o = 4.64e-6 #4.64e-4 #1e-6 (error-step)/(lambda_min)
-lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
-psim['atol']     = lmin*eps_o  # [1]
-psim['rtol']     = 0.0 #1e-6
+psim['tmax']  = 4e4 #0.3e4 #4e4
+eps_o         = 4.64e-5 #4.64e-4 #1e-6 (error-step)/(lambda_min)
+lmin          = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
+psim['atol']  = lmin*eps_o  # [1]
+psim['rtol']  = 0.0 #1e-6
 
 #--- output
 po = {}
@@ -76,7 +76,7 @@ po.update({
 'RloLc' : Rl/Lc_slab,   # [1] (r_larmor)/(Lc_slab)
 })
 
-dir_out = '../out/auger_murdo'
+dir_out = '../out/r=2.0AU'
 fname_out = dir_out+'/r.{r:1.2f}_RloLc.{RloLc:1.2e}_eps.{eps_o:1.2e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}_sig.{sigma_Bo_ratio:2.2f}.h5'.format(**po)
 
 #--- call simulator

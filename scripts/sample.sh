@@ -3,7 +3,7 @@
 #PBS -q larga
 #PBS -M jimmy.ilws@gmail.com
 #PBS -m abe 
-#PBS -N tau_Ek=1e10
+#PBS -N pla1_r=2AU
 #PBS -j oe
 #PBS -k oe
 
@@ -15,5 +15,5 @@ INPUTS="$PY_SCRIPT dummy_str"
 NPROCS="-np 24"
 
 # corrida
-mpirun $NPROCS $EXEC $INPUTS
+mpirun $NPROCS $EXEC $INPUTS 1> ${THIS_DIR}/mon1.log 2> ${THIS_DIR}/mon2.log
 #EOF

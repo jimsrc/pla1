@@ -92,6 +92,7 @@ void Odeint<Stepper>::integrate() {
 		if (abs(s.hnext) <= hmin) throw("Step size too small in Odeint");
 		h=s.hnext;
 	}
+    printf("\n ---> Too many steps in routine Odeint <--\n");
 	throw("Too many steps in routine Odeint");
 }
 
