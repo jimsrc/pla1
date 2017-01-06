@@ -56,7 +56,6 @@ cdef extern from "defs_turb.h":
         Doub Lc_slab, Lc_2d
         Doub sigma_Bo_ratio;
         Doub percent_slab, percent_2d;
-        Doub gS, g2D # potencia espectral slab/2D
         Doub Bo    # campo uniforme
         Doub sigma_S    # intensidad slab
         Doub sigma_2D   # intensidad 2D

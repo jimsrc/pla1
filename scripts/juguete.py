@@ -32,6 +32,18 @@ type=str,
 default='h_',
 help='prefix string of input filenames.',
 )
+parser.add_argument(
+'-src', '--dir_src', 
+type=str, 
+default='%s/out' % os.environ['PLA1'],
+help='input directory',
+)
+parser.add_argument(
+'-dst', '--dir_dst',
+type=str,
+default='%s/figs' % os.environ['PLA1'],
+help='output directory',
+)
 try:
     pa = parser.parse_args()
     ids = pa.IDs
@@ -43,8 +55,8 @@ except IOError, msg:
     parser.error(str(msg))
 
 ps = {
-'dir_src'   : '%s/out' % os.environ['PLA1'],
-'dir_dst'   : '%s/figs' % os.environ['PLA1'],
+'dir_src'   : pa.dir_src,
+'dir_dst'   : pa.dir_dst,
 'id'        : mylist,   # list of files identifiers
 'label'     : mylabels, # list of params for legend
 }

@@ -36,8 +36,6 @@ class PARAMS_TURB{
 		void build_Bk_SLAB(void);
 		void build_Bk_2D(void);
 		void report(void);
-		const static Doub gS=(5./3.);		// potencia espectral slab
-		const static Doub g2D=(8./3.);		// potencia espectral 2D
 	public:
 		PARAMS_TURB(string);	// constructor
 		PARAMS_TURB(void);			// constructor (otro)
