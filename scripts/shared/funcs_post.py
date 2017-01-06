@@ -24,11 +24,86 @@ from tabulate import tabulate
 # para mergear .pdf files
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from funcs import Bo_parker, Lc_memilia
+from lmfit import minimize, Parameters, Parameter, report_errors
 
 #--- global constants
 M_PI = np.pi
 M_E  = np.e
 AUincm = 1.5e13                   # [cm]
+
+
+def fun_hyperbola(b, m, xo, x):
+    fun = b + m/(x-xo)
+    return fun
+
+def residuals_kxx(params, x, y_data):
+    b   = params['b'].value
+    m   = params['m'].value
+    xo  = params['xo'].value
+    diff    = (fun_hyperbola(b, m, xo, x)  - y_data)**2.
+    #print " diff---> %f" % mean(diff)
+
+    return diff
+
+def make_fit_lxx(data, sems):
+    x       = data[0]
+    y       = data[1]
+    # create a set of Parameters
+    params = Parameters()
+    params.add('b')
+    params.add('m')
+    params.add('xo')
+
+    SEM_b   = sems[0]
+    SEM_m   = sems[1]
+    SEM_xo  = sems[2]
+
+    params['b'].value       = SEM_b
+    params['b'].vary        = True
+    """params['b'].min              = 
+    params['b'].max         = """
+
+    params['m'].value       = SEM_m
+    params['m'].vary        = True
+    """params['m'].min              = 
+    params['m'].max         = """
+
+    params['xo'].value       = SEM_xo
+    params['xo'].vary        = True
+    """params['xo'].min              = 
+    params['xo'].max         = """
+
+    METHOD  = "leastsq"#"leastsq"#"lbfgsb"
+    result = minimize(residuals_kxx, params, args=(x, y), method=METHOD)
+    #print " ----> now dir "
+    #print dir(result)
+
+    # write error report
+    print " --------> METODO_FITEO: %s" % METHOD
+    print " --------> funcion: %s" % 'EXPRESION GIACALONE-99'
+    #report_errors(params)
+
+    par     = zeros(3)
+    #par[0]  = result.values['b']
+    #par[1]  = result.values['m']
+    #par[2]  = result.values['xo']
+    par[0]  = result.params['b'].value
+    par[1]  = result.params['m'].value
+    par[2]  = result.params['xo'].value
+    return par
+
+def fit_mfp(t, mfp, t_decr, seed_b, seed_m):
+    # select data for fitting
+    cc = t>t_decr
+
+    seed_xo  = 0.0
+    pfit = make_fit_lxx(
+            [t[cc], mfp[cc]], 
+            [seed_b, seed_m, seed_xo]
+           )
+    
+    mfp_fit = pfit[0] # asymptotic value
+    return mfp_fit
 
 
 def DecodeHex_and_GetIDs(fname_key=None):
@@ -192,16 +267,16 @@ class GenAnalysis(object):
         fig, ax = gp.plot_TauColl(scale='omega')
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
-        #--- 6th page
+        #--- 7th page
         fig, ax = gp.plot_TauColl(scale='lmin_s')
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
-        #--- 6th page
+        #--- 8th page
         fig, ax = gp.plot_TauColl(scale='lmax_s')
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
 
-        #--- 7th page
+        #--- 9th page
         fig, ax = gp.plot_HistThetaColl()
         pdf_pages.savefig(fig, bbox_inches='tight')
         close(fig)
@@ -269,7 +344,8 @@ class GenAnalysis(object):
         TexTab_diff = tabulate(tbdiff, tablefmt='latex', headers='firstrow')
 
         #--- beginin of .tex document
-        with open(os.environ['HOME']+'/utils/tex_begin.txt', 'r') as f:
+        #with open(os.environ['HOME']+'/utils/tex_begin.txt', 'r') as f:
+        with open('./shared/tex_begin.txt', 'r') as f:
             tex_begin_lines = f.readlines()
 
         self.fname_tab_base = fname_tab_base = '_tmp.table_' + fname_base
@@ -553,12 +629,21 @@ class GralPlot(object):
         yscale = kargs.get('yscale', 'log')
         #--- plot kxx, kyy, kzz
         print " ---> plotting " + kk + ':'
+        #--- seeds for fit
+        seeds = {
+        'xx': {'seed_b': 0.1, 'seed_m': 190.},
+        'yy': {'seed_b': 0.1, 'seed_m': 190.},
+        'zz': {'seed_b': 30., 'seed_m': -1.6e4},
+        }
         #--- figura
         fig = figure(1, figsize=(6,4))
         ax  = fig.add_subplot(111)
         # iterate over all input-files
         id_indexes = range(len(ps['id'])) # indexes
+        lfit = {}
+        TITLE = ''
         for fid, i in zip(ps['id'], id_indexes):
+            lfit[fid] = {} # new dict for each file-id
             fname_inp = ps['dir_src']+'/'+self.prefix+'%03d'%fid+'.h5'
             o[kk] = get_sqrs(fname_inp) # w/ corrected dimensions
             with h5(fname_inp, 'r') as f:
@@ -576,12 +661,22 @@ class GralPlot(object):
             'mec'       : 'none',
             }
             mfp = 3.*kprof/Lc_s # [1] normalized (correct) units
+            # fit asymptotic value && plot
+            ss, tdecr = seeds[nm], 5e2
+            lfit[fid]['mfp'] = fit_mfp(tadim, mfp, t_decr=tdecr, **(seeds[nm]))
+            #print " --> lfit: ", lfit
+            #import pdb; pdb.set_trace()
             ax.plot(tadim, mfp, '-o', **opt)
+            # plot fit
+            cc = tadim>tdecr
+            #ax.plot(tadim[cc], fun_hyperbola(seeds[nm]['seed_b'], seeds[nm]['seed_m'], xo=0., x=tadim[cc]), '--')
+            TITLE += '$fit(id=%s): %2.2g$\n' % (fid, lfit[fid]['mfp'])
 
         ax.set_yscale(yscale)
         ax.set_xscale(xscale)
         ax.set_xlabel('$\Omega t$ [1]')
         ax.set_ylabel('$\lambda_{%s}/L_c^{slab}$ [1]'%nm)
+        ax.set_title(TITLE)
         if xlim is not None:
             ax.set_xlim(xlim)
         if ylim is not None:
