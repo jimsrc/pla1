@@ -18,8 +18,8 @@ ext = Extension(
     language="c++",
     include_dirs=[numpy.get_include()],
     #--- for debugging with 'gdb python'
-    extra_compile_args = ['-O0','-g'],
-    extra_link_args = ['-g'],
+    #extra_compile_args = ['-O0','-g'],
+    #extra_link_args = ['-g'],
 )
 
 setup(

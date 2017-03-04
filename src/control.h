@@ -38,10 +38,10 @@
 
 
 //--- choose spectra shape
-//#define SPECTRA_2D(x)       SPECTRA_GJ99_2D(x)
-//#define SPECTRA_SLAB(x)     SPECTRA_GJ99_SLAB(x)
-#define SPECTRA_2D(x)       SPECTRA_SHALCHI_2D(x)
-#define SPECTRA_SLAB(x)     SPECTRA_SHALCHI_SLAB(x)
+#define SPECTRA_2D(x)       SPECTRA_GJ99_2D(x)
+#define SPECTRA_SLAB(x)     SPECTRA_GJ99_SLAB(x)
+//#define SPECTRA_2D(x)       SPECTRA_SHALCHI_2D(x)
+//#define SPECTRA_SLAB(x)     SPECTRA_SHALCHI_SLAB(x)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

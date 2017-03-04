@@ -3,7 +3,7 @@
 #PBS -q larga
 #PBS -M jimmy.ilws@gmail.com
 #PBS -m abe 
-#PBS -N pla1_shalchi
+#PBS -N pla1-LcOk
 #PBS -j oe
 #PBS -k oe
 
