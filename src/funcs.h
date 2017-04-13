@@ -90,7 +90,7 @@ class Output {
         #ifdef MONIT_STEP
         MatDoub HistStep;
         MatDoub HistSeq;
-        static const Doub MaxStep=1.0;
+        static constexpr Doub MaxStep=1.0f;
         static const Int NStep=500;
         Doub dstep, dstep_part;
         //void monit_step(const Doub hdid);
