@@ -1,6 +1,11 @@
 #ifndef CONTROL
 #define CONTROL
 
+//-------- CYTHON WARNING ---------
+// remember to repeat these macros
+// in the .pyx modules if necessary!
+// See macros.pyx
+//---------------------------------
 #define CYTHON     1 // stuff for cython handling
 //#define KILL_HANDLER 1 // removes current *.owned files
 #define MONIT_SCATTERING 1 // monitorea scattering de plas
@@ -9,7 +14,7 @@
 #define NVAR    (6)
 
 //--------------------------------------CTES UNIVERSALES
-#define SIM_MAXSTP      (150*50000) // max nuber of steps in Odeint
+#define SIM_MAXSTP      (3000*50000) // max nuber of steps in Odeint
 #define clight          (3.0*1e10)              // [cm/s]
 #define AU_in_cm        (1.5e13)                // [cm]
 #define nT_in_G         (1.0*1e-5)              // [1G=1e5nT]
@@ -38,10 +43,10 @@
 
 
 //--- choose spectra shape
-//#define SPECTRA_2D(x)       SPECTRA_GJ99_2D(x)
-//#define SPECTRA_SLAB(x)     SPECTRA_GJ99_SLAB(x)
-#define SPECTRA_2D(x)       SPECTRA_SHALCHI_2D(x)
-#define SPECTRA_SLAB(x)     SPECTRA_SHALCHI_SLAB(x)
+#define SPECTRA_2D(x)       SPECTRA_GJ99_2D(x)
+#define SPECTRA_SLAB(x)     SPECTRA_GJ99_SLAB(x)
+//#define SPECTRA_2D(x)       SPECTRA_SHALCHI_2D(x)
+//#define SPECTRA_SLAB(x)     SPECTRA_SHALCHI_SLAB(x)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

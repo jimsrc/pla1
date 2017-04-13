@@ -11,8 +11,10 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from cython.operator cimport dereference as deref
 from libc.math cimport sqrt, sin, cos
 
-# agregamos la clase wrapper
+#--- agregamos la clase wrapper
 include "array_wrapper.pyx"
+#--- agregamos C-preprocessors
+include "macros.pyx"
 
 
 """ why this doesn't work??
@@ -82,7 +84,10 @@ cdef class mgr:
         
     def clean(self):
         """ clean stuff we'll use again """
-        del self.outbs.gc
+        IF MONIT_SCATTERING == "1":
+            del self.outbs.gc
+        ELSE:
+            pass
 
     def set_Bmodel(self, pdict, nB=0):
         """ inputs:
