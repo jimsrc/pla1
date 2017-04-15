@@ -27,15 +27,17 @@ struct Odeint {
         PARAMS, int);
 	void integrate();
 	PARAMS par;
+
 	//------------------- scattering stuff
     #ifdef MONIT_SCATTERING
 	void save_history(void);
 	void check_scattering(void);
     //GuidingCenter *gc;
     //inline void calc_gc(Doub*);
-    #endif //MONIT_SCATTERING 
 	double mu_old, mu_new, Bmod, vmod, dtau;
-	// ------------------ otros
+    #endif //MONIT_SCATTERING 
+
+	//------------------- otros
 	int wrank;
 
     #ifdef KILL_HANDLER

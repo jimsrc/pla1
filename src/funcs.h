@@ -30,7 +30,7 @@ struct rhs{
 };
 
 
-#ifdef MONIT_SCATTERING
+#ifdef GUIDING_CENTER
 class GuidingCenter{
     public:
         GuidingCenter(Int len);
@@ -39,7 +39,7 @@ class GuidingCenter{
         Doub* t; // time [1]
         Int n; // total number of steps
 };
-#endif // MONIT_SCATTERING
+#endif //GUIDING_CENTER
 
 
 //---------------------------------------------------
@@ -67,6 +67,7 @@ class Output {
         void claim_own(void);
 		bool file_exist(void);
 		void resizeTau(void);
+
         #ifdef MONIT_SCATTERING
 		//esto lo agrego para guardar cosas de la historia de
 		//las trayectorias:
@@ -74,9 +75,13 @@ class Output {
 		int nreb;	 // nro de rebotes/scatterings en pitch
 		MatDoub Tau; // tiempo de camino libre medio paralelo, y su posic x
 		VecDoub mu;
+        #endif //MONIT_SCATTERING
+
+        #ifdef GUIDING_CENTER
         //MatDoub r_gc;
         GuidingCenter* gc;
-        #endif //MONIT_SCATTERING
+        #endif //GUIDING_CENTER
+
 		void set_Bmodel(PARAMS*);	// para apuntar al modelo q uso en main()
 		void tic(void), toc(void);	// cronometro para c/pla
 		Doub trun;			// tiempo de simulacion de c/pla
@@ -90,7 +95,11 @@ class Output {
         #ifdef MONIT_STEP
         MatDoub HistStep;
         MatDoub HistSeq;
+        #if __cplusplus <= 199711L
         static const Doub MaxStep=1.0;
+        #else
+        static constexpr Doub MaxStep=1.0f;
+        #endif //__cplusplus
         static const Int NStep=500;
         Doub dstep, dstep_part;
         //void monit_step(const Doub hdid);

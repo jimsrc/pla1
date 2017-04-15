@@ -1,3 +1,4 @@
+include "macros.pyx"
 #--- librerias de c
 #from libc.math cimport sqrt, sin, cos
 from libc.math cimport sqrt, pow
@@ -83,7 +84,7 @@ cdef extern from "funcs.h":
         PARAMS_TURB p_turb
         void calc_B(const double *)
         void fix_B_realization(const int nB) # fija la realizacion en funcion del argumento
-
+    
     cdef cppclass GuidingCenter:
         GuidingCenter(Int len);
         void calc_gc(Doub* dydx, Doub* y, Doub x);

@@ -187,7 +187,7 @@ Output<Stepper>::Output(string str_tscalee, const Int nsavee, char* fname){
 }
 */
 
-#ifdef MONIT_SCATTERING
+#ifdef GUIDING_CENTER
 GuidingCenter::GuidingCenter(Int len): 
     r_gc(MatDoub(len,3,0.0)),
     t(new Doub[len]) {
@@ -208,7 +208,7 @@ void GuidingCenter::calc_gc(Doub* dydx, Doub* y, Doub x){
     t[n] = x;
     n++;
 }
-#endif //MONIT_SCATTERING
+#endif //GUIDING_CENTER
 
 
 template <class Stepper>

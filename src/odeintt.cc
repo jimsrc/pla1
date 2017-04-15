@@ -22,9 +22,9 @@ Odeint<Stepper>::Odeint(VecDoub_IO &ystartt, const Doub xx1, const Doub xx2,
     out.step_save = MatDoub(2,MAXSTP,0.0);
     #endif //MONIT_STEP
 
-    #ifdef MONIT_SCATTERING
+    #ifdef GUIDING_CENTER
     out.gc = new GuidingCenter(MAXSTP);
-    #endif
+    #endif //GUIDING_CENTER
 }
 
 
@@ -57,7 +57,11 @@ void Odeint<Stepper>::integrate() {
 		i++;
 		cout << " i " << i << endl;}
 	dtau = 0.0;
+
+    #ifdef GUIDING_CENTER
     out.gc->n = 0; // total number of steps, recorded in 'out.gc'
+    #endif //GUIDING_CENTER
+
 	for (nstp=0;nstp<MAXSTP;nstp++) {
 		save_history();					//--- scattering stuff
 		if ((x+h*1.0001-x2)*(x2-x1) > 0.0)
@@ -108,7 +112,11 @@ void Odeint<Stepper>::check_scattering(){
 	//-------------------------
 	dtau += s.hdid;		// controlo cuanto pasa hasta el prox rebote
 	//-------------------------
+    
+    #ifdef GUIDING_CENTER
     out.gc->calc_gc(&dydx[0], &y[0], x); // calculo cto de giro
+    #endif //GUIDING_CENTER
+
 	if((mu_old*mu_new)<0.0){
 		out.nreb++;
 		if(out.nreb>=out.nfilTau) 
