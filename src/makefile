@@ -31,4 +31,4 @@ gprof_exe: $(OBJECTS_C_GPROF)
 	${CXX} -pg ${OPT_GP} $^ -o $(EXE_WPROF)
 
 clean:
-	rm *.[xo] *.so *.so
+	-rm *.[xo] *.so *.so

@@ -84,8 +84,8 @@ cdef class mgr:
         
     def clean(self):
         """ clean stuff we'll use again """
-        IF MONIT_SCATTERING == "1":
-            del self.outbs.gc
+        IF GUIDING_CENTER == "1":
+            del self.outbs.gc # guiding center
         ELSE:
             pass
 
