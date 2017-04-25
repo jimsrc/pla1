@@ -79,7 +79,7 @@ def unify_all(fname_out, psim, wsize):
         for c in cont:           # iterate over each group
             finp.copy(c, fout)
         finp.close()
-	print " ----> removing partial files..."
+        print(" ---> removing partial file: "+fnm_inp)
         os.system('rm {fname}'.format(fname=fnm_inp))
 
     for pnm in psim.keys():
