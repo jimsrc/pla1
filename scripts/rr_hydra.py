@@ -75,7 +75,7 @@ pd.update({
 })
 #--- corregimos input
 psim['tmax']     = 4e4 #0.3e4 #4e4
-eps_o = 4.64e-5 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
+eps_o = 1e-5 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
 psim['atol']     = lmin*eps_o  # [1]
 psim['rtol']     = 0.0 #1e-6
