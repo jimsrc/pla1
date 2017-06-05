@@ -17,12 +17,14 @@ Odeint<Stepper>::Odeint(VecDoub_IO &ystartt, const Doub xx1, const Doub xx2,
 	h=SIGN(h1,x2-x1);
 	for (Int i=0;i<nvar;i++) y[i]=ystart[i];
 	out.init(s.neqn, x1, x2);
-
+   
     #ifdef MONIT_STEP
+    //WATCH_MEMORY 
     out.step_save = MatDoub(2,MAXSTP,0.0);
     #endif //MONIT_STEP
 
     #ifdef GUIDING_CENTER
+    //WATCH_MEMORY 
     out.gc = new GuidingCenter(MAXSTP);
     #endif //GUIDING_CENTER
 }
