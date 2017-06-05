@@ -314,6 +314,10 @@ cdef class mgr:
         def __get__(self):
             return self.outbs.trun # [sec]
 
+    property MAXSTP:
+        def __get__(self):
+            return self.bsode.MAXSTP
+
     #property gc_r:
     #    def __get__(self):
     #        cdef Doub *ptr

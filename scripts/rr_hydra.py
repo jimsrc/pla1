@@ -8,7 +8,7 @@ from pylab import pause
 from params import (
     nB, pd, psim, pother, mu, ph, AU_in_cm
 )
-#from mpi4py import MPI
+from mpi4py import MPI
 from h5py import File as h5
 from os.path import isfile, isdir
 import os, sys
@@ -92,7 +92,9 @@ po.update({
 'RloLc' : Rl/Lc_slab,   # [1] (r_larmor)/(Lc_slab)
 })
 
-dir_out = '../out/r.%.2f_ok3' % ro
+#dir_out = '../out/r.%.2f_ok3' % ro
+dir_out = '../out/testt'
+assert isdir(dir_out), ' --> NO EXISTE: '+dir_out
 fname_out = dir_out+'/r.{r:1.2f}_RloLc.{RloLc:1.2e}_eps.{eps_o:1.2e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}.h5'.format(**po)
 
 #--- call simulator
@@ -100,11 +102,11 @@ m = cw.mgr()
 m.set_Bmodel(pdict=pd, nB=nB)
 
 #--- MPI
-#comm        = MPI.COMM_WORLD
-#rank        = comm.Get_rank()   # proc rank
-#wsize       = comm.Get_size()   # number of proc
-rank  = int(sys.argv[1])
-wsize = int(sys.argv[2])
+comm        = MPI.COMM_WORLD
+rank        = comm.Get_rank()   # proc rank
+wsize       = comm.Get_size()   # number of proc
+#rank  = int(sys.argv[1])
+#wsize = int(sys.argv[2])
 #---------------------------
 if rank==0:
     print " simul parameters\n", psim
