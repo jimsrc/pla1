@@ -14,7 +14,7 @@ EXE_WPROF=./main_wgprof.x 	# profiling / debugging
 OPT_GP=-O0 #-O3 #-O0 	# for use w/ gprof
 
 cython:
-	python setup.py build_ext --inplace
+	python setup.py build_ext --inplace && ls -lh *.so
 
 all: $(OBJECTS_C)
 	${CXX} -o $(EXE)  $^  ${CFLAGS}
@@ -31,4 +31,6 @@ gprof_exe: $(OBJECTS_C_GPROF)
 	${CXX} -pg ${OPT_GP} $^ -o $(EXE_WPROF)
 
 clean:
-	rm *.[xo] *.so *.so
+	-rm -r build/ *.[xo] *.so *.so
+
+#EOF
