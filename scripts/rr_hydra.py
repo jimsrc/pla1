@@ -114,13 +114,13 @@ wsize       = comm.Get_size()   # number of proc
 # of those pieces of C++ code where there is a
 # "WATCH_MEMORY" comment (see .cc sources!).
 STOT, avail_ram = ff.memory_stat(
-    SNUMB=(4+2)*m.MAXSTP, 
+    SNUMB=(2)*m.MAXSTP, # according pieces in "CHECK_MEMORY" comments
     dtype=np.float64,   # np.float64==double 
     wsize=wsize)
 if rank==0:
     print """
     +++++++++++ memory report +++++++++++++
-     You are asking for : {mem_ask} GB (of data)
+     You are asking for : {mem_ask} GB (estimated of data)
      but we have        : {mem_avail} GB (available RAM)
     +++++++++++++++++++++++++++++++++++++++
     """.format(mem_ask=STOT, mem_avail=avail_ram)
