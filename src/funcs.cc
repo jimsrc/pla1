@@ -187,11 +187,22 @@ Output<Stepper>::Output(string str_tscalee, const Int nsavee, char* fname){
 }
 */
 
+/*
+ * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ * +++++++++++++++++++++  GUIDING CENTER  ++++++++++++++++++++++++++
+ * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ */
+
 #ifdef GUIDING_CENTER
 GuidingCenter::GuidingCenter(Int len): 
     r_gc(MatDoub(len,3,0.0)),
     t(new Doub[len]) {
     n = 0; // total number of steps
+    /*  ---- total memory size ----
+     *  r_gc :   3*sizeof(double)
+     *  t    :   1*sizeof(double)
+     *  ---------------------------
+     */
 }
 
 
@@ -210,6 +221,12 @@ void GuidingCenter::calc_gc(Doub* dydx, Doub* y, Doub x){
 }
 #endif //GUIDING_CENTER
 
+
+/*
+ * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ * ++++++++++++++++++++++++  OUTPUT  +++++++++++++++++++++++++++++++
+ * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ */
 
 template <class Stepper>
 void Output<Stepper>::set_savetimes(Doub xhi){
