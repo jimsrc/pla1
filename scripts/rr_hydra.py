@@ -113,18 +113,20 @@ wsize       = comm.Get_size()   # number of proc
 # NOTE: we estimate the "requested data" in terms
 # of those pieces of C++ code where there is a
 # "WATCH_MEMORY" comment (see .cc sources!).
-memok = ff.enough_ram_memory(
-    SNUMB=(4+1)*1000, 
+STOT, avail_ram = ff.memory_stat(
+    SNUMB=(4+2)*m.MAXSTP, 
     dtype=np.float64,   # np.float64==double 
     wsize=wsize)
-if (rank==0 && not(memok)):
+if rank==0:
     print """
-    ++++++++++++++++++++++++++++
-     NOT ENOUGH MEMORY!
-     You are asking for : {mem_ask:2.2g} GB (of data)
-     but we have        : {mem_avail:2.2g} GB (available RAM)
-    ++++++++++++++++++++++++++++
+    +++++++++++ memory +++++++++++++
+     You are asking for : {mem_ask} GB (of data)
+     but we have        : {mem_avail} GB (available RAM)
+    ++++++++++++++++++++++++++++++++
     """.format(mem_ask=STOT, mem_avail=avail_ram)
+if (rank==0) & (STOT>avail_ram):
+    print "NOT ENOUGH MEMORY!"
+    raise SystemExit
 
 
 #---------------------------

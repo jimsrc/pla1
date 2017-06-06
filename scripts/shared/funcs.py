@@ -14,7 +14,7 @@ from Bparker.Bparker import return_B as Bparker_vector
 from numpy.linalg import norm
 
 
-def enough_ram_memory(SNUMB, dtype=np.float64, wsize=1)
+def memory_stat(SNUMB, dtype=np.float64, wsize=1):
     """
     routine to check whether we have enough available RAM for
     the data we are asking to allocate.
@@ -29,17 +29,16 @@ def enough_ram_memory(SNUMB, dtype=np.float64, wsize=1)
     # 1024 MB    = 1 GB
     # 1GB        = 1024*1024*1024 bytes
     SDOUB    = np.dtype(dtype).itemsize  # [bytes] size of a double (float64 in python)
-    #SNUMB    = (4+1)*1000               # number of double numbers
     TOTBYTES = SNUMB*SDOUB              # [bytes] total size per processor
     # NOTE: we are multiplying by the **total number of nodes** 'wsize'
-    STOT     = wsize*TOTBYTES/(1024*1024*1024)  # [GB] total size of our data
+    STOT     = wsize*TOTBYTES/(1024.*1024.*1024.)  # [GB] total size of our data
     #--- check with available RAM
     import psutil
     avail_ram = psutil.virtual_memory()[1]/(1024.*1024.*1024.)
 
     # True: if we have more available RAM than the
     #       requested space.
-    return avail_ram > STOT
+    return STOT, avail_ram
 
 
 def calc_Rlarmor(rigidity, Bo, full=False):
