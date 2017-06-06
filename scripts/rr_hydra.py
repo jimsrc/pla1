@@ -62,8 +62,8 @@ Rl = cw.calc_Rlarmor(
     )/AUincm                 # [AU] Larmor radii
 #--- set B-turbulence model
 pd.update({
-'Nm_slab'       : 128,
-'Nm_2d'         : 256,
+'Nm_slab'       : 256,
+'Nm_2d'         : 512,
 'lmin_s'        : 5e-5/Rl, #[lmin_s/Rl] 
 'lmax_s'        : ro/Rl,  #[lmax_s/Rl] 
 'lmin_2d'       : 5e-5/Rl, #[lmin_2d/Rl] 
@@ -92,8 +92,8 @@ po.update({
 'RloLc' : Rl/Lc_slab,   # [1] (r_larmor)/(Lc_slab)
 })
 
-#dir_out = '../out/r.%.2f_ok3' % ro
-dir_out = '../out/testt'
+dir_out = '../out/r.%.2f_ok3' % ro
+#dir_out = '../out/testt'
 assert isdir(dir_out), ' --> NO EXISTE: '+dir_out
 fname_out = dir_out+'/r.{r:1.2f}_RloLc.{RloLc:1.2e}_eps.{eps_o:1.2e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}.h5'.format(**po)
 

@@ -1,21 +1,18 @@
 #!/bin/bash 
 
-#THIS_DIR=/home/jimmy.meza/pla1/scripts
-export PLA1=/home/masiasmj/pla1
+export PLA1=$HOME/pla1
 THIS_DIR=$PLA1/scripts
 EXEC=${THIS_DIR}/rr_hydra.py
 cd $THIS_DIR
 PY_SCRIPT=rr_hydra.py
-INPUTS="$PY_SCRIPT dummy_str"
-NPROCS="-np 4"
+NPROCS="-np 32"
 
 # corrida
-LOGFILE=${THIS_DIR}/test.log
+LOGFILE=${THIS_DIR}/run_NmS256_Nm2d512.log
 
 # load the mpirun we need:
 source activate work2
 
-#mpirun $NPROCS $EXEC $INPUTS > $LOGFILE 2>&1
 mpirun $NPROCS $EXEC > $LOGFILE 2>&1
 
 # NOTE:
