@@ -119,14 +119,17 @@ STOT, avail_ram = ff.memory_stat(
     wsize=wsize)
 if rank==0:
     print """
-    +++++++++++ memory +++++++++++++
+    +++++++++++ memory report +++++++++++++
      You are asking for : {mem_ask} GB (of data)
      but we have        : {mem_avail} GB (available RAM)
-    ++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++
     """.format(mem_ask=STOT, mem_avail=avail_ram)
 if (rank==0) & (STOT>avail_ram):
-    print "NOT ENOUGH MEMORY!"
-    raise SystemExit
+    print " --> ERROR: NOT ENOUGH MEMORY!\n"
+    # not the most correct to kill it, but works
+    comm.Abort()
+# wait for the above check
+comm.Barrier()
 
 
 #---------------------------
