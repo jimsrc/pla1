@@ -25,4 +25,7 @@ src/cython_wrapper.cpp
 # to be consistent with the data-repository inside out/
 out/*.h5
 
+# automatically generated Cython preprocessor:
+src/macros.pyx
+
 #EOF

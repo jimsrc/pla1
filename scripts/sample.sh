@@ -1,19 +1,27 @@
 #!/bin/bash 
-#PBS -l nodes=1:ppn=24
-#PBS -q larga
-#PBS -M jimmy.ilws@gmail.com
-#PBS -m abe 
-#PBS -N pla1-LcOk
-#PBS -j oe
-#PBS -k oe
 
-THIS_DIR=/home/jimmy.meza/pla1/scripts
-EXEC=/home/jimmy.meza/pla1/scripts/ifc.x
+#THIS_DIR=/home/jimmy.meza/pla1/scripts
+export PLA1=/home/masiasmj/pla1
+THIS_DIR=$PLA1/scripts
+EXEC=${THIS_DIR}/rr_hydra.py
 cd $THIS_DIR
 PY_SCRIPT=rr_hydra.py
 INPUTS="$PY_SCRIPT dummy_str"
-NPROCS="-np 24"
+NPROCS="-np 4"
 
 # corrida
-mpirun $NPROCS $EXEC $INPUTS
+LOGFILE=${THIS_DIR}/test.log
+
+# load the mpirun we need:
+source activate work2
+
+#mpirun $NPROCS $EXEC $INPUTS > $LOGFILE 2>&1
+mpirun $NPROCS $EXEC > $LOGFILE 2>&1
+
+# NOTE:
+# to kill the processes, you may use this (carefull 
+# with kill other processes NO BELONGIN TO THIS RUN):
+# kill $(ps -ef | grep -i <pattern> | grep -v "grep\|vim " | awk '{print $2}')
+
+
 #EOF
