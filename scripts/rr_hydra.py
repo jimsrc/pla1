@@ -38,7 +38,7 @@ r[AU]    B[nT]       Rl[AU]         Lc[AU]      Rl/Lc   Rl/(5e-5AU)
 1.0      5.0         7.553521E-03   0.0089      0.85    151.07
 2.0      1.99653571  1.891657E-02   0.0119904   1.58    378.33
 """
-ro = 0.7
+ro = 0.9
 
 lc = ff.Lc_memilia(r=ro)   # [AU], this gives the correlation-LENGTH
 """
