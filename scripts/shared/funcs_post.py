@@ -9,11 +9,11 @@ from numpy import (
 from pylab import (
     pause, find, figure, close
 )
-#from numpy import min, max
 import os, sys
 from glob import glob
 from Bparker.Bparker import return_B as Bparker_vector
 from numpy.linalg import norm
+import shared.console_colors as ccl
 # for hash generation/encoding
 from Crypto.Cipher import AES
 import base64
@@ -283,7 +283,7 @@ class GenAnalysis(object):
 
         #--- Write the PDF document to the disk
         pdf_pages.close()
-        print " ---> we generated the temp-file: " + fname_out_tmp
+        print(ccl.G+" ---> we generated the temp-file: " + fname_out_tmp +ccl.W)
 
         # ahora mergueamos los .pdf
         fnames_to_mergue = [fname_param, fname_out_tmp]
@@ -292,19 +292,20 @@ class GenAnalysis(object):
             merger.append(PdfFileReader(file(fname, 'rb')))
 
         merger.write(fname_out)
-        print " -----> Mergueamos los .pdf aqui:\n " + fname_out 
+        print("\n -----> Mergueamos los .pdf aqui:\n "+ccl.Gn+fname_out+ccl.W)
         
         # borrando cosas temporales
         fnames_gb = fnames_to_mergue + [self.fname_tab_base+'*']
-        print " -----> eliminandos .pdf temporales: ", fnames_gb
-        for fnm in fnames_gb:
-            os.system('rm '+fnm)
-
+        print "\n -----> eliminando .pdf temporales: "# fnames_gb
+        for _f in fnames_gb:
+            print(ccl.R+"      > "+ _f +ccl.W)
+            os.system('rm '+_f)
+        
         #--- save code into an ASCII .key file (with my identifier)
         fname_key = self.ps['dir_dst'] + '/' + fname_base + '.key'
         os.system('echo ' + self.myhash['encoded'] + ' > '+fname_key)
         os.system('echo ' + self.fprefix + ' >> '+fname_key)
-        print " ---> saved key (and prefix) into:\n"+fname_key
+        print "\n ---> saved key (and prefix) into:\n"+ccl.G+fname_key+ccl.W
 
     def build_params_pdf(self, fname_base):
         p_comm, p_diff = self.compare_psim() # dictionaries
@@ -792,7 +793,7 @@ class HTauColl(object):
     def get_hist_extremes(self):
         """ Obtain the max && min of all the 
         histogram domains """
-        print " ---> getting hist-log(tau)-extremes..."
+        print(ccl.G+" ---> [%s] getting hist-log(tau)-extremes..."%self.fname_inp.split('/')[-1] + ccl.W)
         f = h5(self.fname_inp, 'r')
         PNAMES  = f.keys()
         self.Np = len(PNAMES)
@@ -857,7 +858,7 @@ class HThetaColl(object):
     def get_hist_extremes(self):
         """ Obtain the max && min of all the 
         histogram domains """
-        print " ---> getting hist-theta-extremes..."
+        print(ccl.G+" ---> [%s] getting hist-theta-extremes..."%self.fname_inp.split('/')[-1]+ccl.W)
         f = h5(self.fname_inp, 'r')
         PNAMES  = f.keys()
         self.Np = len(PNAMES)
@@ -917,7 +918,8 @@ class Hmgr:
 
     def get_hstep_extremes(self):
         """ Obtain the max && min of all the histogram domains """
-        print " ---> getting hstep-extremes... "
+        _fnm = self.f.filename.split('/')[-1]
+        print(ccl.G+" ---> [%s] getting hstep-extremes... "%_fnm+ccl.W)
         PNAMES  = self.f.keys()
         self.Np = len(PNAMES)
         self.bmin = 1.0e31
