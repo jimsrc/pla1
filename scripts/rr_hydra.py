@@ -63,7 +63,7 @@ Rl = cw.calc_Rlarmor(
 #--- set B-turbulence model
 pd.update({
 'Nm_slab'       : 256,
-'Nm_2d'         : 512,
+'Nm_2d'         : 256,
 'lmin_s'        : 5e-5/Rl, #[lmin_s/Rl] 
 'lmax_s'        : ro/Rl,  #[lmax_s/Rl] 
 'lmin_2d'       : 5e-5/Rl, #[lmin_2d/Rl] 

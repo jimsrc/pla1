@@ -8,11 +8,12 @@ PY_SCRIPT=rr_hydra.py
 NPROCS="-np 32"
 
 # corrida
-LOGFILE=${THIS_DIR}/run_r0.9_NmS256_Nm2d512.log
+LOGFILE=${THIS_DIR}/run_r0.9_NmS256_Nm2d256.log
 
 # load the mpirun we need:
 source activate work2
 
+# note that the $(which mpirun) belongs to $ANACONDA
 mpirun $NPROCS $EXEC > $LOGFILE 2>&1
 
 # NOTE:
