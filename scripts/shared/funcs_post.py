@@ -14,17 +14,24 @@ from glob import glob
 from Bparker.Bparker import return_B as Bparker_vector
 from numpy.linalg import norm
 import shared.console_colors as ccl
-# for hash generation/encoding
+#--- for hash generation/encoding
 from Crypto.Cipher import AES
 import base64
-# for multiple-page pdf generation
+#--- for multiple-page pdf generation
 from matplotlib.backends.backend_pdf import PdfPages
-# para hacer tablas, y transformarlas en .tex
+#--- para hacer tablas, y transformarlas en .tex
 from tabulate import tabulate
-# para mergear .pdf files
+#--- para mergear .pdf files
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from funcs import Bo_parker, Lc_memilia
 from lmfit import minimize, Parameters, Parameter, report_errors
+#--- log && debug messages
+import logging
+logger = logging.getLogger()
+dmesg  = logger.debug
+#logging.basicConfig(format='%(levelname)s: %(message)s', level=loglevel)
+
+
 
 #--- global constants
 M_PI = np.pi
@@ -308,7 +315,7 @@ class GenAnalysis(object):
         print "\n ---> saved key (and prefix) into:\n"+ccl.G+fname_key+ccl.W
 
     def build_params_pdf(self, fname_base):
-        p_comm, p_diff = compare_psim(self.ps['dir_src'], self.fprefix, self.idlist)
+        p_comm, p_diff = compare_psim(self.ps['dir_src'], self.fprefix, self.idlist) # tuple of two [dict]
         tbcomm = [['name', 'value']]
         tbdiff = []
 
@@ -371,7 +378,7 @@ class GenAnalysis(object):
         return os.system(cmd), fname_tab_base+'.pdf'
 
 
-def compare_psim(dir_src, fprefix, idlist):
+def compare_psim(dir_src, fprefix, idlist, loglevel=logging.DEBUG):
     """ 
     Compare simulation-parameters to identify which
     are the same in each file, and which are different.
@@ -385,6 +392,7 @@ def compare_psim(dir_src, fprefix, idlist):
     - p_comm    : parameters in common
     - p_diff    : parameters different from one file to another
     """
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=loglevel)
     p_comm = {} # dict de params iguales
     p_diff = {} # dict de parametros en q difieren
     
@@ -397,7 +405,7 @@ def compare_psim(dir_src, fprefix, idlist):
     for myid in idlist:
         fname_inp_h5 = dir_src + '/' + fprefix + '%03d.h5' % myid
         f = h5(fname_inp_h5, 'r')
-        print " ------- " + fname_inp_h5 + " ------- "
+        logger.debug(" ------- " + fname_inp_h5 + " ------- ")
         for pnm in f['psim'].keys():
             if pnm in ('th', 'mu'):
                 continue
@@ -408,12 +416,12 @@ def compare_psim(dir_src, fprefix, idlist):
             else:
                 p_diff[pnm] = fpar
 
-    print " ############ pars in common:"
+    dmesg(" ############ pars in common:")
     for nm in p_comm.keys():
-        print nm, p_comm[nm]
-    print " ############ pars different:"
+        dmesg('%s %g'%(nm, p_comm[nm]))
+    dmesg(" ############ pars different:")
     for nm in p_diff.keys():
-        print nm, p_diff[nm]
+        dmesg('%s %g'%(nm, p_diff[nm]))
 
     return p_comm, p_diff
 
