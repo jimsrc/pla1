@@ -308,7 +308,7 @@ class GenAnalysis(object):
         print "\n ---> saved key (and prefix) into:\n"+ccl.G+fname_key+ccl.W
 
     def build_params_pdf(self, fname_base):
-        p_comm, p_diff = self.compare_psim() # dictionaries
+        p_comm, p_diff = compare_psim(self.ps['dir_src'], self.fprefix, self.idlist)
         tbcomm = [['name', 'value']]
         tbdiff = []
 
@@ -370,50 +370,53 @@ class GenAnalysis(object):
         cmd = 'pdflatex --interaction=nonstopmode {fname}'.format(fname=fname_tab_base+'.tex')
         return os.system(cmd), fname_tab_base+'.pdf'
 
-    def compare_psim(self):
-        """ Compare simulation-parameters to identify which
-        are the same in each file, and which are different.
 
-        output:
-        - p_comm    : parameters in common
-        - p_diff    : parameters different from one file to another
-        """
+def compare_psim(dir_src, fprefix, idlist):
+    """ 
+    Compare simulation-parameters to identify which
+    are the same in each file, and which are different.
 
-        p_comm = {} # dict de params iguales
-        p_diff = {} # dict de parametros en q difieren
-        
-        fname_inp_h5_ = self.ps['dir_src'] + '/' + self.fprefix + '%03d.h5' % self.idlist[0] # pick one
-        f = h5(fname_inp_h5_, 'r')
-        p_test = {} # dict de prueba, para comparar si todos son iguales
+    input:
+    - dir_src   : source/input directory
+    - fprefix   : input filename prefix (inside `dir_src`)
+    - idlist    : list of IDs for the input filenames
+
+    output:
+    - p_comm    : parameters in common
+    - p_diff    : parameters different from one file to another
+    """
+    p_comm = {} # dict de params iguales
+    p_diff = {} # dict de parametros en q difieren
+    
+    fname_inp_h5_ = dir_src + '/' + fprefix + '%03d.h5' % idlist[0] # pick one
+    f = h5(fname_inp_h5_, 'r')
+    p_test = {} # dict de prueba, para comparar si todos son iguales
+    for pnm in f['psim'].keys():
+        p_test[pnm] = [ f['psim/'+pnm].value ] 
+
+    for myid in idlist:
+        fname_inp_h5 = dir_src + '/' + fprefix + '%03d.h5' % myid
+        f = h5(fname_inp_h5, 'r')
+        print " ------- " + fname_inp_h5 + " ------- "
         for pnm in f['psim'].keys():
-            p_test[pnm] = [ f['psim/'+pnm].value ] 
+            if pnm in ('th', 'mu'):
+                continue
 
-        for myid in self.idlist:
-            fname_inp_h5 = self.ps['dir_src'] + '/' + self.fprefix + '%03d.h5' % myid
-            f = h5(fname_inp_h5, 'r')
-            print " ------- " + fname_inp_h5 + " ------- "
-            for pnm in f['psim'].keys():
-                if pnm in ('th', 'mu'):
-                    continue
+            fpar = f['psim/'+pnm].value # parameter from file
+            if fpar == p_test[pnm]:
+                p_comm[pnm] = fpar
+            else:
+                p_diff[pnm] = fpar
 
-                fpar = f['psim/'+pnm].value # parameter from file
-                if fpar == p_test[pnm]:
-                    p_comm[pnm] = fpar
-                else:
-                    p_diff[pnm] = fpar
+    print " ############ pars in common:"
+    for nm in p_comm.keys():
+        print nm, p_comm[nm]
+    print " ############ pars different:"
+    for nm in p_diff.keys():
+        print nm, p_diff[nm]
 
-        print " ############ pars in common:"
-        for nm in p_comm.keys():
-            print nm, p_comm[nm]
-        print " ############ pars different:"
-        for nm in p_diff.keys():
-            print nm, p_diff[nm]
+    return p_comm, p_diff
 
-        self.pars = {}
-        self.pars['common'] = p_comm
-        self.pars['different'] = p_diff
-
-        return p_comm, p_diff
 
 
 class GralPlot(object):
