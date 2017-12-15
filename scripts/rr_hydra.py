@@ -42,19 +42,20 @@ ro = 0.9
 
 lc = ff.Lc_memilia(r=ro)   # [AU], this gives the correlation-LENGTH
 """
-from result in '4e97146' commit (from PLAS repo), we have the relation:
+from result in '16d5869' commit (from PLAS repo), we have the relation:
     y = m*x + b
     where,
-    x = log10(lambda_c)  # REAL correlation length
+    x = log10(lambda_c)  # REAL/FITTED correlation length
     y = log10(Lc)        # correlation scale
 Then:
-    lambda_c = 10.**(m*log10(Lc) + b)
+    Lc = 10.**(m*log10(lambda_c) + b)
     with:
-    m = 1.035
-    b = -0.4266
-NOTE: this is valid in the range Lc:[0.01, 3.0]
+    m = 1.026
+    b = 0.2755
+NOTE: this is valid in the range log10(Lc):[-2.5, 1.0]
 """
-Lc_slab = power(10., 1.035*log10(lc)-0.4266) # from the above comments
+# obtain the correlation-SCALE as function of the correlation-LENGTH
+Lc_slab = power(10., 1.026*log10(lc) + 0.2755) # from the above comments
 
 Rl = cw.calc_Rlarmor(
     rigidity=1.69604E+09, #1.69604E+09,    # [V]
@@ -75,7 +76,7 @@ pd.update({
 })
 #--- corregimos input
 psim['tmax']     = 4e4 #0.3e4 #4e4
-eps_o = 4.64e-6 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
+eps_o            = 4.64e-6 #3.33e-6  # ratio: (error-step)/(lambda_min)
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
 psim['atol']     = lmin*eps_o  # [1]
 psim['rtol']     = 0.0 #1e-6
@@ -94,7 +95,7 @@ po.update({
 # (*) according to the definitions above of 'lmin_*' they are
 # adimensional but they're in units of Rl.
 
-dir_out = '../out/r.%.2f_ok3' % ro
+dir_out = '../out/r.%.2f__newLc' % ro
 #dir_out = '../out/testt'
 assert isdir(dir_out), ' --> NO EXISTE: '+dir_out
 fname_out = dir_out+'/r.{r:1.2f}_RloLc.{RloLc:1.2e}_eps.{eps_o:1.2e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}.h5'.format(**po)
