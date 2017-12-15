@@ -42,6 +42,7 @@ mpirun $NPROCS $EXEC \
     --Nm_2d 128 \
     --tmax 4e4 \
     --eps 4.64e-6 \
+    --sigma 0.3 \
     > $LOGFILE 2>&1
 
 echo -e "\n [*] FINISHED WITH STATUS: $? @ $(date)\n"

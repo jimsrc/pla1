@@ -48,6 +48,12 @@ default=0.9,
 help='heliodistance in AU.',
 )
 parser.add_argument(
+'-sigma', '--sigma',
+type=float,
+default=0.3,
+help='relative turbulence energy: sigma^2/Bo^2',
+)
+parser.add_argument(
 '-tmax', '--tmax',
 type=float,
 default=4e4,
@@ -106,15 +112,15 @@ Rl = cw.calc_Rlarmor(
     )/AUincm                 # [AU] Larmor radii
 #--- set B-turbulence model
 pd.update({
-'Nm_slab'       : 128,
-'Nm_2d'         : 128,
+'Nm_slab'       : pa.Nm_slab,
+'Nm_2d'         : pa.Nm_2d,
 'lmin_s'        : 5e-5/Rl, #[lmin_s/Rl] 
 'lmax_s'        : pa.ro/Rl,  #[lmax_s/Rl] 
 'lmin_2d'       : 5e-5/Rl, #[lmin_2d/Rl] 
 'lmax_2d'       : pa.ro/Rl,  #[lmax_2d/Rl] 
 'Lc_slab'       : Lc_slab/Rl,  # in units of Larmor-radii
 'xi'            : 1.0, # [1] xi=Lc_2d/Lc_slab 
-'sigma_Bo_ratio': 0.3, # [1] fluctuation energy
+'sigma_Bo_ratio': pa.sigma, # [1] fluctuation energy
 'ratio_slab'    : 0.2, # [1] (energy_slab)/(energy_total)
 })
 #--- corregimos input
