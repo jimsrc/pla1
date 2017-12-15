@@ -7,6 +7,7 @@ from numpy import power as pow
 from pylab import (
     pause, find, figure, close
 )
+from datetime import datetime, timedelta
 #from numpy import min, max
 import os, sys
 from glob import glob
@@ -106,15 +107,16 @@ def unify_all(fname_out, psim, wsize):
         for c in cont:           # iterate over each group
             finp.copy(c, fout)
         finp.close()
-        print(" ---> removing partial file: "+fnm_inp)
+        print(" [*] removing partial file: "+fnm_inp)
         os.system('rm {fname}'.format(fname=fnm_inp))
 
     for pnm in psim.keys():
         fout['psim/%s'%pnm] = psim[pnm]
 
-    print " ----> We generated: "+fout.filename
+    print "\n [+] We generated: "+fout.filename
     fout.close()
-    print " ----> FINISHED UNIFYING OUTPUT :D"
+    _right_now = datetime.now().strftime("%d %b %Y %H:%M:%S")
+    print "\n ----> FINISHED UNIFYING OUTPUT @ " + _right_now +'\n'
 
 
 def equi_bounds(dini, dend, n):

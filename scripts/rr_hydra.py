@@ -62,8 +62,8 @@ Rl = cw.calc_Rlarmor(
     )/AUincm                 # [AU] Larmor radii
 #--- set B-turbulence model
 pd.update({
-'Nm_slab'       : 256,
-'Nm_2d'         : 256,
+'Nm_slab'       : 128,
+'Nm_2d'         : 128,
 'lmin_s'        : 5e-5/Rl, #[lmin_s/Rl] 
 'lmax_s'        : ro/Rl,  #[lmax_s/Rl] 
 'lmin_2d'       : 5e-5/Rl, #[lmin_2d/Rl] 
@@ -75,7 +75,7 @@ pd.update({
 })
 #--- corregimos input
 psim['tmax']     = 4e4 #0.3e4 #4e4
-eps_o = 1e-6 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
+eps_o = 4.64e-6 #3.33e-6 #3.33e-5 #1.0e-4 #3.3e-6 #4e-5 # ratio: (error-step)/(lambda_min)
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
 psim['atol']     = lmin*eps_o  # [1]
 psim['rtol']     = 0.0 #1e-6
@@ -158,17 +158,17 @@ for npla in plas: #[25:]:
     m.SetSim(**psim)
     m.RunSim()
 
-    print " [r:%d] (pla:%d of %d) finished!" % (rank, npla, plas[-1])
+    print " [r:%03d] (pla:%d of %d) finished!" % (rank, npla, plas[-1])
     dpath = 'pla%03d/' % npla
-    print " [r:%d] writing: %s" % (rank, fo.filename)
+    print " [r:%03d] writing: %s" % (rank, fo.filename)
     ff.SaveToFile(m, dpath, fo, nbin)
     m.clean()
 
-print " [r:%d] closing: %s" % (rank, fo.filename)
+print " [r:%03d] closing: %s" % (rank, fo.filename)
 fo.close()
 pause(1)
 os.system('touch %s_finished'%fname_out_tmp)
-print " [r:%d] I'm finished!" % rank
+print " [r:%03d] I'm finished!" % rank
 
 if rank==0:
     #--- let's check if everyone has already finished
