@@ -86,11 +86,13 @@ po.update(psim)
 po.update(pd)
 # add some stuff
 po.update({
-'r'     : ro,            # [AU] heliodistance
-'eps_o' : eps_o,         # [1]  precision
-'lmin'  : lmin/AU_in_cm, # [AU] minimum turb scale
-'RloLc' : Rl/Lc_slab,   # [1] (r_larmor)/(Lc_slab)
+'r'     : ro,           # [AU] heliodistance
+'eps_o' : eps_o,        # [1]  precision
+'lmin'  : lmin,         # [1]  minimum turb scale (*)
+'RloLc' : Rl/Lc_slab,   # [1]  (r_larmor)/(Lc_slab)
 })
+# (*) according to the definitions above of 'lmin_*' they are
+# adimensional but they're in units of Rl.
 
 dir_out = '../out/r.%.2f_ok3' % ro
 #dir_out = '../out/testt'
