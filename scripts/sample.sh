@@ -1,24 +1,50 @@
 #!/bin/bash 
 
-export PLA1=$HOME/pla1          # repo-dir on lamp.iafe.uba.ar
-THIS_DIR=$PLA1/scripts
-EXEC=${THIS_DIR}/rr_hydra.py
+export REPO=$HOME/pla1          # Git work-tree on lamp.iafe.uba.ar
+EXEC=$REPO/scripts/rr_hydra.py
 NPROCS="-np 24"
 
-# runlog
-LOGFILE=${THIS_DIR}/run_r0.9_NmS128_Nm2d128_eps4.64e-6.log
 
 CONDAENV=work2      # conda environment where we work
 echo -e "\n [+] Switching to $CONDAENV environment in Anaconda framework."
 # load the mpirun we need:
-source activate $CONDAENV
+source activate $CONDAENV || exit 1
 
-echo -e "\n [+] Starting run @ $(date)"
-echo -e " [+] runlog: $LOGFILE\n"
+# check we are in a committed state
+if [[ $(git status | grep "nothing to commit") =~ "nothing to commit" ]]; then
+    echo " [+] clean Git repo."
+else
+    echo -e "\n [-] dirty Git repo. Commit input changes && commit!\n" && exit 1
+fi
+
+ro=(printf "%.2f" 0.9)                                      # [AU] heliodistance
+ofname="$REPO/out/newLc/r_$ro__$(git rev-parse HEAD).h5"    # output HDF5
+
+# check if there's already a .h5 with this name!
+[[ -f $ofname ]] && {
+        echo -e " [-] HDF5 file already exists! $(ls -lh $ofname)\n CHECK before running!!\n";
+        exit 1;
+    }
+LOGFILE=$REPO/out/newLc/$(basename $ofname).log             # runlog
+
+#-- report on screen
+echo ""
+echo -e " [+] Starting run @ $(date)"
+echo -e " [+] runlog: $LOGFILE"
+echo -e " [*] output: $ofname"
+echo ""
+
 # NOTE: the $(which mpirun) belongs to Anaconda!
-mpirun $NPROCS $EXEC > $LOGFILE 2>&1
+mpirun $NPROCS $EXEC \
+    --fname_out $ofname \
+    --ro $ro \
+    --Nm_slab 128 \
+    --Nm_2d 128 \
+    --tmax 4e4 \
+    --eps 4.64e-6 \
+    > $LOGFILE 2>&1
 
-echo -e "\n [+] FINISHED WITH STATUS: $? @ $(date)\n"
+echo -e "\n [*] FINISHED WITH STATUS: $? @ $(date)\n"
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # NOTE:

@@ -11,12 +11,56 @@ from params import (
 from mpi4py import MPI
 from h5py import File as h5
 from os.path import isfile, isdir
-import os, sys
+import os, sys, argparse
 from glob import glob
 from numpy import power, log10
 
 #--- globals
 AUincm = 1.5e13             # [cm]
+
+
+#--- retrieve args
+parser = argparse.ArgumentParser(
+formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
+parser.add_argument(
+'-of', '--fname_out',
+type=str,
+default='../out/test/testt.h5',
+help='output HDF5 file.',
+)
+parser.add_argument(
+'-NmS', '--Nm_slab',
+type=int,
+default=128,
+help='number of slab modes',
+)
+parser.add_argument(
+'-Nm2d', '--Nm_2d',
+type=int,
+default=128,
+help='number of 2D modes',
+)
+parser.add_argument(
+'-ro', '--ro',
+type=float,
+default=0.9,
+help='heliodistance in AU.',
+)
+parser.add_argument(
+'-tmax', '--tmax',
+type=float,
+default=4e4,
+help='max time for simulation',
+)
+parser.add_argument(
+'-eps', '--eps',
+type=float,
+default=4.64e-6, # 3.33e-6
+help='epsilon parameter; i.e. (error-step)/(lambda_min)',
+)
+pa = parser.parse_args()
+
 
 """
 (Bo = 5nT; omega=omega_{rel})
@@ -38,9 +82,8 @@ r[AU]    B[nT]       Rl[AU]         Lc[AU]      Rl/Lc   Rl/(5e-5AU)
 1.0      5.0         7.553521E-03   0.0089      0.85    151.07
 2.0      1.99653571  1.891657E-02   0.0119904   1.58    378.33
 """
-ro = 0.9
 
-lc = ff.Lc_memilia(r=ro)   # [AU], this gives the correlation-LENGTH
+lc = ff.Lc_memilia(r=pa.ro)   # [AU], this gives the correlation-LENGTH
 """
 from result in '16d5869' commit (from PLAS repo), we have the relation:
     y = m*x + b
@@ -59,24 +102,24 @@ Lc_slab = power(10., 1.026*log10(lc) + 0.2755) # from the above comments
 
 Rl = cw.calc_Rlarmor(
     rigidity=1.69604E+09, #1.69604E+09,    # [V]
-    Bo=ff.Bo_parker(r=ro)    # [Gauss]
+    Bo=ff.Bo_parker(r=pa.ro)    # [Gauss]
     )/AUincm                 # [AU] Larmor radii
 #--- set B-turbulence model
 pd.update({
 'Nm_slab'       : 128,
 'Nm_2d'         : 128,
 'lmin_s'        : 5e-5/Rl, #[lmin_s/Rl] 
-'lmax_s'        : ro/Rl,  #[lmax_s/Rl] 
+'lmax_s'        : pa.ro/Rl,  #[lmax_s/Rl] 
 'lmin_2d'       : 5e-5/Rl, #[lmin_2d/Rl] 
-'lmax_2d'       : ro/Rl,  #[lmax_2d/Rl] 
+'lmax_2d'       : pa.ro/Rl,  #[lmax_2d/Rl] 
 'Lc_slab'       : Lc_slab/Rl,  # in units of Larmor-radii
 'xi'            : 1.0, # [1] xi=Lc_2d/Lc_slab 
 'sigma_Bo_ratio': 0.3, # [1] fluctuation energy
 'ratio_slab'    : 0.2, # [1] (energy_slab)/(energy_total)
 })
 #--- corregimos input
-psim['tmax']     = 4e4 #0.3e4 #4e4
-eps_o            = 4.64e-6 #3.33e-6  # ratio: (error-step)/(lambda_min)
+psim['tmax']     = pa.tmax     # [1/omega]
+eps_o            = pa.eps      # ratio: (error-step)/(lambda_min)
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
 psim['atol']     = lmin*eps_o  # [1]
 psim['rtol']     = 0.0 #1e-6
@@ -87,7 +130,7 @@ po.update(psim)
 po.update(pd)
 # add some stuff
 po.update({
-'r'     : ro,           # [AU] heliodistance
+'r'     : pa.ro,           # [AU] heliodistance
 'eps_o' : eps_o,        # [1]  precision
 'lmin'  : lmin,         # [1]  minimum turb scale (*)
 'RloLc' : Rl/Lc_slab,   # [1]  (r_larmor)/(Lc_slab)
@@ -95,10 +138,8 @@ po.update({
 # (*) according to the definitions above of 'lmin_*' they are
 # adimensional but they're in units of Rl.
 
-dir_out = '../out/r.%.2f__newLc' % ro
-#dir_out = '../out/testt'
-assert isdir(dir_out), ' --> NO EXISTE: '+dir_out
-fname_out = dir_out+'/r.{r:1.2f}_RloLc.{RloLc:1.2e}_eps.{eps_o:1.2e}_NmS.{Nm_slab:04d}_Nm2d.{Nm_2d:04d}.h5'.format(**po)
+odir = '/'.join(pa.fname_out.split('/')[:-1])
+assert isdir(odir), ' [-] doesnt exist output directory:\n %s\n'%odir
 
 #--- call simulator
 m = cw.mgr()
@@ -142,10 +183,10 @@ if rank==0:
 pla_bd  = ff.equi_bounds(0, mu.size-1, wsize) # bounds
 plas    = np.arange(pla_bd[rank], pla_bd[rank+1]) # plas for each proc
 
-if rank==0 and isfile(fname_out):  # backup if already exists
-    os.system('mv {fname} {fname}_'.format(fname=fname_out))
+if rank==0 and isfile(pa.fname_out):  # backup if already exists
+    os.system('mv {fname} {fname}_'.format(fname=pa.fname_out))
 
-fname_out_tmp = fname_out+'_%02d'%rank # output of each processor
+fname_out_tmp = pa.fname_out+'_%02d'%rank # output of each processor
 fo = h5(fname_out_tmp, 'w') 
 nbin = 1000 # for step-size histograms
 for npla in plas: #[25:]:
@@ -176,11 +217,11 @@ if rank==0:
     n = 0
     while n<wsize:
         pause(2) # wait before next check
-        fs = glob(fname_out+'_*_finished') #list of files
+        fs = glob(pa.fname_out+'_*_finished') #list of files
         n = len(fs)
     
     #--- now proceed to unify
-    ff.unify_all(fname_out, psim=po, wsize=wsize)
+    ff.unify_all(pa.fname_out, psim=po, wsize=wsize)
     #--- now we can delete the "*_finished" files
     for fnm in fs:
         os.system('rm '+fnm)
