@@ -1,8 +1,8 @@
 #!/bin/bash 
 
-export REPO=$HOME/pla1          # Git work-tree on lamp.iafe.uba.ar
+export REPO=$HOME/pla1__Lc          # Git work-tree on lamp.iafe.uba.ar
 EXEC=$REPO/scripts/rr_hydra.py
-NPROCS="-np 24"
+NPROCS="-np 24"                 # number of processors
 
 
 CONDAENV=work2      # conda environment where we work
@@ -17,8 +17,8 @@ else
     echo -e "\n [-] dirty Git repo. Commit input changes && commit!\n" && exit 1
 fi
 
-ro=(printf "%.2f" 0.9)                                      # [AU] heliodistance
-ofname="$REPO/out/newLc/r_$ro__$(git rev-parse HEAD).h5"    # output HDF5
+ro="0.50"  #$(printf "%.2f" 0.5)                                      # [AU] heliodistance
+ofname="$REPO/out/newLc/r_${ro}__$(git rev-parse HEAD).h5"    # output HDF5
 
 # check if there's already a .h5 with this name!
 [[ -f $ofname ]] && {
@@ -35,13 +35,13 @@ echo -e " [*] output: $ofname"
 echo ""
 
 # NOTE: the $(which mpirun) belongs to Anaconda!
-mpirun $NPROCS $EXEC \
+mpirun $NPROCS $EXEC -- \
     --fname_out $ofname \
     --ro $ro \
     --Nm_slab 128 \
     --Nm_2d 128 \
     --tmax 4e4 \
-    --eps 4.64e-6 \
+    --eps 4.64e-4 \
     --sigma 0.3 \
     > $LOGFILE 2>&1
 
