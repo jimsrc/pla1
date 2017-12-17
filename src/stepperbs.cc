@@ -241,10 +241,10 @@ void StepperBS<D>::step(const Doub htry, D &derivs) {
 	Int i,k;
 	Doub fac,h,hnew,hopt_int,err;
 	bool firstk;
-	VecDoub hopt(IMAXX),work(IMAXX);
+	VecDoub hopt(IMAXX),work(IMAXX);  // (*)
 	VecDoub ysav(n),yseq(n);
 	VecDoub ymid(n),scale(n);
-
+    //(*) TODO: move this to a member of the class, so we avoid calling RAM so much!!
 	//printf("par.b @stepperbs.h-step(): %f\n", par.b);	///
 	work[0]=0;
 	h=htry;

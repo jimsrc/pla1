@@ -65,9 +65,12 @@ void Odeint<Stepper>::integrate() {
     #endif //GUIDING_CENTER
 
 	for (nstp=0;nstp<MAXSTP;nstp++) {
+        // save current state
 		save_history();					//--- scattering stuff
+
 		if ((x+h*1.0001-x2)*(x2-x1) > 0.0)
 			h=x2-x;
+        // advance one step, proposing the time-step 'h'
 		s.step(h, derivs);
 
         #ifdef MONIT_SCATTERING
@@ -129,7 +132,7 @@ void Odeint<Stepper>::check_scattering(){
 		out.Tau[out.nreb-1][1] = dtau; //[1] tiempo-de-colision instantaneo
 		out.Tau[out.nreb-1][2] = NORM(y[0],y[2],0.0); //[1] posic "perpend" en q ocurre dicha "colision"
 		out.Tau[out.nreb-1][3] = y[4]; //[1] posic "parall" en q ocurre dicha "colision"
-        out.Tau[out.nreb-1][4] = acos(par.B[2]/Bmod)*180./M_PI; // [deg] angulo entre plano x-y y z. Siendo 0.0 para B-vector paralelo a versor positivo ^z+.
+        out.Tau[out.nreb-1][4] = acos(par.B[2]/Bmod)*180./M_PI; // [deg] angulo entre el vector 'B' y z. Siendo 0.0 para B-vector paralelo a versor positivo ^z+.
 		dtau = 0.0;
 	}
 }
