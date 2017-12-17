@@ -19,6 +19,20 @@ class PARAMS : public MODEL_TURB{
 };
 
 
+#ifdef WATCH_TRAIL
+class trail{
+    public:
+        trail();
+        trail(int n, Doub tsize);
+        void insert(const Doub *pos);
+        ~trail();
+        Doub **buffer;
+        int n;
+        Doub tsize;
+        Doub dt;
+};
+#endif //WATCH_TRAIL
+
 
 //---------------------------------------------------
 struct rhs{  
@@ -67,6 +81,11 @@ class Output {
         void claim_own(void);
 		bool file_exist(void);
 		void resizeTau(void);
+
+        #ifdef WATCH_TRAIL
+        trail ptrail;
+        Doub xtrail;    // stop-times to insert positions on trail
+        #endif //WATCH_TRAIL
 
         #ifdef MONIT_SCATTERING
 		//esto lo agrego para guardar cosas de la historia de

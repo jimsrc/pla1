@@ -120,6 +120,42 @@ Doub **read_orientations(string fname, int &n){
 
 
 
+#ifdef WATCH_TRAIL
+trail::trail(){
+    buffer = NULL;
+    tsize  = 0.0;
+    n      = 0;
+}
+
+trail::trail(int n, Doub tsize){
+    buffer = AllocMat(n, 3);
+    if (buffer==NULL) throw(" [-] error allocating buffer for trail!");
+    for(int i; i<n; i++) {
+        for(int j=0;j<3;j++) buffer[i][j]=0.0;
+    }
+    dt = tsize/(1.*n);
+}
+
+void trail::insert(const Doub *pos){
+    // push the elements to the right, from the
+    // i=0 to i=n-2, so that now the element i=n-1
+    // will have the value that now is in i=n-2.
+    for(int i=0; i<n-1; i++){
+        for(int j=0;j<3;j++)
+            buffer[i+1][j] = buffer[i][j];
+    }
+
+    // put the new position in i=0.
+    for(int j=0;j<3;j++)
+        buffer[0][j] = pos[j];
+}
+
+trail::~trail(){
+    LiberaMat(buffer, n);
+}
+#endif // WATCH_TRAIL
+
+
 //----------------------- class Ouput
 template <class Stepper>
 void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistTau, Int nHist, Int nThColl_, int i, int j, char *dir_out){
@@ -171,6 +207,10 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
     }
     //NOTE: 'step_save' es inicializado en Odeint::Odeint(..)
     #endif //MONIT_STEP
+
+    #ifdef WATCH_TRAIL
+    ptrail = trail(500, 2.0);
+    #endif //WATCH_TRAIL
 }
 
 
@@ -394,12 +434,23 @@ void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,co
 		save(x, y); 
 		xout = XSaveGen[cc];
 		cc++;	//+= dxout;
+        #ifdef WATCH_TRAIL
+        //static Doub xo=x;
+        xtrail = x;
+        ptrail.insert(&y[0]);
+        #endif //WATCH_TRAIL
 	} else {
 		while ((x-xout)*(x2-x1) > 0.0) {
 			save_dense(s, xout, h);		// interpola a 'xout'
 			xout = XSaveGen[cc]; //+= dxout;			// avanza 'xout' en 'dxout'
 			cc++;
 		}
+        #ifdef WATCH_TRAIL
+        if(x-xtrail > 0.0){
+            ptrail.insert(&y[0]);   // insert to particle trail
+            xtrail = x + ptrail.dt; // next stop-time
+        }
+        #endif //WATCH_TRAIL
 	}
 }
 

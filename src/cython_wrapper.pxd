@@ -92,6 +92,11 @@ cdef extern from "funcs.h":
         Doub* t
         Int n
 
+    cdef cppclass trail:
+        int n               # number of positions in the trail
+        Doub tsize          # how long in time is the track
+        Doub **buffer       # positions w/ shape (n,3)
+
     cdef cppclass Output[T]:
         Output()
         void build(
@@ -124,6 +129,8 @@ cdef extern from "funcs.h":
         #Int NStep
         #void build_HistSeq(const T s);
         MatDoub step_save
+        #--- particle trail
+        trail ptrail
 
     cdef cppclass rhs: # (*1)
         void operator() (PARAMS par, const Doub x, VecDoub_I &y, VecDoub_O &dydx);

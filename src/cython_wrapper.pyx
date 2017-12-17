@@ -25,7 +25,7 @@ cdef init_out(Output[StepperBS[rhs]] *op):
 """
 
 
-cdef class mgr:
+cdef class mgr(object):
     cdef Output[StepperBS[rhs]] *outbs
     cdef PARAMS_TURB            *pt
     cdef PARAMS                 *par
