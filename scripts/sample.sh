@@ -41,7 +41,7 @@ mpirun $NPROCS $EXEC -- \
     --Nm_slab 256 \
     --Nm_2d 256 \
     --tmax 4e4 \
-    --eps 4.64e-4 \
+    --eps 1e-4 \
     --sigma 0.3 \
     > $LOGFILE 2>&1
 
