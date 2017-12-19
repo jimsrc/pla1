@@ -393,7 +393,7 @@ NRmatrix<T>::~NRmatrix()
 }
 
 
-/*
+
 template <class T>
 class NRMat3d {
 private:
@@ -409,6 +409,7 @@ public:
 	inline int dim1() const;
 	inline int dim2() const;
 	inline int dim3() const;
+    void resize(int newn0, int newn1, int newn2);
 	~NRMat3d();
 };
 
@@ -423,9 +424,38 @@ NRMat3d<T>::NRMat3d(int n, int m, int k) : nn(n), mm(m), kk(k), v(new T**[n])
 	v[0][0] = new T[n*m*k];
 	for(j=1; j<m; j++) v[0][j] = v[0][j-1] + k;
 	for(i=1; i<n; i++) {
-		v[i] = v[i-1] + m;
+		v[i]    = v[i-1]    + m;
 		v[i][0] = v[i-1][0] + m*k;
 		for(j=1; j<m; j++) v[i][j] = v[i][j-1] + k;
+	}
+}
+
+template <class T>
+void NRMat3d<T>::resize(int newn0, int newn1, int newn2)
+{
+	int i,j,nel;
+	if (newn1 != nn || newn1 != mm || newn2 != kk) {
+        // delete v
+		if (v != NULL) {
+            delete[] (v[0][0]);
+			delete[] (v[0]);
+			delete[] (v);
+		}
+		nn = newn0;
+		mm = newn1;
+        kk = newn2;
+		v = nn>0 ? new T**[nn] : NULL;
+		nel = nn*mm*kk;
+		if (v){
+            v[0] = nel>0 ? new T*[nn*mm] : NULL;
+            v[0][0] = new T[nel];
+        }
+        for(j=1; j<mm; j++) v[0][j] = v[0][j-1] + kk;
+        for(i=1; i<nn; i++){
+            v[i]    = v[i-1]    + mm;
+            v[i][0] = v[i-1][0] + mm*kk;
+            for(j=1; j<mm; j++) v[i][j] = v[i][j-1] + kk;
+        }
 	}
 }
 
@@ -468,7 +498,7 @@ NRMat3d<T>::~NRMat3d()
 		delete[] (v);
 	}
 }
-*/
+
 
 // basic type names (redefine if your bit lengths don't match)
 
@@ -566,12 +596,12 @@ typedef const NRmatrix<Bool> MatBool_I;
 typedef NRmatrix<Bool> MatBool, MatBool_O, MatBool_IO;
 
 
-/*
+
 // 3D matrix types
 
 typedef const NRMat3d<Doub> Mat3DDoub_I;
 typedef NRMat3d<Doub> Mat3DDoub, Mat3DDoub_O, Mat3DDoub_IO;
-
+/*
 // Floating Point Exceptions for Microsoft compilers
 
 #ifdef _TURNONFPES_
