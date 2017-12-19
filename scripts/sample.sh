@@ -17,7 +17,7 @@ else
     echo -e "\n [-] dirty Git repo. Commit input changes && commit!\n" && exit 1
 fi
 
-ro="0.50"  #$(printf "%.2f" 0.5)                                      # [AU] heliodistance
+ro="0.70"  #$(printf "%.2f" 0.5)                                      # [AU] heliodistance
 ofname="$REPO/out/newLc/r_${ro}__$(git rev-parse HEAD).h5"    # output HDF5
 
 # check if there's already a .h5 with this name!
@@ -41,7 +41,7 @@ mpirun $NPROCS $EXEC -- \
     --Nm_slab 256 \
     --Nm_2d 256 \
     --tmax 4e4 \
-    --eps 1e-4 \
+    --eps 4.64e-4 \
     --sigma 0.3 \
     > $LOGFILE 2>&1
 
