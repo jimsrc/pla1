@@ -38,10 +38,10 @@ echo ""
 mpirun $NPROCS $EXEC -- \
     --fname_out $ofname \
     --ro $ro \
-    --Nm_slab 256 \
+    --Nm_slab 128 \
     --Nm_2d 256 \
     --tmax 4e4 \
-    --eps 1e-5 \
+    --eps 4.64e-6 \
     --sigma 0.3 \
     > $LOGFILE 2>&1
 
