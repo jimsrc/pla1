@@ -101,6 +101,8 @@ void Odeint<Stepper>::integrate() {
 		if (abs(s.hnext) <= hmin) throw("Step size too small in Odeint");
 		h=s.hnext;
 	}
+
+    //--- ERROR: exit program.
     printf("\n ---> Too many steps in routine Odeint <--\n");
 	throw("Too many steps in routine Odeint");
 }
@@ -109,6 +111,7 @@ void Odeint<Stepper>::integrate() {
 #ifdef MONIT_SCATTERING
 template<class Stepper>
 void Odeint<Stepper>::check_scattering(){
+    Doub dtau_res;
     Doub xyz[3] = {y[0],y[2],y[4]};
 	par.calc_B(xyz);
 	Bmod = NORM(par.B[0],par.B[1],par.B[2]);
@@ -127,12 +130,23 @@ void Odeint<Stepper>::check_scattering(){
 		if(out.nreb>=out.nfilTau) 
             out.resizeTau();
 
-		// guardo cosas de la "colisiones" con las irregularidades:
+		//--- guardo cosas de la "colisiones" con las irregularidades:
 		out.Tau[out.nreb-1][0] = x; //[1] time @ collision
 		out.Tau[out.nreb-1][1] = dtau; //[1] tiempo-de-colision instantaneo
 		out.Tau[out.nreb-1][2] = NORM(y[0],y[2],0.0); //[1] posic "perpend" en q ocurre dicha "colision"
 		out.Tau[out.nreb-1][3] = y[4]; //[1] posic "parall" en q ocurre dicha "colision"
         out.Tau[out.nreb-1][4] = acos(par.B[2]/Bmod)*180./M_PI; // [deg] angulo entre el vector 'B' y z. Siendo 0.0 para B-vector paralelo a versor positivo ^z+.
+
+        //--- append this trail to 'ptrails'
+        #ifdef WATCH_TRAIL
+        // NOTE: before resetting 'dtau', let's see if it's close to
+        // a resonance!
+        dtau_res = fmodf(dtau,2.*M_PI)/(2.*M_PI);
+        if (dtau_res>0.8 && dtau_res<=1.0){
+            out.append_trail(); // append trail TODO: implement method.
+        }
+
+        #endif //WATCH_TRAIL
 		dtau = 0.0;
 	}
 }

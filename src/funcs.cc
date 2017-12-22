@@ -209,10 +209,12 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
     #endif //MONIT_STEP
 
     #ifdef WATCH_TRAIL
-    ptrail = trail(500, 2.0);
+    ptrail  = trail(TRAIL_N, TRAIL_TSIZE);
+    ptrails = Mat3DDoub(2,TRAIL_N,3);       // initially allocates space for two trails
+    ntrails = 0;            // total number of appended trails
+    //TODO: call ptrails from the .pyx file.
     #endif //WATCH_TRAIL
 }
-
 
 template <class Stepper>
 Output<Stepper>::Output() : kmax(-1),dense(false),count(0) {}
@@ -267,6 +269,29 @@ void GuidingCenter::calc_gc(Doub* dydx, Doub* y, Doub x){
  * ++++++++++++++++++++++++  OUTPUT  +++++++++++++++++++++++++++++++
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
+
+template <class Stepper>
+void Output<Stepper>::append_trail(){
+    ntrails++;      // count number of appended trails
+
+    // resize 'ptrails' if necessary
+    if (ntrails > ptrails.dim1()){
+        Mat3DDoub bckp(ptrails.dim1(),ptrails.dim2(),3); // backup of 'ptrails'
+        ptrails.resize(2*ptrails.dim1(),ptrails.dim2(),3);
+        //--- bring back the backup data
+        // iterate over the number of trails
+        for(int i=0; i<ptrails.dim1(); i++)
+            // iterate over the number of points in each trail
+            for(int j=0; j<ptrails.dim2(); j++)
+                for(int k=0; k<3; k++)
+                    ptrails[i][j][k] = bckp[i][j][k];
+    }
+
+    // append current trail
+    for(int j=0; j<TRAIL_N; j++)
+        for(int k=0; k<3; k++)
+            ptrails[ntrails-1][j][k] = ptrail.buffer[j][k];
+}
 
 template <class Stepper>
 void Output<Stepper>::set_savetimes(Doub xhi){

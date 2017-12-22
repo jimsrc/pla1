@@ -13,7 +13,11 @@
 #define MONIT_STEP 1 // monitorea el step
 #define BETA_CHECK 1 // checkea q siempre beta<1
 #define NVAR    (6)
-#define WATCH_TRAIL     1 // watch particle trail of positions
+
+//--- trail of the particle
+#define WATCH_TRAIL     1       // watch particle trail of positions
+#define TRAIL_TSIZE     2.0     // lag of time to track
+#define TRAIL_N         200     // number of positions for the trail
 
 //--------------------------------------CTES UNIVERSALES
 #define SIM_MAXSTP      (600*50000) // max nuber of steps in Odeint

@@ -84,7 +84,10 @@ class Output {
 
         #ifdef WATCH_TRAIL
         trail ptrail;
-        Doub xtrail;    // stop-times to insert positions on trail
+        Mat3DDoub ptrails;  // 
+        Doub xtrail;        // stop-times to insert positions on trail
+        void append_trail(); // append 'ptrail' to 'ptrails'
+        Int ntrails;        // total number of appended trails
         #endif //WATCH_TRAIL
 
         #ifdef MONIT_SCATTERING

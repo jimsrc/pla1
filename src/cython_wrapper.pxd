@@ -27,6 +27,16 @@ cdef extern from "nr3.h":
         int ncols() const
         void resize(int newn, int newm)
 
+    cdef cppclass NRMat3d[T]:
+        NRMat3d();
+        NRMat3d(int n0, int n1, int n2) except +
+        T** operator[](const int i); #subscripting: pointer to row i
+        int dim1() const;
+        int dim2() const;
+        int dim3() const;
+        void resize(int newn0, int newn1, int newn2);
+
+
 #--- para q compile templates especificos
 ctypedef double Doub
 ctypedef int Int
@@ -36,6 +46,7 @@ ctypedef NRvector[Doub] VecDoub_O
 ctypedef const NRvector[Doub] VecDoub_I
 
 ctypedef NRmatrix[Doub] MatDoub
+ctypedef NRMat3d[Doub]  Mat3DDoub
 
 
 #--- clases PARAMS_... y MODEL_TURB
@@ -131,6 +142,8 @@ cdef extern from "funcs.h":
         MatDoub step_save
         #--- particle trail
         trail ptrail
+        Int ntrails
+        Mat3DDoub ptrails
 
     cdef cppclass rhs: # (*1)
         void operator() (PARAMS par, const Doub x, VecDoub_I &y, VecDoub_O &dydx);
