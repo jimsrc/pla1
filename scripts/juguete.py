@@ -14,10 +14,15 @@ import argparse
 
 # retrieve the IDentifiers :-)
 parser = argparse.ArgumentParser(
+description="""
+Process .h5 output-files to generate a .key (hex of hash generated 
+code) && .pdf (figures).
+The convention, assumed here, is than the input .h5 files are symlinks (not necessarily) to the real files. The aim with the symlinks is to categorize the original .h5 files; this way, a single ('original') .h5 file can belong to several categories of an analysis.
+""",
 formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument(
-'-i', '--IDs', 
+'-i', '--IDs',  # the .h5 file is assumed to have a '%03d' format for the ID
 type=str,
 help='list of identifier numbers.',
 )

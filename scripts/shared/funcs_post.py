@@ -52,7 +52,7 @@ def residuals_kxx(params, x, y_data):
 
     return diff
 
-def make_fit_lxx(data, sems):
+def make_fit_lxx(data, sems, min_b=None):
     x       = data[0]
     y       = data[1]
     # create a set of Parameters
@@ -67,8 +67,8 @@ def make_fit_lxx(data, sems):
 
     params['b'].value       = SEM_b
     params['b'].vary        = True
-    """params['b'].min              = 
-    params['b'].max         = """
+    params['b'].min         = min_b
+    #params['b'].max         = ...
 
     params['m'].value       = SEM_m
     params['m'].vary        = True
@@ -106,7 +106,8 @@ def fit_mfp(t, mfp, t_decr, seed_b, seed_m):
     seed_xo  = 0.0
     pfit = make_fit_lxx(
             [t[cc], mfp[cc]], 
-            [seed_b, seed_m, seed_xo]
+            [seed_b, seed_m, seed_xo],
+            min_b=0.0,
            )
     
     mfp_fit = pfit[0] # asymptotic value
@@ -729,7 +730,7 @@ class GralPlot(object):
         ax.set_yscale('linear')
         ax.grid(True)
         ax.set_ylabel('#')
-        ax.set_xlabel('$\\theta_{coll}$ [deg]')
+        ax.set_xlabel('sampled $\\theta_{B}$ [deg]')
         return fig, ax
 
     def plot_TauColl(self, scale='omega', OneFigFile=False, xlim=None, ylim=None, **kargs):
