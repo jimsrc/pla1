@@ -105,8 +105,8 @@ template <class T>
 class NRvector {
 private:
 	int nn;	// size of array. upper index is nn-1
-	T *v;
 public:
+	T *v;
 	NRvector();
 	explicit NRvector(int n);		// Zero-based array
 	NRvector(int n, const T &a);	//initialize to constant value
@@ -404,6 +404,8 @@ private:
 public:
 	NRMat3d();
 	NRMat3d(int n, int m, int k);
+    NRMat3d & operator=(const NRMat3d &rhs);
+    //NRMat3d & operator=(const NRmatrix &rhs);	//assignment
 	inline T** operator[](const int i);	//subscripting: pointer to row i
 	inline const T* const * operator[](const int i) const;
 	inline int dim1() const;
@@ -421,13 +423,64 @@ NRMat3d<T>::NRMat3d(int n, int m, int k) : nn(n), mm(m), kk(k), v(new T**[n])
 {
 	int i,j;
 	v[0] = new T*[n*m];
+    if( v[0]==NULL ) throw("\n [-] allocation error in v[0] @NRMat3d()\n");
+
 	v[0][0] = new T[n*m*k];
-	for(j=1; j<m; j++) v[0][j] = v[0][j-1] + k;
+    if( v[0][0]==NULL ) throw("\n [-] allocation error in v[0][0] @NRMat3d()\n");
+
+	for(j=1; j<m; j++) 
+        v[0][j] = v[0][j-1] + k;
+
 	for(i=1; i<n; i++) {
 		v[i]    = v[i-1]    + m;
 		v[i][0] = v[i-1][0] + m*k;
-		for(j=1; j<m; j++) v[i][j] = v[i][j-1] + k;
+		for(j=1; j<m; j++) 
+            v[i][j] = v[i][j-1] + k;
 	}
+    //-- fill w zeros
+    for(int _i=0;_i<nn;_i++) for(int _j=0;_j<mm;_j++) for(int _k=0;_k<kk;_k++)
+        v[_i][_j][_k] = 0.0;
+}
+
+template <class T>
+NRMat3d<T> & NRMat3d<T>::operator=(const NRMat3d<T> &rhs)
+// postcondition: normal assignment via copying has been performed;
+//		if matrix and rhs were different sizes, matrix
+//		has been resized to match the size of rhs
+{
+	if (this != &rhs) {
+		int i,j,k;
+		if (nn!=rhs.nn || mm!=rhs.mm || kk!=rhs.kk) {
+			if (v != NULL) {
+				delete[] (v[0]);
+				delete[] (v);
+			}
+			nn=rhs.nn;
+			mm=rhs.mm;
+            kk=rhs.kk;
+			v = nn>0 ? new T**[nn] : NULL;
+
+            v[0] = new T*[nn*mm];
+            if( v[0]==NULL ) throw("\n [-] allocation error in v[0] @NRMat3d()\n");
+
+            v[0][0] = new T[nn*mm*kk];
+            if( v[0][0]==NULL ) throw("\n [-] allocation error in v[0][0] @NRMat3d()\n");
+
+            for(j=1; j<mm; j++) 
+                v[0][j] = v[0][j-1] + kk;
+
+            for(i=1; i<nn; i++) {
+                v[i]    = v[i-1]    + mm;
+                v[i][0] = v[i-1][0] + mm*kk;
+                for(j=1; j<mm; j++) 
+                    v[i][j] = v[i][j-1] + kk;
+		    }
+
+		    for(i=0; i<nn; i++) for(j=0; j<mm; j++) for(k=0; k<kk; k++)
+                v[i][j][k] = rhs[i][j][k];
+        }
+	}
+	return *this;
 }
 
 template <class T>
@@ -454,7 +507,8 @@ void NRMat3d<T>::resize(int newn0, int newn1, int newn2)
         for(i=1; i<nn; i++){
             v[i]    = v[i-1]    + mm;
             v[i][0] = v[i-1][0] + mm*kk;
-            for(j=1; j<mm; j++) v[i][j] = v[i][j-1] + kk;
+            for(j=1; j<mm; j++) 
+                v[i][j] = v[i][j-1] + kk;
         }
 	}
 }
@@ -601,6 +655,11 @@ typedef NRmatrix<Bool> MatBool, MatBool_O, MatBool_IO;
 
 typedef const NRMat3d<Doub> Mat3DDoub_I;
 typedef NRMat3d<Doub> Mat3DDoub, Mat3DDoub_O, Mat3DDoub_IO;
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 /*
 // Floating Point Exceptions for Microsoft compilers
 

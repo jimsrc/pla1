@@ -27,6 +27,7 @@ cdef extern from "nr3.h":
         int ncols() const
         void resize(int newn, int newm)
 
+    #------ NRMat3d ------#
     cdef cppclass NRMat3d[T]:
         NRMat3d();
         NRMat3d(int n0, int n1, int n2) except +
@@ -104,9 +105,12 @@ cdef extern from "funcs.h":
         Int n
 
     cdef cppclass trail:
+        trail()
+        trail(int nn, Doub tsizee)
+        void insert(const Doub * const pos)
         int n               # number of positions in the trail
         Doub tsize          # how long in time is the track
-        Doub **buffer       # positions w/ shape (n,3)
+        Doub **buff       # positions w/ shape (n,3)
 
     cdef cppclass Output[T]:
         Output()
@@ -141,7 +145,7 @@ cdef extern from "funcs.h":
         #void build_HistSeq(const T s);
         MatDoub step_save
         #--- particle trail
-        trail ptrail
+        trail *ptrail
         Int ntrails
         Mat3DDoub ptrails
 

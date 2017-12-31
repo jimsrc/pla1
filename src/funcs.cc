@@ -122,36 +122,51 @@ Doub **read_orientations(string fname, int &n){
 
 #ifdef WATCH_TRAIL
 trail::trail(){
-    buffer = NULL;
+    buff = NULL;
     tsize  = 0.0;
     n      = 0;
 }
 
-trail::trail(int n, Doub tsize){
-    buffer = AllocMat(n, 3);
-    if (buffer==NULL) throw(" [-] error allocating buffer for trail!");
-    for(int i; i<n; i++) {
-        for(int j=0;j<3;j++) buffer[i][j]=0.0;
+trail::trail(int nn, Doub tsizee) : n(nn), tsize(tsizee) {
+    // I shouldn't use malloc/calloc in C++
+    // source:
+    // https://stackoverflow.com/questions/31883260/error-cannot-access-memory-at-address
+    //buffer = AllocMat(n, 3); // shouldn't user
+    //--- allocate 'buffer'
+    buff = n>0 ? new Doub*[n] : NULL;
+	if (buff) buff[0] = new Doub[3*n];
+    if (buff==NULL || buff[0]==NULL) throw(" [-] error allocating buffer for trail!");
+
+	for (int i=1; i<n; i++) buff[i] = buff[i-1] + 3;
+
+    for(int i=0; i<n; i++) {
+        for(int j=0; j<3; j++){
+            buff[i][j]=0.0;
+        }
     }
     dt = tsize/(1.*n);
 }
 
-void trail::insert(const Doub *pos){
+void trail::insert(const Doub * const pos){
     // push the elements to the right, from the
     // i=0 to i=n-2, so that now the element i=n-1
     // will have the value that now is in i=n-2.
     for(int i=0; i<n-1; i++){
         for(int j=0;j<3;j++)
-            buffer[i+1][j] = buffer[i][j];
+            buff[i+1][j] = buff[i][j];
     }
 
     // put the new position in i=0.
     for(int j=0;j<3;j++)
-        buffer[0][j] = pos[j];
+        buff[0][j] = pos[j];
 }
 
 trail::~trail(){
-    LiberaMat(buffer, n);
+    if(buff != NULL){
+        delete[] (buff[0]);
+        delete[] (buff);
+        //LiberaMat(buffer, n);
+    }
 }
 #endif // WATCH_TRAIL
 
@@ -209,8 +224,11 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
     #endif //MONIT_STEP
 
     #ifdef WATCH_TRAIL
-    ptrail  = trail(TRAIL_N, TRAIL_TSIZE);
+    ptrail  = new trail(TRAIL_N, TRAIL_TSIZE); //trail(TRAIL_N, TRAIL_TSIZE);
+    //*ptrail = trail(TRAIL_N, TRAIL_TSIZE);
     ptrails = Mat3DDoub(2,TRAIL_N,3);       // initially allocates space for two trails
+    for(int _i=0;_i<2;_i++) for(int _j=0;_j<TRAIL_N;_j++) for(int _k=0;_k<3;_k++)
+        ptrails[_i][_j][_k] = 0.0;
     ntrails = 0;            // total number of appended trails
     //TODO: call ptrails from the .pyx file.
     #endif //WATCH_TRAIL
@@ -279,18 +297,18 @@ void Output<Stepper>::append_trail(){
         Mat3DDoub bckp(ptrails.dim1(),ptrails.dim2(),3); // backup of 'ptrails'
         ptrails.resize(2*ptrails.dim1(),ptrails.dim2(),3);
         //--- bring back the backup data
-        // iterate over the number of trails
-        for(int i=0; i<ptrails.dim1(); i++)
+        // iterate over the number of appended trails
+        for(int i=0; i<bckp.dim1(); i++)
             // iterate over the number of points in each trail
-            for(int j=0; j<ptrails.dim2(); j++)
-                for(int k=0; k<3; k++)
+            for(int j=0; j<bckp.dim2(); j++)
+                for(int k=0; k<bckp.dim3(); k++)
                     ptrails[i][j][k] = bckp[i][j][k];
     }
 
     // append current trail
     for(int j=0; j<TRAIL_N; j++)
         for(int k=0; k<3; k++)
-            ptrails[ntrails-1][j][k] = ptrail.buffer[j][k];
+            ptrails[ntrails-1][j][k] = ptrail->buff[j][k];
 }
 
 template <class Stepper>
@@ -462,7 +480,7 @@ void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,co
         #ifdef WATCH_TRAIL
         //static Doub xo=x;
         xtrail = x;
-        ptrail.insert(&y[0]);
+        ptrail->insert(&y[0]);
         #endif //WATCH_TRAIL
 	} else {
 		while ((x-xout)*(x2-x1) > 0.0) {
@@ -472,8 +490,8 @@ void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,co
 		}
         #ifdef WATCH_TRAIL
         if(x-xtrail > 0.0){
-            ptrail.insert(&y[0]);   // insert to particle trail
-            xtrail = x + ptrail.dt; // next stop-time
+            ptrail->insert(&y[0]);   // insert to particle trail
+            xtrail = x + ptrail->dt; // next stop-time
         }
         #endif //WATCH_TRAIL
 	}

@@ -23,10 +23,10 @@ class PARAMS : public MODEL_TURB{
 class trail{
     public:
         trail();
-        trail(int n, Doub tsize);
-        void insert(const Doub *pos);
+        trail(int nn, Doub tsizee);
+        void insert(const Doub * const pos);
         ~trail();
-        Doub **buffer;
+        Doub **buff;
         int n;
         Doub tsize;
         Doub dt;
@@ -83,11 +83,11 @@ class Output {
 		void resizeTau(void);
 
         #ifdef WATCH_TRAIL
-        trail ptrail;
-        Mat3DDoub ptrails;  // 
-        Doub xtrail;        // stop-times to insert positions on trail
-        void append_trail(); // append 'ptrail' to 'ptrails'
-        Int ntrails;        // total number of appended trails
+        trail *ptrail;
+        Mat3DDoub ptrails;    // 
+        Doub xtrail;          // stop-times to insert positions on trail
+        void append_trail();  // append 'ptrail' to 'ptrails'
+        Int ntrails;          // total number of appended trails
         #endif //WATCH_TRAIL
 
         #ifdef MONIT_SCATTERING
