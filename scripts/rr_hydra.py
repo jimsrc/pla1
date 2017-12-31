@@ -59,6 +59,14 @@ type=float,
 default=4.64e-6, # 3.33e-6
 help='epsilon parameter; i.e. (error-step)/(lambda_min)',
 )
+parser.add_argument(
+'-trails', '--trails',
+action='store_true',
+default=False,
+help='whether or not to grab the trails data; that is, trajectory \
+traces of the particles just before they made a back-scatter (i.e. \
+when the particle changes sign in pitch angle)',
+)
 pa = parser.parse_args()
 
 
@@ -168,10 +176,10 @@ if rank==0:
      but we have        : {mem_avail} GB (available RAM)
     +++++++++++++++++++++++++++++++++++++++
     """.format(mem_ask=STOT, mem_avail=avail_ram)
-if (rank==0) & (STOT>avail_ram):
-    print " --> ERROR: NOT ENOUGH MEMORY!\n"
-    # not the most correct to kill it, but works
-    comm.Abort()
+    if (STOT>avail_ram):
+        print "\n --> ERROR: NOT ENOUGH MEMORY!\n"
+        # not the most correct to kill it, but works
+        comm.Abort()
 # wait for the above check
 comm.Barrier()
 
@@ -203,7 +211,7 @@ for npla in plas: #[25:]:
     print " [r:%03d] (pla:%d of %d) finished!" % (rank, npla, plas[-1])
     dpath = 'pla%03d/' % npla
     print " [r:%03d] writing: %s" % (rank, fo.filename)
-    ff.SaveToFile(m, dpath, fo, nbin)
+    ff.SaveToFile(m, dpath, fo, nbin_step=nbin, btrails=pa.trails)
     m.clean()
 
 print " [r:%03d] closing: %s" % (rank, fo.filename)
