@@ -10,13 +10,20 @@ import argparse, h5py, logging
 
 #--- retrieve args
 parser = argparse.ArgumentParser(
+description="""
+Decodes an hex to a hash-key, so that I can
+deduce the associated .h5 files, and list them.
+IMPORTANT: the generated hash key (associated to the list of
+input files) is only based on the cardinal numbers of the .h5 files; 
+but NOT in the whole basenames.
+""",
 formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 parser.add_argument(
 '-hash', '--hash',
 type=str,
 #default='<hash>'.format(**os.environ),
-help='hash code that identifies the set of .h5 analyzed files',
+help='hash code that identifies the set of .h5 analyzed files. Enter only the hash (without the ".key" string)',
 )
 parser.add_argument(
 '-content', '--list_contents',

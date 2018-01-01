@@ -87,10 +87,11 @@ cdef class ArrayWrapper_2d:
         shape[1] = <np.npy_intp> self.ny
         # Create a 2D array, of length 'size'
         ndarray = np.PyArray_SimpleNewFromData(
-                        nd = 2, 
-                        dims = shape,
-                        typenum = np.NPY_DOUBLE, 
-                        data = self.data_ptr)
+            nd = 2, 
+            dims = shape,
+            typenum = np.NPY_DOUBLE, 
+            data = self.data_ptr
+        )
         return ndarray
 
     def __dealloc__(self):
@@ -105,4 +106,49 @@ cdef class ArrayWrapper_2d:
             print " ---> array_wrapper(2d): eliminando self.data_ptr @ ", self
             PyMem_Free(<void*>self.data_ptr)
             print " ---> eliminado ok!"
+
+
+
+#----------------------------------------------
+cdef class ArrayWrapper_3d(object):
+    cdef void* data_ptr
+    cdef int size, n0, n1, n2
+    cdef bint survive
+
+    cdef set_data(self, int n0, int n1, int n2, void* data_ptr, survive=False):
+        self.data_ptr = data_ptr
+        self.n0 = n0
+        self.n1 = n1
+        self.n2 = n2
+        self.survive = survive
+
+    def __array__(self):
+        """ Here we use the __array__ method, that is called when numpy
+            tries to get an array from the object."""
+        cdef np.npy_intp shape[3]
+        shape[0] = <np.npy_intp> self.n0
+        shape[1] = <np.npy_intp> self.n1
+        shape[2] = <np.npy_intp> self.n2
+        # Create a 3D array, of length 'size'
+        ndarray = np.PyArray_SimpleNewFromData(
+            nd = 3, 
+            dims = shape,
+            typenum = np.NPY_DOUBLE, 
+            data = self.data_ptr
+        )
+        return ndarray
+
+    def __dealloc__(self):
+        """ Frees the array. This is called by Python when all the
+        references to the object are gone. 
+        NOTE: In particular, for this project, I should not free
+              the pointer since it must survive after 
+              I "__get__()" it (that's the only motive why I use this 
+              array-wrapper). So I must have 'self.survive=True'.
+        """
+        if not(self.survive) and (self.data_ptr is not NULL):
+            print " ---> array_wrapper(3d): deleting self.data_ptr @ ", self
+            PyMem_Free(<void*>self.data_ptr)
+            print " ---> deleted ok!"
+
 #EOF

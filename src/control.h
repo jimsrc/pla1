@@ -14,6 +14,11 @@
 #define BETA_CHECK 1 // checkea q siempre beta<1
 #define NVAR    (6)
 
+//--- trail of the particle
+#define WATCH_TRAIL     1       // watch particle trail of positions
+#define TRAIL_TSIZE     2.0     // lag of time to track
+#define TRAIL_N         200     // number of positions for the trail of 1 particle
+
 //--------------------------------------CTES UNIVERSALES
 #define SIM_MAXSTP      (600*50000) // max nuber of steps in Odeint
 #define clight          (3.0*1e10)              // [cm/s]

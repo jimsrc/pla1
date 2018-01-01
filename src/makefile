@@ -15,8 +15,13 @@ OPT_GP=-O0 #-O3 #-O0 	# for use w/ gprof
 
 cython:
 	# build the macros file (macros.pyx) for cython
-	./build_cython_macros.sh && echo -e "\n --> Cython macros built ok. "
-	python setup.py build_ext --inplace && ls -lh *.so
+	@./build_cython_macros.sh && echo -e "\n --> Cython macros built ok.\n"
+	# compile && import from ipython!
+	@python setup.py build_ext --inplace \
+		&& echo -e "\n [+] compiled OK! :D :D\n"
+	@ls -lh *.so \
+		&& ipython -c "import cython_wrapper as cw" \
+		&& echo -e "\n [+] imported OK from IPython :D :D\n"
 
 all: $(OBJECTS_C)
 	${CXX} -o $(EXE)  $^  ${CFLAGS}

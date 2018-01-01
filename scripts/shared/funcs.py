@@ -208,13 +208,14 @@ def SaveToFile_ii(rank, m, dpath, fname_out):
         #f[dname] = vsave[name]
 
 
-def SaveToFile(m, dpath='', f=None, nbin=None):
+def SaveToFile(m, dpath='', f=None, nbin_step=None, btrails=False):
     """
     input:
-    - m     : cython-wrapper-module
-    - dpath : directory-path for .h5 file
-    - f     : output file object
-    - nbin  : number of bins for step-size histos
+    - m         : cython-wrapper-module
+    - dpath     : directory-path for .h5 file
+    - f         : output file object
+    - nbin_step : number of bins for step-size histos
+    - btrails   : whether or not to save trails data
     """
     vsave = {
     'tadim'     : m.tsave,      # [omega^-1]
@@ -235,26 +236,35 @@ def SaveToFile(m, dpath='', f=None, nbin=None):
     st_tot  = st[0,:][st[0,:]!=0] # filter-out zero values
     st_part = st[1,:][st[1,:]!=0] # ""
     h       = np.histogram2d(st_tot, st_part, 
-              bins=[nbin, nbin], 
+              bins=[nbin_step, nbin_step], 
               normed=False)
     HStp          = h[0].T # filter-out zero values
     bins_StepTot  = 0.5*(h[1][:-1] + h[1][1:])
     bins_StepPart = 0.5*(h[2][:-1] + h[2][1:])
     f[dpath+'HistStep/HStep'] = HStp.sum(axis=0)
     f[dpath+'HistStep/bins_StepPart'] = bins_StepPart
-    f[dpath+'HistStep/nbin'] = nbin
+    f[dpath+'HistStep/nbin'] = nbin_step
+
     #--- histos for tau-collision
     tauLg   = np.log10(m.Tau[:,1]) # log([1/omega?])
-    h       = np.histogram(tauLg, bins=nbin, normed=False)
+    h       = np.histogram(tauLg, bins=nbin_step, normed=False)
     hc      = h[0]
     hbin    = 0.5*(h[1][:-1] + h[1][1:])    # log([1/omega?])
     f[dpath+'HistTau_log'] = np.array([hc, hbin])
+
     #--- histos theta (angle between x-y plane and z-axis, @collision)
     theta   = m.Tau[:,4] # [deg]
-    h       = np.histogram(theta, bins=nbin, normed=False)
+    h       = np.histogram(theta, bins=nbin_step, normed=False)
     hc      = h[0]
     hbin    = 0.5*(h[1][:-1] + h[1][1:])    # [deg]
     f[dpath+'HistThetaColl'] = np.array([hc, hbin])
+
+    #--- grab the trails if the code had it activated
+    if btrails:
+        #print m.ptrails.shape
+        #import pdb; pdb.set_trace()
+        f[dpath+'trails'] = m.ptrails[:,:,:] # shape (ntrails,trail_size,3)
+
 
 
 def save_to_h5(m, fname=None, dpath='', file=None, close=True):

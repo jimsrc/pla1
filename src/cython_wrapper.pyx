@@ -25,7 +25,7 @@ cdef init_out(Output[StepperBS[rhs]] *op):
 """
 
 
-cdef class mgr:
+cdef class mgr(object):
     cdef Output[StepperBS[rhs]] *outbs
     cdef PARAMS_TURB            *pt
     cdef PARAMS                 *par
@@ -183,6 +183,26 @@ cdef class mgr:
         cdef long s0   = self.pt.sem.slab[0]
         cdef long two0 = self.pt.sem.two[0]
         return s0, two0
+
+    property ptrails:
+        def __get__(self):
+            cdef Doub *ptr
+            cdef np.ndarray ndarray
+            cdef int n0, n1, n2
+            n0 = self.outbs.ptrails.dim1()
+            n1 = self.outbs.ptrails.dim2()
+            n2 = self.outbs.ptrails.dim3()
+            arrw = ArrayWrapper_3d()
+            ptr = &(self.outbs.ptrails[0][0][0])
+            arrw.set_data(n0, n1, n2, <void*> ptr, survive=True)
+            ndarray = np.array(arrw, copy=False)
+            #--- reduce it to the non-trivial chunk
+            ndarray = ndarray[:self.outbs.ntrails,:,:]
+            #------------------------------------
+            ndarray.base = <PyObject*> arrw
+            Py_INCREF(arrw)
+            #free(self.ptr)
+            return ndarray
 
     property tsave:
         def __get__(self):
