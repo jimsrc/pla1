@@ -2,7 +2,7 @@
 
 export REPO=$HOME/pla1__Lc          # Git work-tree on lamp.iafe.uba.ar
 EXEC=$REPO/scripts/rr_hydra.py
-NPROCS="-np 24"                 # number of processors
+NPROCS="-np 7"                 # number of processors
 
 
 CONDAENV=work2      # conda environment where we work
@@ -17,14 +17,14 @@ else
     echo -e "\n [-] dirty Git repo. Commit input changes && commit!\n" && exit 1
 fi
 
-ro="0.70"  #$(printf "%.2f" 0.5)                                      # [AU] heliodistance
+ro="0.50"  #$(printf "%.2f" 0.5)                                      # [AU] heliodistance
 ofname="$REPO/out/newLc/r_${ro}__$(git rev-parse HEAD).h5"    # output HDF5
 
 # check if there's already a .h5 with this name!
 [[ -f $ofname ]] && {
-        echo -e " [-] HDF5 file already exists! $(ls -lh $ofname)\n CHECK before running!!\n";
-        exit 1;
-    }
+    echo -e " [-] HDF5 file already exists! $(ls -lh $ofname)\n CHECK before running!!\n";
+    exit 1;
+}
 LOGFILE=$REPO/out/newLc/$(basename $ofname).log             # runlog
 
 #-- report on screen
@@ -38,11 +38,12 @@ echo ""
 mpirun $NPROCS $EXEC -- \
     --fname_out $ofname \
     --ro $ro \
-    --Nm_slab 128 \
+    --Nm_slab 256 \
     --Nm_2d 256 \
     --tmax 4e4 \
-    --eps 1e-5 \
+    --eps 1e-4 \
     --sigma 0.3 \
+    --trails \
     > $LOGFILE 2>&1
 
 echo -e "\n [*] FINISHED WITH STATUS: $? @ $(date)\n"
