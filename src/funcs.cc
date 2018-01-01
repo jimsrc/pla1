@@ -151,8 +151,8 @@ void trail::insert(const Doub * const pos){
     // push the elements to the right, from the
     // i=0 to i=n-2, so that now the element i=n-1
     // will have the value that now is in i=n-2.
-    for(int i=0; i<n-1; i++){
-        for(int j=0;j<3;j++)
+    for(int i=n-2; i>=0; i--){
+        for(int j=0; j<3; j++)
             buff[i+1][j] = buff[i][j];
     }
 
@@ -288,14 +288,23 @@ void GuidingCenter::calc_gc(Doub* dydx, Doub* y, Doub x){
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
 
+#ifdef WATCH_TRAIL
 template <class Stepper>
 void Output<Stepper>::append_trail(){
     ntrails++;      // count number of appended trails
 
     // resize 'ptrails' if necessary
     if (ntrails > ptrails.dim1()){
-        Mat3DDoub bckp(ptrails.dim1(),ptrails.dim2(),3); // backup of 'ptrails'
+        //--- backup of 'ptrails'
+        Mat3DDoub bckp(ptrails.dim1(),ptrails.dim2(),3); 
+        for(int i=0; i<bckp.dim1(); i++) 
+            for(int j=0; j<bckp.dim2(); j++) 
+                for(int k=0; k<bckp.dim3(); k++)
+                    bckp[i][j][k] = ptrails[i][j][k];
+
+        // duplicate size
         ptrails.resize(2*ptrails.dim1(),ptrails.dim2(),3);
+
         //--- bring back the backup data
         // iterate over the number of appended trails
         for(int i=0; i<bckp.dim1(); i++)
@@ -305,11 +314,12 @@ void Output<Stepper>::append_trail(){
                     ptrails[i][j][k] = bckp[i][j][k];
     }
 
-    // append current trail
+    // append the current trail
     for(int j=0; j<TRAIL_N; j++)
         for(int k=0; k<3; k++)
             ptrails[ntrails-1][j][k] = ptrail->buff[j][k];
 }
+#endif //WATCH_TRAIL
 
 template <class Stepper>
 void Output<Stepper>::set_savetimes(Doub xhi){
