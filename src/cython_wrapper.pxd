@@ -107,7 +107,7 @@ cdef extern from "funcs.h":
     cdef cppclass trail:
         trail()
         trail(int nn, Doub tsizee)
-        void insert(const Doub * const pos)
+        void insert(Doub _t, Doub _mu, const Doub * const pos)
         int n               # number of positions in the trail
         Doub tsize          # how long in time is the track
         Doub **buff       # positions w/ shape (n,3)

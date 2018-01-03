@@ -131,34 +131,38 @@ trail::trail(int nn, Doub tsizee) : n(nn), tsize(tsizee) {
     // I shouldn't use malloc/calloc in C++
     // source:
     // https://stackoverflow.com/questions/31883260/error-cannot-access-memory-at-address
-    //buffer = AllocMat(n, 3); // shouldn't user
+    //buffer = AllocMat(n, tfields); // shouldn't user
     //--- allocate 'buffer'
     buff = n>0 ? new Doub*[n] : NULL;
-	if (buff) buff[0] = new Doub[3*n];
+	if (buff) buff[0] = new Doub[tfields*n];
     if (buff==NULL || buff[0]==NULL) throw(" [-] error allocating buffer for trail!");
 
-	for (int i=1; i<n; i++) buff[i] = buff[i-1] + 3;
+	for (int i=1; i<n; i++) buff[i] = buff[i-1] + tfields;
 
     for(int i=0; i<n; i++) {
-        for(int j=0; j<3; j++){
+        for(int j=0; j<tfields; j++){
             buff[i][j]=0.0;
         }
     }
     dt = tsize/(1.*n);
 }
 
-void trail::insert(const Doub * const pos){
+void trail::insert(Doub _t, Doub _mu, const Doub * const pos){
     // push the elements to the right, from the
     // i=0 to i=n-2, so that now the element i=n-1
     // will have the value that now is in i=n-2.
     for(int i=n-2; i>=0; i--){
-        for(int j=0; j<3; j++)
+        for(int j=0; j<tfields; j++)
             buff[i+1][j] = buff[i][j];
     }
 
-    // put the new position in i=0.
-    for(int j=0;j<3;j++)
-        buff[0][j] = pos[j];
+    // put the new position (together e/ time and pitch 
+    // angle values) in i=0.
+    buff[0][0]  = _t;       // time
+    buff[0][1]  = _mu;      // pitch angle
+    buff[0][2]  = pos[0];   // x
+    buff[0][3]  = pos[1];   // y
+    buff[0][4]  = pos[2];   // x
 }
 
 trail::~trail(){
@@ -226,11 +230,15 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
     #ifdef WATCH_TRAIL
     ptrail  = new trail(TRAIL_N, TRAIL_TSIZE); //trail(TRAIL_N, TRAIL_TSIZE);
     //*ptrail = trail(TRAIL_N, TRAIL_TSIZE);
-    ptrails = Mat3DDoub(2,TRAIL_N,3);       // initially allocates space for two trails
-    for(int _i=0;_i<2;_i++) for(int _j=0;_j<TRAIL_N;_j++) for(int _k=0;_k<3;_k++)
-        ptrails[_i][_j][_k] = 0.0;
+    ptrails = Mat3DDoub(2,TRAIL_N,ptrail->tfields);       // initially allocates space for two trails
+
+    // fill w/ zeros
+    for(int _i=0;_i<2;_i++) 
+        for(int _j=0;_j<TRAIL_N;_j++) 
+            for(int _k=0;_k<ptrail->tfields;_k++)
+                ptrails[_i][_j][_k] = 0.0;
+
     ntrails = 0;            // total number of appended trails
-    //TODO: call ptrails from the .pyx file.
     #endif //WATCH_TRAIL
 }
 
@@ -296,14 +304,14 @@ void Output<Stepper>::append_trail(){
     // resize 'ptrails' if necessary
     if (ntrails > ptrails.dim1()){
         //--- backup of 'ptrails'
-        Mat3DDoub bckp(ptrails.dim1(),ptrails.dim2(),3); 
+        Mat3DDoub bckp(ptrails.dim1(), ptrails.dim2(), ptrails.dim3()); 
         for(int i=0; i<bckp.dim1(); i++) 
             for(int j=0; j<bckp.dim2(); j++) 
                 for(int k=0; k<bckp.dim3(); k++)
                     bckp[i][j][k] = ptrails[i][j][k];
 
         // duplicate size
-        ptrails.resize(2*ptrails.dim1(),ptrails.dim2(),3);
+        ptrails.resize(2*ptrails.dim1(), ptrails.dim2(), ptrails.dim3());
 
         //--- bring back the backup data
         // iterate over the number of appended trails
@@ -316,7 +324,7 @@ void Output<Stepper>::append_trail(){
 
     // append the current trail
     for(int j=0; j<TRAIL_N; j++)
-        for(int k=0; k<3; k++)
+        for(int k=0; k<ptrail->tfields; k++)
             ptrails[ntrails-1][j][k] = ptrail->buff[j][k];
 }
 #endif //WATCH_TRAIL
@@ -476,7 +484,6 @@ void Output<Stepper>::save(const Doub x, VecDoub_I &y) {
 		ysave[i][count]=y[i];
 	save_pitch();			// calcula mu
 	xsave[count++] = x;//x;		// <=> xsave[count]=x; count++;
-	//cc++;
 }
 
 template <class Stepper>
@@ -490,7 +497,9 @@ void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,co
         #ifdef WATCH_TRAIL
         //static Doub xo=x;
         xtrail = x;
-        ptrail->insert(&y[0]);
+        // NOTE: we are taking the 'count-1' element, since in the 
+        // routine save(), we have a 'count++' statement at the end.
+        ptrail->insert(x, mu[count-1], &y[0]);
         #endif //WATCH_TRAIL
 	} else {
 		while ((x-xout)*(x2-x1) > 0.0) {
@@ -500,7 +509,9 @@ void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,co
 		}
         #ifdef WATCH_TRAIL
         if(x-xtrail > 0.0){
-            ptrail->insert(&y[0]);   // insert to particle trail
+            // NOTE: we are taking the 'count-1' element, since in the 
+            // routine save_dense(), we have a 'count++' statement at the end.
+            ptrail->insert(x, mu[count-1], &y[0]);   // insert to particle trail
             xtrail = x + ptrail->dt; // next stop-time
         }
         #endif //WATCH_TRAIL
