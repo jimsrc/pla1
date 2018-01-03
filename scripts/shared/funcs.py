@@ -263,7 +263,7 @@ def SaveToFile(m, dpath='', f=None, nbin_step=None, btrails=False):
     if btrails:
         #print m.ptrails.shape
         #import pdb; pdb.set_trace()
-        f[dpath+'trails'] = m.ptrails[:,:,:] # shape (ntrails,trail_size,3)
+        f[dpath+'trails'] = m.ptrails[:,:,:] # shape (ntrails,trail_size,5)
 
 
 
@@ -300,5 +300,33 @@ def save_to_h5(m, fname=None, dpath='', file=None, close=True):
         return 0
     else:
         return f
+
+
+def generate_init_conds(Nth=16, Nph=8):
+    """
+    Nth and Nph preferable even numbers.
+    Returns:
+        th, ph
+    """
+    dth	 = np.pi/Nth
+    dphi = 2.*np.pi/Nph
+
+    # directions of the initial velocity vector
+    ph, th = [], []
+
+    k	= 0
+    for i in range(Nth):
+        for j in range(Nph):
+            # 'cond' is to avoid several azimuths at th=0.0
+            cond = ((i==0) & (j==0)) | (i>0)
+            if cond:
+                print i," ", j, " cond:", cond
+                #pause(1)
+                th  += [ i*dth ]        # theta
+                ph  += [ j*dphi ]       # azimuth
+                k +=1
+
+    th += [ 0.0 ] ## add the direction downside (mu=-1)
+    return th, ph
 
 #EOF

@@ -6,7 +6,7 @@ import shared.funcs as ff
 from pylab import pause
 #--- parameters
 from params import (
-    nB, pd, psim, pother, mu, ph, AU_in_cm
+    nB, pd, psim, pother, AU_in_cm
 )
 from mpi4py import MPI
 from h5py import File as h5
@@ -40,6 +40,18 @@ parser.add_argument(
 type=int,
 default=128,
 help='number of 2D modes',
+)
+parser.add_argument(
+'-Nth', '--Nth',
+type=int,
+default=16,
+help='number of theta values for the initial velocities.',
+)
+parser.add_argument(
+'-Nph', '--Nph',
+type=int,
+default=8,
+help='number of phi values for the initial velocities.',
 )
 parser.add_argument(
 '-ro', '--ro',
@@ -131,6 +143,12 @@ eps_o            = pa.eps      # ratio: (error-step)/(lambda_min)
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
 psim['atol']     = lmin*eps_o  # [1]
 psim['rtol']     = 0.0 #1e-6
+
+
+#--- orientations of the initial velocities
+ph, th = ff.generate_init_conds(Nth=pa.Nth, Nph=pa.Nph)
+mu = np.cos(th)         # pitch-angle
+
 
 #--- output
 po = {}
