@@ -261,9 +261,8 @@ def SaveToFile(m, dpath='', f=None, nbin_step=None, btrails=False):
 
     #--- grab the trails if the code had it activated
     if btrails:
-        #print m.ptrails.shape
-        #import pdb; pdb.set_trace()
-        f[dpath+'trails'] = m.ptrails[:,:,:] # shape (ntrails,trail_size,5)
+        # shape (ntrails,trail_size,5)
+        f[dpath+'trails'] = np.array(m.ptrails[:,:,:], dtype=np.float32)
 
 
 
