@@ -24,12 +24,17 @@ class trail{
     public:
         trail();
         trail(int nn, Doub tsizee);
-        void insert(const Doub * const pos);
+        void insert(Doub _t, Doub _mu, const Doub * const pos);
         ~trail();
         Doub **buff;
         int n;
         Doub tsize;
         Doub dt;
+        #if __cplusplus <= 199711L
+        static const int tfields=5;
+        #else
+        static constexpr int tfields=5;
+        #endif //__cplusplus
 };
 #endif //WATCH_TRAIL
 
