@@ -262,8 +262,9 @@ def SaveToFile(m, dpath='', f=None, nbin_step=None, btrails=False):
     #--- grab the trails if the code had it activated
     if btrails:
         # shape (ntrails,trail_size,5)
-        f[dpath+'trails'] = np.array(m.ptrails[:,:,:], dtype=np.float32)
-
+        f[dpath+'trails/trajecs']   = np.array(m.ptrails[:,:,:], dtype=np.float32)
+        # instantaneous collision-times
+        f[dpath+'trails/tau_b']     = np.array(m.ptrails_taub[:], dtype=np.float32)
 
 
 def save_to_h5(m, fname=None, dpath='', file=None, close=True):

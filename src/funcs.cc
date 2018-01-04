@@ -177,7 +177,11 @@ trail::~trail(){
 
 //----------------------- class Ouput
 template <class Stepper>
+#ifndef WATCH_TRAIL // default behaviour
 void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistTau, Int nHist, Int nThColl_, int i, int j, char *dir_out){
+#else
+void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistTau, Int nHist, Int nThColl_, int i, int j, char *dir_out, int _nbands, Doub *_tau_bd){
+#endif //WATCH_TRAIL
 	kmax	= 500;
 	nsave	= nsavee;
 	count	= 0;
@@ -242,6 +246,11 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
     }
 
     ntrails = 0;            // total number of appended trails
+
+    //--- bands to watch
+    nbands = _nbands;
+    tau_bd = new Doub[2*nbands];
+    for(int i=0; i<2*nbands; i++) tau_bd[i] = _tau_bd[i];
     #endif //WATCH_TRAIL
 }
 

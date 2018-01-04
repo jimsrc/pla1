@@ -79,6 +79,17 @@ help='whether or not to grab the trails data; that is, trajectory \
 traces of the particles just before they made a back-scatter (i.e. \
 when the particle changes sign in pitch angle)',
 )
+parser.add_argument(
+'-taubd', '--taubd',
+type=float,
+nargs='+',
+default=None, #[0.8, 1.1, 1.4, 1.6],
+help='list of borders for the bands of interest in the collision-time histogram. \
+This works if the code was compiled with the WATCH_TRAIL preprocessor. \
+If used, the code will collect particle trails (positions along its trajectory) when \
+it backscatters and the associated collision-time is within these bands of interest. \
+The values of this bands are assumed to be in units of gyro-cycles.'
+)
 pa = parser.parse_args()
 
 
@@ -217,9 +228,11 @@ fo = h5(fname_out_tmp, 'w')
 nbin = 1000 # for step-size histograms
 for npla in plas: #[25:]:
     #--- set particle id && direction
-    pother['i']  = npla
-    psim['mu']   = mu[npla]
-    psim['ph']   = ph[npla]
+    pother['i']         = npla
+    if pa.taubd is not None:
+        pother['__tau_bd']  = pa.taubd          # list of band borders
+    psim['mu']          = mu[npla]
+    psim['ph']          = ph[npla]
 
     m.build(**pother)
 

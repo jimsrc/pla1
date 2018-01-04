@@ -114,12 +114,24 @@ cdef extern from "funcs.h":
 
     cdef cppclass Output[T]:
         Output()
+        # build() if WATCH_TRAIL is activated
+        void build(
+            char* str_tscalee, 
+            Int nsave, Doub tmaxHistTau, 
+            Int nHist, Int nThColl_,
+            int i, int j, 
+            char *dir_out, 
+            int _nbands, 
+            Doub *_tau_bd)
+
+        # build() if WATCH_TRAIL is NOT activated
         void build(
             char* str_tscalee, 
             Int nsave, Doub tmaxHistTau, 
             Int nHist, Int nThColl_,
             int i, int j, 
             char *dir_out)
+
         void set_Bmodel(PARAMS *par)
         void save2file()
         int nvar

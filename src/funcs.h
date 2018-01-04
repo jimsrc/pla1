@@ -74,7 +74,11 @@ class Output {
 		VecDoub xsave;
 		MatDoub ysave;
 		//void build(string, Int, Doub, Int, char*); 
+        #ifdef WATCH_TRAIL
+		void build(const string, Int, Doub, Int, Int, int, int, char*, int, Doub*);
+        #else
 		void build(const string, Int, Doub, Int, Int, int, int, char*);
+        #endif //WATCH_TRAIL
 		Output(void);
 		//Output(string, const Int, char*); // mal implementado
 		void init(const Int, const Doub, const Doub);
@@ -89,12 +93,17 @@ class Output {
 
         #ifdef WATCH_TRAIL
         trail *ptrail;
-        VecDoub tau_b;        // (*)
-        Mat3DDoub ptrails;    // 
-        Doub xtrail;          // stop-times to insert positions on trail
+        VecDoub tau_b;          // (*)
+        Mat3DDoub ptrails;      // 
+        Doub xtrail;            // stop-times to insert positions on trail
         void append_trail(const Doub);  // append 'ptrail' to 'ptrails'
-        Int ntrails;          // total number of appended trails
-        // (*) bounce times associated to each appended trail in 'ptrails'.
+        Int ntrails;            // total number of appended trails
+        Int nbands;             // (*2)
+        Doub *tau_bd;           // (*3)
+        // (*)  bounce times associated to each appended trail in 'ptrails'.
+        // (*2) number of bands (in the collision-time histogram) to watch. This 
+        // number refers to the number number of pairs (i.e. borders) given in (*3).
+        // (*3) borders of the bands mentioned in (*2)
         #endif //WATCH_TRAIL
 
         #ifdef MONIT_SCATTERING

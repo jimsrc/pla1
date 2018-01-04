@@ -100,8 +100,29 @@ cdef class mgr(object):
         self._build_par(nB=nB) # objeto PARAMS
         self.outbs.set_Bmodel(self.par)
 
-    def build(self, str_timescale, nsave, tmaxHistTau, nHist, nThColl, i, j, dir_out):
-        self.outbs.build(str_timescale, nsave, tmaxHistTau, nHist, nThColl, i, j, dir_out)
+    def build(self, str_timescale, nsave, tmaxHistTau, nHist, nThColl, 
+            i, j, dir_out, __tau_bd=None):
+        IF WATCH_TRAIL == "1":
+            # NOTE: the '__tau_bd' are the boundaries of interest in the tau histogram.
+            # NOTE: '__tau_bd' is supposed to be EVEN!, and '_nbands' is the number
+            # of bands in the collision-time histogram.
+            cdef int _nbands = np.size(__tau_bd)/2
+            cdef Doub *_tau_bd 
+            _tau_bd = <Doub*> calloc(2*_nbands, sizeof(Doub))
+
+            for i in range(_nbands):
+                _tau_bd[2*i]   = __tau_bd[2*i]
+                _tau_bd[2*i+1] = __tau_bd[2*i+1]
+
+            self.outbs.build(str_timescale, nsave, tmaxHistTau, nHist, nThColl, i, j, dir_out, _nbands, &_tau_bd[0])
+            
+            # free the pointer
+            free(_tau_bd)
+
+        ELSE:
+            # w/o the WATCH_TRAIL macro
+            self.outbs.build(str_timescale, nsave, tmaxHistTau, nHist, nThColl, i, j, dir_out)
+
 
     def _build_par(s, nB=0):
         """ objeto PARAMS (todo):
