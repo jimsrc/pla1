@@ -53,7 +53,8 @@ void Odeint<Stepper>::integrate() {
 	int i=0;
 	derivs(par, x, y, dydx);
 	if (dense)
-		out.out(-1,x,y,s,h);				// aqui solo guarda x,y
+        // TODO: not exactly 'mu_old' here, review!
+		out.out(-1,x,y,s,h,mu_old);				// aqui solo guarda x,y
 	else{
 		out.save(x,y);
 		i++;
@@ -85,7 +86,7 @@ void Odeint<Stepper>::integrate() {
         #endif //MONIT_STEP
 
 		if (dense){
-			out.out(nstp, x, y, s, s.hdid);		// guarda solo si x>xout
+			out.out(nstp, x, y, s, s.hdid, mu_new);		// guarda solo si x>xout
 		}
 		else
 			out.save(x,y);

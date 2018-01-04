@@ -81,7 +81,7 @@ class Output {
 		void resize(void);
 		void save_dense(Stepper &, const Doub, const Doub);
 		void save(const Doub, VecDoub_I &);
-		void out(const Int,const Doub,VecDoub_I &,Stepper &,const Doub);
+		void out(const Int,const Doub,VecDoub_I &,Stepper &,const Doub,const Doub);
 		void save2file(void);
         void claim_own(void);
 		bool file_exist(void);

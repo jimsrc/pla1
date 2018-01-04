@@ -487,7 +487,7 @@ void Output<Stepper>::save(const Doub x, VecDoub_I &y) {
 }
 
 template <class Stepper>
-void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,const Doub h) {
+void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,const Doub h, const Doub mu_new) {
 	if (!dense)
 		throw("dense output not set in Output!");
 	if (nstp == -1) {
@@ -495,11 +495,10 @@ void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,co
 		xout = XSaveGen[cc];
 		cc++;	//+= dxout;
         #ifdef WATCH_TRAIL
-        //static Doub xo=x;
         xtrail = x;
         // NOTE: we are taking the 'count-1' element, since in the 
         // routine save(), we have a 'count++' statement at the end.
-        ptrail->insert(x, mu[count-1], &y[0]);
+        ptrail->insert(x, mu_new, &y[0]);
         #endif //WATCH_TRAIL
 	} else {
 		while ((x-xout)*(x2-x1) > 0.0) {
@@ -511,7 +510,7 @@ void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,co
         if(x-xtrail > 0.0){
             // NOTE: we are taking the 'count-1' element, since in the 
             // routine save_dense(), we have a 'count++' statement at the end.
-            ptrail->insert(x, mu[count-1], &y[0]);   // insert to particle trail
+            ptrail->insert(x, mu_new, &y[0]);   // insert to particle trail
             xtrail = x + ptrail->dt; // next stop-time
         }
         #endif //WATCH_TRAIL
