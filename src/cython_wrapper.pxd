@@ -148,6 +148,7 @@ cdef extern from "funcs.h":
         trail *ptrail
         Int ntrails
         Mat3DDoub ptrails
+        VecDoub tau_b
 
     cdef cppclass rhs: # (*1)
         void operator() (PARAMS par, const Doub x, VecDoub_I &y, VecDoub_O &dydx);

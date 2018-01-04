@@ -89,10 +89,12 @@ class Output {
 
         #ifdef WATCH_TRAIL
         trail *ptrail;
+        VecDoub tau_b;        // (*)
         Mat3DDoub ptrails;    // 
         Doub xtrail;          // stop-times to insert positions on trail
-        void append_trail();  // append 'ptrail' to 'ptrails'
+        void append_trail(const Doub);  // append 'ptrail' to 'ptrails'
         Int ntrails;          // total number of appended trails
+        // (*) bounce times associated to each appended trail in 'ptrails'.
         #endif //WATCH_TRAIL
 
         #ifdef MONIT_SCATTERING

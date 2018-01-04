@@ -143,11 +143,22 @@ void Odeint<Stepper>::check_scattering(){
         // NOTE: before resetting 'dtau', let's see if it's close to
         // a resonance!
         dtau_res = fmodf(dtau,2.*M_PI)/(2.*M_PI);
-        if (dtau_res>0.8 && dtau_res<=1.0){
-            out.append_trail(); // append trail TODO: implement method.
+        // NOTE: 'dtau_res' will always be in the interval (0.0, 1.0), so 
+        // in order to detect a 'bounce', we check whether 'dtau_res' is 
+        // close to 0.0 or 1.0. And by "close" we mean it should be higher 
+        // than 0.8, or lower that 0.1.
+        // This means that the following condition is 'true' if dtau is 
+        // true if 'dtau_res' is close to an integer multiple of 2*M_PI; i.e.
+        // is true for all gryo-resonances!
+        // The 'dtau>0.8*(2.*M_PI)' is to make sure that we are grabbing real
+        // resonances. It says that the collision-time should be at least greater
+        // than one gyrocycle (i.e. greater-ish than 2*M_PI).
+        if ( dtau>0.8*(2.*M_PI) && (dtau_res>0.8 || dtau_res<0.1) ){
+            out.append_trail(dtau); // append the trail and collision-time
         }
-
         #endif //WATCH_TRAIL
+
+        // reset the collision-time
 		dtau = 0.0;
 	}
 }

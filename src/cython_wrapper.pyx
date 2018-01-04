@@ -204,6 +204,20 @@ cdef class mgr(object):
             #free(self.ptr)
             return ndarray
 
+    property ptrails_taub:
+        def __get__(self):
+            cdef double *ptr
+            cdef np.ndarray ndarray
+            #n = self.outbs.xsave.size()
+            n = self.outbs.ntrails          # nro of appended trails
+            ptr = &(self.outbs.tau_b[0])
+            arrw = ArrayWrapper()
+            arrw.set_data(n, <void*> ptr, survive=True)
+            ndarray = np.array(arrw, copy=False)
+            ndarray.base = <PyObject*> arrw
+            Py_INCREF(arrw)
+            return ndarray
+
     property tsave:
         def __get__(self):
             cdef double *ptr
