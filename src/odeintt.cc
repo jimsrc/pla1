@@ -53,7 +53,8 @@ void Odeint<Stepper>::integrate() {
 	int i=0;
 	derivs(par, x, y, dydx);
 	if (dense)
-		out.out(-1,x,y,s,h);				// aqui solo guarda x,y
+        // TODO: not exactly 'mu_old' here, review!
+		out.out(-1,x,y,s,h,mu_old);				// aqui solo guarda x,y
 	else{
 		out.save(x,y);
 		i++;
@@ -85,7 +86,7 @@ void Odeint<Stepper>::integrate() {
         #endif //MONIT_STEP
 
 		if (dense){
-			out.out(nstp, x, y, s, s.hdid);		// guarda solo si x>xout
+			out.out(nstp, x, y, s, s.hdid, mu_new);		// guarda solo si x>xout
 		}
 		else
 			out.save(x,y);
@@ -111,7 +112,6 @@ void Odeint<Stepper>::integrate() {
 #ifdef MONIT_SCATTERING
 template<class Stepper>
 void Odeint<Stepper>::check_scattering(){
-    Doub dtau_res;
     Doub xyz[3] = {y[0],y[2],y[4]};
 	par.calc_B(xyz);
 	Bmod = NORM(par.B[0],par.B[1],par.B[2]);
@@ -141,12 +141,30 @@ void Odeint<Stepper>::check_scattering(){
         #ifdef WATCH_TRAIL
         // NOTE: before resetting 'dtau', let's see if it's close to
         // a resonance!
-        dtau_res = fmodf(dtau,2.*M_PI)/(2.*M_PI);
-        if (dtau_res>0.8 && dtau_res<=1.0){
-            out.append_trail(); // append trail TODO: implement method.
-        }
+        //dtau_res = fmodf(dtau,2.*M_PI)/(2.*M_PI);
+        // NOTE: 'dtau_res' will always be in the interval (0.0, 1.0), so 
+        // in order to detect a 'bounce', we check whether 'dtau_res' is 
+        // close to 0.0 or 1.0. And by "close" we mean it should be higher 
+        // than 0.8, or lower that 0.1.
+        // This means that the following condition is 'true' if dtau is 
+        // true if 'dtau_res' is close to an integer multiple of 2*M_PI; i.e.
+        // is true for all gryo-resonances!
+        // The 'dtau>0.8*(2.*M_PI)' is to make sure that we are grabbing real
+        // resonances. It says that the collision-time should be at least greater
+        // than one gyrocycle (i.e. greater-ish than 2*M_PI).
+        //if ( dtau>0.8*(2.*M_PI) && (dtau_res>0.8 || dtau_res<0.1) ){
+        bool cond;
+        Doub dtau_ = dtau/(2.*M_PI);    // collision-time normalized
+        cond = false;
+        for(int i=0; i<out.nbands; i++)
+            cond |= (dtau_ > out.tau_bd[2*i]) && (dtau_ < out.tau_bd[2*i+1]);
 
+        if (cond){
+            out.append_trail(dtau); // append the trail and collision-time
+        }
         #endif //WATCH_TRAIL
+
+        // reset the collision-time
 		dtau = 0.0;
 	}
 }

@@ -15,10 +15,10 @@
 #define NVAR    (6)
 
 //--- trail of the particle
-#define WATCH_TRAIL     1       // watch particle trail of positions
-#define TRAIL_TSIZE     2.0     // lag of time to track
-#define TRAIL_N         200     // number of positions for the trail of 1 particle
-//#define TRAIL_N_FIELDS  5       // number of fields about info on the trail
+#define WATCH_TRAIL     1           // watch particle trail of positions
+#define TRAIL_TSIZE     9.424769    // lag of time to track
+#define TRAIL_N         400         // number of positions for the trail of 1 particle
+//#define TRAIL_N_FIELDS  5         // number of fields about info on the trail
 
 //--------------------------------------CTES UNIVERSALES
 #define SIM_MAXSTP      (600*50000) // max nuber of steps in Odeint

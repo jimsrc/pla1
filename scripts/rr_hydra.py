@@ -6,7 +6,7 @@ import shared.funcs as ff
 from pylab import pause
 #--- parameters
 from params import (
-    nB, pd, psim, pother, mu, ph, AU_in_cm
+    nB, pd, psim, pother, AU_in_cm
 )
 from mpi4py import MPI
 from h5py import File as h5
@@ -42,6 +42,18 @@ default=128,
 help='number of 2D modes',
 )
 parser.add_argument(
+'-Nth', '--Nth',
+type=int,
+default=16,
+help='number of theta values for the initial velocities.',
+)
+parser.add_argument(
+'-Nph', '--Nph',
+type=int,
+default=8,
+help='number of phi values for the initial velocities.',
+)
+parser.add_argument(
 '-ro', '--ro',
 type=float,
 default=0.9,
@@ -72,6 +84,17 @@ default=False,
 help='whether or not to grab the trails data; that is, trajectory \
 traces of the particles just before they made a back-scatter (i.e. \
 when the particle changes sign in pitch angle)',
+)
+parser.add_argument(
+'-taubd', '--taubd',
+type=float,
+nargs='+',
+default=None, #[0.8, 1.1, 1.4, 1.6],
+help='list of borders for the bands of interest in the collision-time histogram. \
+This works if the code was compiled with the WATCH_TRAIL preprocessor. \
+If used, the code will collect particle trails (positions along its trajectory) when \
+it backscatters and the associated collision-time is within these bands of interest. \
+The values of this bands are assumed to be in units of gyro-cycles.'
 )
 pa = parser.parse_args()
 
@@ -137,6 +160,12 @@ eps_o            = pa.eps      # ratio: (error-step)/(lambda_min)
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
 psim['atol']     = lmin*eps_o  # [1]
 psim['rtol']     = 0.0 #1e-6
+
+
+#--- orientations of the initial velocities
+ph, th = ff.generate_init_conds(Nth=pa.Nth, Nph=pa.Nph)
+mu = np.cos(th)         # pitch-angle
+
 
 #--- output
 po = {}
@@ -205,9 +234,11 @@ fo = h5(fname_out_tmp, 'w')
 nbin = 1000 # for step-size histograms
 for npla in plas: #[25:]:
     #--- set particle id && direction
-    pother['i']  = npla
-    psim['mu']   = mu[npla]
-    psim['ph']   = ph[npla]
+    pother['i']         = npla
+    if pa.taubd is not None:
+        pother['__tau_bd']  = pa.taubd          # list of band borders
+    psim['mu']          = mu[npla]
+    psim['ph']          = ph[npla]
 
     m.build(**pother)
 

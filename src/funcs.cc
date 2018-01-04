@@ -177,7 +177,11 @@ trail::~trail(){
 
 //----------------------- class Ouput
 template <class Stepper>
+#ifndef WATCH_TRAIL // default behaviour
 void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistTau, Int nHist, Int nThColl_, int i, int j, char *dir_out){
+#else
+void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistTau, Int nHist, Int nThColl_, int i, int j, char *dir_out, int _nbands, Doub *_tau_bd){
+#endif //WATCH_TRAIL
 	kmax	= 500;
 	nsave	= nsavee;
 	count	= 0;
@@ -230,15 +234,23 @@ void Output<Stepper>::build(const string str_tscalee, Int nsavee, Doub tmaxHistT
     #ifdef WATCH_TRAIL
     ptrail  = new trail(TRAIL_N, TRAIL_TSIZE); //trail(TRAIL_N, TRAIL_TSIZE);
     //*ptrail = trail(TRAIL_N, TRAIL_TSIZE);
-    ptrails = Mat3DDoub(2,TRAIL_N,ptrail->tfields);       // initially allocates space for two trails
+    ptrails = Mat3DDoub(2,TRAIL_N,ptrail->tfields); // initially allocates space for two trails
+    tau_b   = VecDoub(2);
 
     // fill w/ zeros
-    for(int _i=0;_i<2;_i++) 
+    for(int _i=0;_i<2;_i++){
+        tau_b[_i] = 0.0;
         for(int _j=0;_j<TRAIL_N;_j++) 
             for(int _k=0;_k<ptrail->tfields;_k++)
                 ptrails[_i][_j][_k] = 0.0;
+    }
 
     ntrails = 0;            // total number of appended trails
+
+    //--- bands to watch
+    nbands = _nbands;
+    tau_bd = new Doub[2*nbands];
+    for(int i=0; i<2*nbands; i++) tau_bd[i] = _tau_bd[i];
     #endif //WATCH_TRAIL
 }
 
@@ -298,34 +310,41 @@ void GuidingCenter::calc_gc(Doub* dydx, Doub* y, Doub x){
 
 #ifdef WATCH_TRAIL
 template <class Stepper>
-void Output<Stepper>::append_trail(){
+void Output<Stepper>::append_trail(const Doub _dtau){
     ntrails++;      // count number of appended trails
 
     // resize 'ptrails' if necessary
     if (ntrails > ptrails.dim1()){
         //--- backup of 'ptrails'
-        Mat3DDoub bckp(ptrails.dim1(), ptrails.dim2(), ptrails.dim3()); 
-        for(int i=0; i<bckp.dim1(); i++) 
-            for(int j=0; j<bckp.dim2(); j++) 
+        Mat3DDoub bckp(ptrails.dim1(), ptrails.dim2(), ptrails.dim3());
+        VecDoub bckp__tau_b(ptrails.dim1());
+        for(int i=0; i<bckp.dim1(); i++){
+            bckp__tau_b[i] = tau_b[i];
+            for(int j=0; j<bckp.dim2(); j++)
                 for(int k=0; k<bckp.dim3(); k++)
                     bckp[i][j][k] = ptrails[i][j][k];
+        }
 
         // duplicate size
         ptrails.resize(2*ptrails.dim1(), ptrails.dim2(), ptrails.dim3());
+        tau_b.resize(2*ptrails.dim1());
 
         //--- bring back the backup data
         // iterate over the number of appended trails
-        for(int i=0; i<bckp.dim1(); i++)
+        for(int i=0; i<bckp.dim1(); i++){
+            tau_b[i] = bckp__tau_b[i];
             // iterate over the number of points in each trail
             for(int j=0; j<bckp.dim2(); j++)
                 for(int k=0; k<bckp.dim3(); k++)
                     ptrails[i][j][k] = bckp[i][j][k];
+        }
     }
 
     // append the current trail
     for(int j=0; j<TRAIL_N; j++)
         for(int k=0; k<ptrail->tfields; k++)
             ptrails[ntrails-1][j][k] = ptrail->buff[j][k];
+    tau_b[ntrails-1] = _dtau;
 }
 #endif //WATCH_TRAIL
 
@@ -487,7 +506,7 @@ void Output<Stepper>::save(const Doub x, VecDoub_I &y) {
 }
 
 template <class Stepper>
-void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,const Doub h) {
+void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,const Doub h, const Doub mu_new) {
 	if (!dense)
 		throw("dense output not set in Output!");
 	if (nstp == -1) {
@@ -495,11 +514,10 @@ void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,co
 		xout = XSaveGen[cc];
 		cc++;	//+= dxout;
         #ifdef WATCH_TRAIL
-        //static Doub xo=x;
         xtrail = x;
         // NOTE: we are taking the 'count-1' element, since in the 
         // routine save(), we have a 'count++' statement at the end.
-        ptrail->insert(x, mu[count-1], &y[0]);
+        ptrail->insert(x, mu_new, &y[0]);
         #endif //WATCH_TRAIL
 	} else {
 		while ((x-xout)*(x2-x1) > 0.0) {
@@ -511,7 +529,7 @@ void Output<Stepper>::out(const Int nstp,const Doub x,VecDoub_I &y,Stepper &s,co
         if(x-xtrail > 0.0){
             // NOTE: we are taking the 'count-1' element, since in the 
             // routine save_dense(), we have a 'count++' statement at the end.
-            ptrail->insert(x, mu[count-1], &y[0]);   // insert to particle trail
+            ptrail->insert(x, mu_new, &y[0]);   // insert to particle trail
             xtrail = x + ptrail->dt; // next stop-time
         }
         #endif //WATCH_TRAIL
