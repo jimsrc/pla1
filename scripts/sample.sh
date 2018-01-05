@@ -2,7 +2,7 @@
 
 export REPO=$HOME/pla1__Lc          # Git work-tree on lamp.iafe.uba.ar
 EXEC=$REPO/scripts/rr_hydra.py
-NPROCS="-np 24"                 # number of processors
+NPROCS="-np 12"                 # number of processors
 
 
 CONDAENV=work2      # conda environment where we work
@@ -41,7 +41,7 @@ mpirun $NPROCS $EXEC -- \
     --Nm_slab 128 \
     --Nm_2d 256 \
     --tmax 4e4 \
-    --eps 1e-4 \
+    --eps 4.64e-5 \
     --sigma 0.3 \
     --Nph 8 \
     --Nth 16 \
