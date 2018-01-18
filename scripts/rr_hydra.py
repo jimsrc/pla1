@@ -15,6 +15,16 @@ import os, sys, argparse
 from glob import glob
 from numpy import power, log10
 
+#++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++
+# IMPORTANT NOTES:
+# * If you change the dataset structure of the output
+#   file (ie. the HDF5 tree), then remember to also 
+#   change the 'version' field inside! 
+#++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++++++++++++++++++++++++++++++++
+
+
 #--- globals
 AUincm = 1.5e13             # [cm]
 
@@ -172,6 +182,13 @@ po.update({
 'lmin'  : lmin,         # [1]  minimum turb scale (*)
 'RloLc' : Rl/Lc_slab,   # [1]  (r_larmor)/(Lc_slab)
 })
+
+#--- append trails info if given
+if pa.taubd is not None:
+    po.update({
+    'taubd' : np.array(pa.taubd), # list of borders (of bands)
+    })
+
 # (*) according to the definitions above of 'lmin_*' they are
 # adimensional but they're in units of Rl.
 

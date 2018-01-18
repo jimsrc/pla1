@@ -94,10 +94,15 @@ def Bo_parker(r=1.0, th=np.pi/2., ph=0.0):
 
 
 def unify_all(fname_out, psim, wsize):
-    """ function to unify all the
-        output .h5 of all processors.
-	NOTE: this is for working in
-	HYDRA cluster only (it has no -fPIC MPI-configured).
+    """ 
+    Description:
+    function to unify all the output .h5 of all processors.
+    NOTE: this is for working in HYDRA cluster only (it has 
+    no -fPIC MPI-configured).
+
+    NOTE: if you change the HDF5 tree structure or the path
+    organization of the current datasets/groups, remember to ALSO
+    change the 'version' field below!
     """
     fout = h5(fname_out, 'w')
     for r in range(wsize):
@@ -112,6 +117,10 @@ def unify_all(fname_out, psim, wsize):
 
     for pnm in psim.keys():
         fout['psim/%s'%pnm] = psim[pnm]
+
+    # version of the "format" of the HDF5 dataset-structure that
+    # we are implementing.
+    fout['version'] = '1.0'
 
     print "\n [+] We generated: "+fout.filename
     fout.close()
