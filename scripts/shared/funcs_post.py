@@ -408,7 +408,7 @@ def compare_psim(dir_src, fprefix, idlist, loglevel=logging.DEBUG):
         f = h5(fname_inp_h5, 'r')
         logger.debug(" ------- " + fname_inp_h5 + " ------- ")
         for pnm in f['psim'].keys():
-            if pnm in ('th', 'mu'):
+            if pnm in ('th','mu','taubd'):
                 continue
 
             fpar = f['psim/'+pnm].value # parameter from file
