@@ -20,8 +20,9 @@ cython:
 	@python setup.py build_ext --inplace \
 		&& echo -e "\n [+] compiled OK! :D :D\n"
 	@ls -lh *.so \
-		&& ipython -c "import cython_wrapper as cw" \
-		&& echo -e "\n [+] imported OK from IPython :D :D\n"
+		&& python -c "import cython_wrapper as cw" \
+		&& echo -e "\n [+] Cython module imported OK :D :D\n" \
+		|| echo -e "\n [-] couldn't import Cython module!\n"
 
 all: $(OBJECTS_C)
 	${CXX} -o $(EXE)  $^  ${CFLAGS}
