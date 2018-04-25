@@ -131,8 +131,8 @@ if pa.meanprof:
         tr = f['pla%03d/trails/trajecs'%ipla][cc,:,:]
 
         # average over all the bounces
-        abs_mu  = np.abs(tr[:,:,1])     # absolute value
-        mu_mean = abs_mu.mean(axis=0)
+        abs_mu  = np.abs(tr[:,:,1])    # absolute value
+        mu_mean = abs_mu.mean(axis=0)  # average over the bounces of this particle
         mu_std  = abs_mu.std(axis=0)
 
         # grab a sample time array
@@ -147,7 +147,7 @@ if pa.meanprof:
         ax.grid(1)
         ax.set_ylim(0., 1.)
 
-        fig.savefig(subdirfig+'/pla%03d.png'%ipla, bbox_inches='tight')
+        fig.savefig(subdirfig+'/mean.prof_pla%03d.png'%ipla, bbox_inches='tight')
         close(fig)
 
 

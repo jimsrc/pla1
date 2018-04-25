@@ -31,9 +31,9 @@ class trail{
         Doub tsize;
         Doub dt;
         #if __cplusplus <= 199711L
-        static const int tfields=5;
+        static const int     tfields = 5;
         #else
-        static constexpr int tfields=5;
+        static constexpr int tfields = 5;
         #endif //__cplusplus
 };
 #endif //WATCH_TRAIL

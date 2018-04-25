@@ -148,7 +148,7 @@ trail::trail(int nn, Doub tsizee) : n(nn), tsize(tsizee) {
 }
 
 void trail::insert(Doub _t, Doub _mu, const Doub * const pos){
-    // push the elements to the right, from the
+    // push all the elements to the right, from the
     // i=0 to i=n-2, so that now the element i=n-1
     // will have the value that now is in i=n-2.
     for(int i=n-2; i>=0; i--){
@@ -156,7 +156,7 @@ void trail::insert(Doub _t, Doub _mu, const Doub * const pos){
             buff[i+1][j] = buff[i][j];
     }
 
-    // put the new position (together e/ time and pitch 
+    // put the new position (together w/ time and pitch 
     // angle values) in i=0.
     buff[0][0]  = _t;       // time
     buff[0][1]  = _mu;      // pitch angle
@@ -341,7 +341,7 @@ void Output<Stepper>::append_trail(const Doub _dtau){
     }
 
     // append the current trail
-    for(int j=0; j<TRAIL_N; j++)
+    for(int j=0; j<ptrail->n; j++)
         for(int k=0; k<ptrail->tfields; k++)
             ptrails[ntrails-1][j][k] = ptrail->buff[j][k];
     tau_b[ntrails-1] = _dtau;
