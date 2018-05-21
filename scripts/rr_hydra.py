@@ -40,6 +40,18 @@ default='../out/test/testt.h5',
 help='output HDF5 file.',
 )
 parser.add_argument(
+'-sigB', '--sigmaBoB',
+type=float,
+default=0.3,
+help='energy of the magnetic fluctuations relative to the guide field, (dB/Bo)^2.',
+)
+parser.add_argument(
+'-fslab', '--fslab',
+type=float,
+default=0.2,
+help='fraction for the Slab energy (relative to the total fluctuation dB^2)',
+)
+parser.add_argument(
 '-NmS', '--Nm_slab',
 type=int,
 default=128,
@@ -50,6 +62,38 @@ parser.add_argument(
 type=int,
 default=128,
 help='number of 2D modes',
+)
+parser.add_argument(
+'-lmin', '--lmin',
+type=float,
+default=[0,0],
+metavar=('LMIN-SLAB', 'LMIN-2D'),
+help="""minimum wavelengths (LMIN-SLAB, LMIN-2D; in units of the Larmor
+radii) of the Fourier spectrum. If this is used, then the -ro option must 
+not be used."""
+)
+parser.add_argument(
+'-lmax', '--lmax',
+type=float,
+default=[0,0],
+metavar=('LMAX-SLAB', 'LMAX-2D'),
+help="""maximum wavelengths (LMAX-SLAB, LMAX-2D; in units of the Larmor 
+radii) of the Fourier spectrum. If this is used, then the -ro option must 
+not be used."""
+)
+parser.add_argument(
+'-Lc', '--Lc',
+type=float,
+default=0,
+help="""Correlation scale (not correlation lengths) for Slab, in units 
+of Larmor radii, for the turbulence model. If this is used, then 
+the -ro option must not be used."""
+)
+parser.add_argument(
+'-xi', '--xi',
+type=float,
+default=1.0,
+help='ratio Lc_slab/Lc_2d, where Lc_slab is the correlation scale.',
 )
 parser.add_argument(
 '-Nth', '--Nth',
@@ -66,7 +110,7 @@ help='number of phi values for the initial velocities.',
 parser.add_argument(
 '-ro', '--ro',
 type=float,
-default=0.9,
+default=0,
 help='heliodistance in AU.',
 )
 parser.add_argument(
@@ -102,6 +146,10 @@ The values of this bands are assumed to be in units of gyro-cycles.'
 )
 pa = parser.parse_args()
 
+#--- consistency check
+assert (pa.ro==0) or (pa.lmin==[0,0] and pa.lmax==[0,0] and pa.Lc==0), \
+    '\n [-] ilegal use of arguments: use -ro or -lmin .. -lmax .. -Lc .., not both!\n'
+
 
 """
 (Bo = 5nT; omega=omega_{rel})
@@ -124,7 +172,9 @@ r[AU]    B[nT]       Rl[AU]         Lc[AU]      Rl/Lc   Rl/(5e-5AU)
 2.0      1.99653571  1.891657E-02   0.0119904   1.58    378.33
 """
 
-lc = ff.Lc_memilia(r=pa.ro)   # [AU], this gives the correlation-LENGTH
+# correlation LENGTH in [AU]
+lc = ff.Lc_memilia(r=pa.ro) \   
+    if pa.ro else None
 """
 from result in '16d5869' commit (from PLAS repo), we have the relation:
     y = m*x + b
@@ -139,36 +189,38 @@ Then:
 NOTE: this is valid in the range log10(Lc):[-2.5, 1.0]
 """
 # obtain the correlation-SCALE as function of the correlation-LENGTH
-Lc_slab = power(10., 1.026*log10(lc) + 0.2755) # from the above comments
+# NOTE; the expression below comes from the above comments
+Lc_slab = power(10., 1.026*log10(lc) + 0.2755) \
+    if pa.ro else None
+    
 
-Rl = cw.calc_Rlarmor(
+Rl = cw.calc_Rlarmor(       # [AU] Larmor radii
     rigidity=1.69604E+09, #1.69604E+09,    # [V]
     Bo=ff.Bo_parker(r=pa.ro)    # [Gauss]
-    )/AUincm                 # [AU] Larmor radii
+    )/AUincm if pa.ro else None
 #--- set B-turbulence model
 pd.update({
-'Nm_slab'       : 128,
-'Nm_2d'         : 128,
-'lmin_s'        : 5e-5/Rl, #[lmin_s/Rl] 
-'lmax_s'        : pa.ro/Rl,  #[lmax_s/Rl] 
-'lmin_2d'       : 5e-5/Rl, #[lmin_2d/Rl] 
-'lmax_2d'       : pa.ro/Rl,  #[lmax_2d/Rl] 
-'Lc_slab'       : Lc_slab/Rl,  # in units of Larmor-radii
-'xi'            : 1.0, # [1] xi=Lc_2d/Lc_slab 
-'sigma_Bo_ratio': 0.3, # [1] fluctuation energy
-'ratio_slab'    : 0.2, # [1] (energy_slab)/(energy_total)
+'Nm_slab'       : pa.Nm_slab,
+'Nm_2d'         : pa.Nm_2d,
+'lmin_s'        : 5e-5/Rl  if pa.ro else pa.lmin[0], #[Rl] 
+'lmax_s'        : pa.ro/Rl if pa.ro else pa.lmax[0],  #[Rl] 
+'lmin_2d'       : 5e-5/Rl  if pa.ro else pa.lmin[1], #[Rl] 
+'lmax_2d'       : pa.ro/Rl if pa.ro else pa.lmax[1],  #[Rl] 
+'Lc_slab'       : Lc_slab/Rl if pa.ro else pa.Lc,  # [Rl] in units of Larmor-radii
+'xi'            : pa.xi, # [1] xi=Lc_2d/Lc_slab 
+'sigma_Bo_ratio': pa.sigmaBoB,  # [1] fluctuation energy
+'ratio_slab'    : pa.fslab,     # [1] (energy_slab)/(energy_total)
 })
 #--- corregimos input
 psim['tmax']     = pa.tmax     # [1/omega]
-eps_o            = pa.eps      # ratio: (error-step)/(lambda_min)
-lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # [cm] smallest turb scale
-psim['atol']     = lmin*eps_o  # [1]
+lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # smallest turb scale
+psim['atol']     = lmin*pa.eps # [1]
 psim['rtol']     = 0.0 #1e-6
 
 
 #--- orientations of the initial velocities
 ph, th = ff.generate_init_conds(Nth=pa.Nth, Nph=pa.Nph)
-mu = np.cos(th)         # pitch-angle
+mu = np.cos(th)         # pitch-angle cosine
 
 
 #--- output
@@ -177,10 +229,10 @@ po.update(psim)
 po.update(pd)
 # add some stuff
 po.update({
-'r'     : pa.ro,           # [AU] heliodistance
-'eps_o' : eps_o,        # [1]  precision
+'r'     : pa.ro,        # [AU] heliodistance
+'eps_o' : pa.eps,       # [1]  precision
 'lmin'  : lmin,         # [1]  minimum turb scale (*)
-'RloLc' : Rl/Lc_slab,   # [1]  (r_larmor)/(Lc_slab)
+'RloLc' : Rl/Lc_slab, if pa.ro else 1./pa.Lc,   # [1]  (r_larmor)/(Lc_slab)
 })
 
 #--- append trails info if given
