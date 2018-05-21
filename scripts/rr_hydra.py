@@ -98,8 +98,14 @@ help='ratio Lc_slab/Lc_2d, where Lc_slab is the correlation scale.',
 parser.add_argument(
 '-Nth', '--Nth',
 type=int,
-default=16,
+default=0, #16,
 help='number of theta values for the initial velocities.',
+)
+parser.add_argument(
+'-tho', '--tho',
+type=float,
+default=None,
+help='theta angle for a single pitch angle. If used, the -Nth cannot be used.',
 )
 parser.add_argument(
 '-Nph', '--Nph',
@@ -146,9 +152,14 @@ The values of this bands are assumed to be in units of gyro-cycles.'
 )
 pa = parser.parse_args()
 
-#--- consistency check
+#--- consistency checks
+# either specify the helioradius to determine some turb parameters, or
+# specify the parameters themself.
 assert (pa.ro==0) or (pa.lmin==[0,0] and pa.lmax==[0,0] and pa.Lc==0), \
     '\n [-] ilegal use of arguments: use -ro or -lmin .. -lmax .. -Lc .., not both!\n'
+# specify a number of picth angles, or a value of a pitch angle
+assert (pa.Nth==0) or (pa.tho is None), \
+    '\n [-] either the -Nth or -tho can only be used, not both!\n'
 
 
 """
