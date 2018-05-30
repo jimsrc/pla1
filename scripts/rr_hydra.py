@@ -26,18 +26,13 @@ from numpy import power, log10
 
 
 #--- globals
-AUincm = 1.5e13             # [cm]
+AUincm = 1.5e13        # [cm]
+r2d    = 180./np.pi    # rad to degrees
 
 
 #--- retrieve args
 parser = argparse.ArgumentParser(
 formatter_class=argparse.ArgumentDefaultsHelpFormatter
-)
-parser.add_argument(
-'-of', '--fname_out',
-type=str,
-default='../out/test/testt.h5',
-help='output HDF5 file.',
 )
 parser.add_argument(
 '-sigB', '--sigmaBoB',
@@ -46,35 +41,37 @@ default=0.3,
 help='energy of the magnetic fluctuations relative to the guide field, (dB/Bo)^2.',
 )
 parser.add_argument(
-'-fslab', '--fslab',
+'-fslab',
 type=float,
 default=0.2,
 help='fraction for the Slab energy (relative to the total fluctuation dB^2)',
 )
 parser.add_argument(
-'-NmS', '--Nm_slab',
+'-NmS',
 type=int,
 default=128,
 help='number of slab modes',
 )
 parser.add_argument(
-'-Nm2d', '--Nm_2d',
+'-Nm2d',
 type=int,
 default=128,
 help='number of 2D modes',
 )
 parser.add_argument(
-'-lmin', '--lmin',
+'-lmin',
 type=float,
+nargs=2,
 default=[0,0],
 metavar=('LMIN-SLAB', 'LMIN-2D'),
 help="""minimum wavelengths (LMIN-SLAB, LMIN-2D; in units of the Larmor
 radii) of the Fourier spectrum. If this is used, then the -ro option must 
-not be used."""
+not be used.""",
 )
 parser.add_argument(
-'-lmax', '--lmax',
+'-lmax',
 type=float,
+nargs=2,
 default=[0,0],
 metavar=('LMAX-SLAB', 'LMAX-2D'),
 help="""maximum wavelengths (LMAX-SLAB, LMAX-2D; in units of the Larmor 
@@ -82,7 +79,7 @@ radii) of the Fourier spectrum. If this is used, then the -ro option must
 not be used."""
 )
 parser.add_argument(
-'-Lc', '--Lc',
+'-Lc',
 type=float,
 default=0,
 help="""Correlation scale (not correlation lengths) for Slab, in units 
@@ -90,49 +87,61 @@ of Larmor radii, for the turbulence model. If this is used, then
 the -ro option must not be used."""
 )
 parser.add_argument(
-'-xi', '--xi',
+'-xi',
 type=float,
 default=1.0,
 help='ratio Lc_slab/Lc_2d, where Lc_slab is the correlation scale.',
 )
 parser.add_argument(
-'-Nth', '--Nth',
+'-Nth',
 type=int,
 default=0, #16,
 help='number of theta values for the initial velocities.',
 )
 parser.add_argument(
-'-tho', '--tho',
+'-tho',
 type=float,
 default=None,
 help='theta angle for a single pitch angle. If used, the -Nth cannot be used.',
 )
 parser.add_argument(
-'-Nph', '--Nph',
+'-Nph',
 type=int,
 default=8,
 help='number of phi values for the initial velocities.',
 )
 parser.add_argument(
-'-ro', '--ro',
+'-ro',
 type=float,
 default=0,
 help='heliodistance in AU.',
 )
 parser.add_argument(
-'-tmax', '--tmax',
+'-tmax',
 type=float,
 default=4e4,
 help='max time for simulation',
 )
 parser.add_argument(
-'-eps', '--eps',
+'-tscale',
+default='mixed', # 'linear',
+help='time scale for the saved trajectories; can be mixed or linear.',
+)
+parser.add_argument(
+'-nsave',
+type=int,
+default=20,
+help="""For -tscale=linear, the total number of saved times; for 
+-tscale=mixed, the number of saved times in each decade.""",
+)
+parser.add_argument(
+'-eps',
 type=float,
 default=4.64e-6, # 3.33e-6
 help='epsilon parameter; i.e. (error-step)/(lambda_min)',
 )
 parser.add_argument(
-'-trails', '--trails',
+'-trails',
 action='store_true',
 default=False,
 help='whether or not to grab the trails data; that is, trajectory \
@@ -140,7 +149,7 @@ traces of the particles just before they made a back-scatter (i.e. \
 when the particle changes sign in pitch angle)',
 )
 parser.add_argument(
-'-taubd', '--taubd',
+'-taubd',
 type=float,
 nargs='+',
 default=None, #[0.8, 1.1, 1.4, 1.6],
@@ -149,6 +158,12 @@ This works if the code was compiled with the WATCH_TRAIL preprocessor. \
 If used, the code will collect particle trails (positions along its trajectory) when \
 it backscatters and the associated collision-time is within these bands of interest. \
 The values of this bands are assumed to be in units of gyro-cycles.'
+)
+parser.add_argument(
+'-of', '--fname_out',
+type=str,
+default='../out/test/testt.h5',
+help='output HDF5 file.',
 )
 pa = parser.parse_args()
 
@@ -184,7 +199,7 @@ r[AU]    B[nT]       Rl[AU]         Lc[AU]      Rl/Lc   Rl/(5e-5AU)
 """
 
 # correlation LENGTH in [AU]
-lc = ff.Lc_memilia(r=pa.ro) \   
+lc = ff.Lc_memilia(r=pa.ro) \
     if pa.ro else None
 """
 from result in '16d5869' commit (from PLAS repo), we have the relation:
@@ -211,8 +226,8 @@ Rl = cw.calc_Rlarmor(       # [AU] Larmor radii
     )/AUincm if pa.ro else None
 #--- set B-turbulence model
 pd.update({
-'Nm_slab'       : pa.Nm_slab,
-'Nm_2d'         : pa.Nm_2d,
+'Nm_slab'       : pa.NmS,
+'Nm_2d'         : pa.Nm2d,
 'lmin_s'        : 5e-5/Rl  if pa.ro else pa.lmin[0], #[Rl] 
 'lmax_s'        : pa.ro/Rl if pa.ro else pa.lmax[0],  #[Rl] 
 'lmin_2d'       : 5e-5/Rl  if pa.ro else pa.lmin[1], #[Rl] 
@@ -227,10 +242,12 @@ psim['tmax']     = pa.tmax     # [1/omega]
 lmin             = np.min([pd['lmin_s'], pd['lmin_2d']]) # smallest turb scale
 psim['atol']     = lmin*pa.eps # [1]
 psim['rtol']     = 0.0 #1e-6
+pother['str_timescale'] = pa.tscale
+pother['nsave']  = pa.nsave
 
 
 #--- orientations of the initial velocities
-ph, th = ff.generate_init_conds(Nth=pa.Nth, Nph=pa.Nph)
+th, ph = ff.generate_init_conds(tho=pa.tho/r2d, Nth=pa.Nth, Nph=pa.Nph)
 mu = np.cos(th)         # pitch-angle cosine
 
 
@@ -243,7 +260,7 @@ po.update({
 'r'     : pa.ro,        # [AU] heliodistance
 'eps_o' : pa.eps,       # [1]  precision
 'lmin'  : lmin,         # [1]  minimum turb scale (*)
-'RloLc' : Rl/Lc_slab, if pa.ro else 1./pa.Lc,   # [1]  (r_larmor)/(Lc_slab)
+'RloLc' : Rl/Lc_slab if pa.ro else 1./pa.Lc,   # [1]  (r_larmor)/(Lc_slab)
 })
 
 #--- append trails info if given
@@ -313,6 +330,7 @@ for npla in plas: #[25:]:
         pother['__tau_bd']  = pa.taubd          # list of band borders
     psim['mu']          = mu[npla]
     psim['ph']          = ph[npla]
+    print " mu, ph: %g/%g" % (mu[npla], ph[npla])
 
     m.build(**pother)
 

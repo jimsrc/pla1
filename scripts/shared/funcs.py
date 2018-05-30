@@ -9,11 +9,66 @@ from pylab import (
 )
 from datetime import datetime, timedelta
 #from numpy import min, max
-import os, sys
+import os, sys, argparse
 from glob import glob
 from Bparker.Bparker import return_B as Bparker_vector
 from numpy.linalg import norm
 
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++ CLI argument parsers
+
+def MyModule(object):
+    """
+    handle CLI arguments
+    """
+    parser = argparse.ArgumentParser(
+        description="""this gral description...""", 
+        add_help=False
+    )
+    parser.add_argument(
+    '--fnum', '-fn', 
+    type=float, 
+    default=4.5, 
+    help='some fnum decription'
+    )
+
+    lc = ff.Lc_memilia(r=pa.ro)   # [AU], this gives the correlation-LENGTH
+    """
+    from result in '16d5869' commit (from PLAS repo), we have the relation:
+        y = m*x + b
+        where,
+        x = log10(lambda_c)  # REAL/FITTED correlation length
+        y = log10(Lc)        # correlation scale
+    Then:
+        Lc = 10.**(m*log10(lambda_c) + b)
+        with:
+        m = 1.026
+        b = 0.2755
+    NOTE: this is valid in the range log10(Lc):[-2.5, 1.0]
+    """
+    # obtain the correlation-SCALE as function of the correlation-LENGTH
+    Lc_slab = power(10., 1.026*log10(lc) + 0.2755) # from the above comments
+
+    Rl = cw.calc_Rlarmor(
+        rigidity=1.69604E+09, #1.69604E+09,    # [V]
+        Bo=ff.Bo_parker(r=pa.ro)    # [Gauss]
+        )/AUincm                 # [AU] Larmor radii
+    #--- set B-turbulence model
+    pd.update({
+    'Nm_slab'       : pa.Nm_slab,
+    'Nm_2d'         : pa.Nm_2d,
+    'lmin_s'        : 5e-5/Rl, #[Rl] 
+    'lmax_s'        : pa.ro/Rl,  #[Rl] 
+    'lmin_2d'       : 5e-5/Rl, #[Rl] 
+    'lmax_2d'       : pa.ro/Rl,  #[Rl] 
+    'Lc_slab'       : Lc_slab/Rl,  # [Rl] in units of Larmor-radii
+    'xi'            : 1.0, # [1] xi=Lc_2d/Lc_slab 
+    'sigma_Bo_ratio': 0.3, # [1] fluctuation energy
+    'ratio_slab'    : 0.2, # [1] (energy_slab)/(energy_total)
+    })
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++
 
 def memory_stat(SNUMB, dtype=np.float64, wsize=1):
     """
@@ -311,31 +366,41 @@ def save_to_h5(m, fname=None, dpath='', file=None, close=True):
         return f
 
 
-def generate_init_conds(Nth=16, Nph=8):
+def generate_init_conds(tho=None, Nth=None, Nph=8):
     """
     Nth and Nph preferable even numbers.
     Returns:
         th, ph
     """
-    dth	 = np.pi/Nth
     dphi = 2.*np.pi/Nph
+    ph   = []
 
-    # directions of the initial velocity vector
-    ph, th = [], []
+    assert (tho is not None) or (Nth is not None), \
+    '\n[-] either Nth or tho should be None, but not both!\n'
 
-    k	= 0
-    for i in range(Nth):
+    if tho is None:
+        dth = np.pi/Nth
+        # directions of the initial velocity vector
+        th  = []
+        k   = 0
+        for i in range(Nth):
+            for j in range(Nph):
+                # 'cond' is to avoid several azimuths at th=0.0
+                cond = ((i==0) & (j==0)) | (i>0)
+                if cond:
+                    print i," ", j, " cond:", cond
+                    #pause(1)
+                    th  += [ i*dth ]   # theta
+                    ph  += [ j*dphi ]  # azimuth
+                    k +=1
+
+        th += [ 0.0 ] ## add the direction downside (mu=-1)
+        return th, ph
+
+    else:
         for j in range(Nph):
-            # 'cond' is to avoid several azimuths at th=0.0
-            cond = ((i==0) & (j==0)) | (i>0)
-            if cond:
-                print i," ", j, " cond:", cond
-                #pause(1)
-                th  += [ i*dth ]        # theta
-                ph  += [ j*dphi ]       # azimuth
-                k +=1
+            ph  += [ j*dphi ]       # azimuth
 
-    th += [ 0.0 ] ## add the direction downside (mu=-1)
-    return th, ph
+        return [tho,]*len(ph), ph
 
 #EOF
